@@ -54,7 +54,7 @@ namespace FarmAppServer.Controllers
             //if (role.IsDeleted ?? true)
             //    return BadRequest(new ResponseBody { Header = "Аунтификация", Result = "Роль удалена!" });
 
-            return Ok(new ResponseBody { Header = "Ok", Result = securityToken });
+            return Ok(new AuthResponse() { Header = "Ok", Token = securityToken, User = user});
         }
 
         //[Access]
