@@ -81,8 +81,9 @@ namespace FarmApp.Infrastructure.Data.Contexts
                     entity.Property(p => p.FirstName).IsRequired().HasMaxLength(20);
                     entity.Property(p => p.LastName).IsRequired().HasMaxLength(20);
                     entity.Property(p => p.UserName).IsRequired().HasMaxLength(20);
-                    entity.Property(p => p.PasswordHash).IsRequired().HasMaxLength(255);
-                    entity.Property(p => p.PasswordSalt).IsRequired().HasMaxLength(255);
+                    entity.Property(p => p.RoleId).IsRequired().HasMaxLength(20);
+                    entity.Property(p => p.PasswordHash).IsRequired();
+                    entity.Property(p => p.PasswordSalt).IsRequired();
                     entity.Property(p => p.IsDeleted).IsRequired().HasDefaultValueSql(CommandSql.DefaultFalse);
                     entity.HasOne(h => h.Role).WithMany(w => w.Users).OnDelete(DeleteBehavior.Restrict);
                     //entity.HasData(initData.InitUsers);

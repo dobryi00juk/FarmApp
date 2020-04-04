@@ -13,6 +13,7 @@ using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Helpers;
 using FarmAppServer.Models;
+using FarmAppServer.Models.Users;
 using FarmAppServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
@@ -28,16 +29,16 @@ namespace FarmAppServer.Controllers
         private IUserService _userService;
         private IMapper _mapper;
         private readonly AppSettings _appSettings;
-        public UsersController(IUserService userService, IMapper mapper, AppSettings appSettings)
+        public UsersController(IUserService userService, IMapper mapper, IOptions<AppSettings> appSettings)
         {
             _userService = userService;
             _mapper = mapper;
-            _appSettings = appSettings;
+            _appSettings = appSettings.Value;
         }
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]AuthenticateModel model)
+        public IActionResult Authenticate([FromBody]AuthenticateModelDto model)
         {
             var user = _userService.Authenticate(model.Username, model.Password);
 
@@ -65,13 +66,15 @@ namespace FarmAppServer.Controllers
                 UserName = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                Role = user.Role,
                 Token = tokenString
             });
         }
 
-        [AllowAnonymous]
+        //[AllowAnonymous]
+        [Authorize(Roles = "admin")]
         [HttpPost("register")]
-        public IActionResult Register([FromBody]RegisterModel model)
+        public IActionResult Register([FromBody]RegisterModelDto model)
         {
             // map model to entity
             var user = _mapper.Map<User>(model);
@@ -93,7 +96,7 @@ namespace FarmAppServer.Controllers
         public IActionResult GetAll()
         {
             var users = _userService.GetAll();
-            var model = _mapper.Map<IList<UserModel>>(users);
+            var model = _mapper.Map<IList<UserModelDto>>(users);
             return Ok(model);
         }
 
@@ -101,12 +104,12 @@ namespace FarmAppServer.Controllers
         public IActionResult GetById(int id)
         {
             var user = _userService.GetById(id);
-            var model = _mapper.Map<UserModel>(user);
+            var model = _mapper.Map<UserModelDto>(user);
             return Ok(model);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]UpdateModel model)
+        public IActionResult Update(int id, [FromBody]UpdateModelDto model)
         {
             // map model to entity and set id
             var user = _mapper.Map<User>(model);

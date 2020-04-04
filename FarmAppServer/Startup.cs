@@ -87,7 +87,17 @@ namespace FarmAppServer
                 };
             });
 
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            //services.AddAutoMapper(typeof(Startup));
+            //services.AddAutoMapper(c => c.AddProfile<AutoMapperProfile>(), typeof(Startup));
+
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile<AutoMapperProfile>();
+            });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
             services.AddScoped<IUserService, UserService>();
             services.AddSwaggerGen(c =>
             {

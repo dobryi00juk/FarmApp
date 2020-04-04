@@ -2,7 +2,7 @@
 
 namespace FarmAppServer.Models
 {
-    public class RegisterModel
+    public class RegisterModelDto
     {
         [Required]
         public string FirstName { get; set; }

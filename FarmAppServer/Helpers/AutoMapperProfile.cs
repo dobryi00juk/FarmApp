@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FarmApp.Domain.Core.Entity;
 using FarmAppServer.Models;
+using FarmAppServer.Models.Users;
 
 namespace FarmAppServer.Helpers
 {
@@ -8,9 +9,16 @@ namespace FarmAppServer.Helpers
     {
         public AutoMapperProfile()
         {
-            CreateMap<User, UserModel>();
-            CreateMap<RegisterModel, User>();
-            CreateMap<UpdateModel, User>();
+            CreateMap<Role, UserRoleDto>()
+                .ForMember(x => x.RoleName,
+                    o => o.MapFrom(s => s.RoleName));
+
+            CreateMap<User, UserModelDto>()
+                .ForMember(x => x.Role,
+                    o => o.MapFrom(s => s.Role));
+            
+            CreateMap<RegisterModelDto, User>();
+            CreateMap<UpdateModelDto, User>();
         }
     }
 }

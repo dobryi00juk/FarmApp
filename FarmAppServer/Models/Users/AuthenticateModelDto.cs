@@ -2,7 +2,7 @@
 
 namespace FarmAppServer.Models
 {
-    public class AuthenticateModel
+    public class AuthenticateModelDto
     {
         [Required]
         public string Username { get; set; }
