@@ -12,9 +12,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
+using FarmAppServer.Helpers;
+using AutoMapper;
+using FarmAppServer.Controllers;
 
 namespace FarmAppServer
 {
@@ -31,17 +35,22 @@ namespace FarmAppServer
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
+            // configure strongly typed settings objects
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            //configure connection
             string connection = Configuration.GetConnectionString("FarmAppContext");
             services.AddDbContext<FarmAppContext>(options => options.UseSqlServer(connection));
 
             //services.AddTransient<IValidation, Validation>();
 
-            //services.AddScoped<ICustomLogger, CustomLogger>();
-
+            services.AddScoped<ICustomLogger, CustomLogger>();
             services.AddControllers();
 
-            var key = Encoding.UTF8.GetBytes(Configuration["ApplicationSettings:JWT_Secret"].ToString());
+            //configure jwt auth
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
 
             services.AddAuthorization();
 
@@ -49,26 +58,40 @@ namespace FarmAppServer
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
+            })
+                .AddJwtBearer(x =>
             {
-                x.RequireHttpsMetadata = true;
-                x.SaveToken = false;
+                x.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+                        var userId = int.Parse(context.Principal.Identity.Name);
+                        var user = userService.GetById(userId);
+                        if (user == null)
+                        {
+                            // return unauthorized if user no longer exists
+                            context.Fail("Unauthorized");
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
+                    ValidateAudience = false
                 };
             });
 
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<IUserService, UserService>();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "Farmacy app", Version = "v1"});
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Farmacy app", Version = "v1" });
             });
         }
 
@@ -87,23 +110,13 @@ namespace FarmAppServer
                 Secure = CookieSecurePolicy.Always
             });
             
-            app.Use(async (context, next) =>
-            {
-                var token = context.Request.Cookies[".AspNetCore.Application.Id"];
-
-                if (!string.IsNullOrEmpty(token))
-                    context.Request.Headers.Add("Authorization", "Bearer" + token);
-
-                await next();
-            });
-            
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseCors(builder => builder.WithOrigins(Configuration["ApplicationSettings:Client_URL"].ToString()).AllowAnyHeader().AllowAnyMethod());
+            //app.UseCors(builder => builder.WithOrigins(Configuration["ApplicationSettings:Client_URL"].ToString()).AllowAnyHeader().AllowAnyMethod());
 
             //app.UseMiddleware<ErrorHandlingMiddleware>();
             //app.UseMiddleware<ValidationMiddleware>();      

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FarmApp.Infrastructure.Data.Migrations
 {
-    public partial class FirstMigration : Migration
+    public partial class _initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -116,18 +116,20 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(maxLength: 255, nullable: true),
-                    RoleId = table.Column<string>(maxLength: 255, nullable: true),
+                    UserId = table.Column<string>(maxLength: 50, nullable: true),
+                    RoleId = table.Column<string>(maxLength: 50, nullable: true),
                     HttpMethod = table.Column<string>(maxLength: 255, nullable: true),
                     PathUrl = table.Column<string>(maxLength: 255, nullable: true),
                     MethodRoute = table.Column<string>(maxLength: 255, nullable: true),
+                    HeaderRequest = table.Column<string>(maxLength: 4000, nullable: true),
                     RequestTime = table.Column<DateTime>(nullable: true),
                     FactTime = table.Column<DateTime>(nullable: true),
                     Param = table.Column<string>(maxLength: 4000, nullable: true),
                     StatusCode = table.Column<int>(nullable: true),
+                    HeaderResponse = table.Column<string>(maxLength: 4000, nullable: true),
                     ResponseId = table.Column<Guid>(nullable: true),
                     ResponseTime = table.Column<DateTime>(nullable: true),
-                    Header = table.Column<string>(nullable: true),
+                    Header = table.Column<string>(maxLength: 255, nullable: true),
                     Result = table.Column<string>(maxLength: 4000, nullable: true),
                     Exception = table.Column<string>(maxLength: 4000, nullable: true)
                 },
@@ -205,9 +207,11 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Login = table.Column<string>(maxLength: 20, nullable: false),
-                    Password = table.Column<string>(maxLength: 20, nullable: false),
-                    UserName = table.Column<string>(maxLength: 255, nullable: false),
+                    UserName = table.Column<string>(maxLength: 20, nullable: false),
+                    FirstName = table.Column<string>(maxLength: 20, nullable: false),
+                    LastName = table.Column<string>(maxLength: 20, nullable: false),
+                    PasswordHash = table.Column<byte[]>(maxLength: 255, nullable: false),
+                    PasswordSalt = table.Column<byte[]>(maxLength: 255, nullable: false),
                     RoleId = table.Column<int>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
@@ -360,22 +364,19 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 schema: "api",
                 table: "ApiMethodRoles",
                 columns: new[] { "Id", "ApiMethodId", "IsDeleted", "RoleId" },
-                values: new object[,]
-                {
-                    { 1, 1, false, 1 },
-                    { 3, 2, false, 1 },
-                    { 2, 1, false, 2 }
-                });
+                values: new object[] { 1, 1, false, 1 });
 
             migrationBuilder.InsertData(
-                schema: "dist",
-                table: "Users",
-                columns: new[] { "Id", "Login", "Password", "RoleId", "UserName" },
-                values: new object[,]
-                {
-                    { 1, "admin", "123456", 1, "Админ" },
-                    { 2, "user", "123456", 2, "Пользователь" }
-                });
+                schema: "api",
+                table: "ApiMethodRoles",
+                columns: new[] { "Id", "ApiMethodId", "IsDeleted", "RoleId" },
+                values: new object[] { 3, 2, false, 1 });
+
+            migrationBuilder.InsertData(
+                schema: "api",
+                table: "ApiMethodRoles",
+                columns: new[] { "Id", "ApiMethodId", "IsDeleted", "RoleId" },
+                values: new object[] { 2, 1, false, 2 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiMethodRoles_ApiMethodId",

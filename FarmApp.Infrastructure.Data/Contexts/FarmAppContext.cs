@@ -78,12 +78,14 @@ namespace FarmApp.Infrastructure.Data.Contexts
                 modelBuilder.Entity<User>(entity =>
                 {
                     entity.ToTable(Table.User, Schema.Dist);
-                    entity.Property(p => p.Login).IsRequired().HasMaxLength(20);
-                    entity.Property(p => p.Password).IsRequired().HasMaxLength(20);
-                    entity.Property(p => p.UserName).IsRequired().HasMaxLength(255);
+                    entity.Property(p => p.FirstName).IsRequired().HasMaxLength(20);
+                    entity.Property(p => p.LastName).IsRequired().HasMaxLength(20);
+                    entity.Property(p => p.UserName).IsRequired().HasMaxLength(20);
+                    entity.Property(p => p.PasswordHash).IsRequired().HasMaxLength(255);
+                    entity.Property(p => p.PasswordSalt).IsRequired().HasMaxLength(255);
                     entity.Property(p => p.IsDeleted).IsRequired().HasDefaultValueSql(CommandSql.DefaultFalse);
                     entity.HasOne(h => h.Role).WithMany(w => w.Users).OnDelete(DeleteBehavior.Restrict);
-                    entity.HasData(initData.InitUsers);
+                    //entity.HasData(initData.InitUsers);
                 });
 
                 modelBuilder.Entity<Drug>(entity =>

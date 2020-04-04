@@ -13,11 +13,11 @@ namespace FarmApp.Infrastructure.Data.DataBaseHelper
             new Role { Id = 2, RoleName = "user" },
         };
 
-        public IEnumerable<User> InitUsers { get; private set; } = new List<User>(2)
-        {
-            new User { Id = 1, UserName = "Админ", Login = "admin", Password = "123456", RoleId = 1 },
-            new User { Id = 2, UserName = "Пользователь", Login = "user", Password = "123456", RoleId = 2 },
-        };
+        // public IEnumerable<User> InitUsers { get; private set; } = new List<User>(2)
+        // {
+        //     new User { Id = 1, UserName = "Админ", UserName = "admin", Password = "123456", RoleId = 1 },
+        //     new User { Id = 2, UserName = "Пользователь", Login = "user", Password = "123456", RoleId = 2 },
+        // };
 
         public IEnumerable<RegionType> InitRegionTypes { get; private set; } = new List<RegionType>(5)
         {
@@ -72,7 +72,7 @@ namespace FarmApp.Infrastructure.Data.DataBaseHelper
                 }
 
                 InitRoles = null;
-                InitUsers = null;
+                //InitUsers = null;
                 InitRegionTypes = null;
                 InitApiMethods = null;
                 InitApitMethodRoles = null;

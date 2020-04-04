@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmApp.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(FarmAppContext))]
-    [Migration("20200302114003_UpdateLog")]
-    partial class UpdateLog
+    [Migration("20200404113739__initial")]
+    partial class _initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -511,53 +511,45 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValueSql("((0))");
 
-                    b.Property<string>("Login")
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
 
-                    b.Property<string>("Password")
+                    b.Property<byte[]>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
+                        .HasColumnType("varbinary(255)")
+                        .HasMaxLength(255);
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("varbinary(255)")
+                        .HasMaxLength(255);
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(255)")
-                        .HasMaxLength(255);
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users","dist");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Login = "admin",
-                            Password = "123456",
-                            RoleId = 1,
-                            UserName = "Админ"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Login = "user",
-                            Password = "123456",
-                            RoleId = 2,
-                            UserName = "Пользователь"
-                        });
                 });
 
             modelBuilder.Entity("FarmApp.Domain.Core.Entity.Vendor", b =>
