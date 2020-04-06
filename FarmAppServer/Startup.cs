@@ -67,7 +67,7 @@ namespace FarmAppServer
                     {
                         var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
                         var userId = int.Parse(context.Principal.Identity.Name);
-                        var user = userService.GetById(userId);
+                        var user = userService.GetUserById(userId);
                         if (user == null)
                         {
                             // return unauthorized if user no longer exists
@@ -87,16 +87,17 @@ namespace FarmAppServer
                 };
             });
 
-            //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             //services.AddAutoMapper(typeof(Startup));
             //services.AddAutoMapper(c => c.AddProfile<AutoMapperProfile>(), typeof(Startup));
 
-            var mappingConfig = new MapperConfiguration(mc =>
-            {
-                mc.AddProfile<AutoMapperProfile>();
-            });
-            IMapper mapper = mappingConfig.CreateMapper();
-            services.AddSingleton(mapper);
+            //var mappingConfig = new MapperConfiguration(mc =>
+            //{
+            //    mc.AddProfile<AutoMapperProfile>();
+            //});
+
+            //IMapper mapper = mappingConfig.CreateMapper();
+            //services.AddSingleton(mapper);
 
             services.AddScoped<IUserService, UserService>();
             services.AddSwaggerGen(c =>

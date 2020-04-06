@@ -7,18 +7,19 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings;
+using System.Threading.Tasks;
 using FarmApp.Infrastructure.Data.Contexts;
 
 namespace FarmAppServer.Services
 {
     public interface IUserService
     {
-        User Authenticate(string username, string password);
-        IEnumerable<User> GetAll();
-        User GetById(int id);
-        User Create(User user, string password);
-        void Update(User user, string password = null);
-        void Delete(int id);
+        Task<User> AuthenticateUserAsync(string username, string password);
+        IQueryable GetAllUsers();
+        IQueryable GetUserById(int id);
+        Task<User> CreateUserAsync(User user, string password);
+        void UpdateUser(User user, string password = null);
+        void DeleteUser(int id);
     }
     
     public class UserService : IUserService
@@ -29,12 +30,12 @@ namespace FarmAppServer.Services
         {
             _context = context;
         }
-        public User Authenticate(string username, string password)
+        public async Task<User> AuthenticateUserAsync(string username, string password)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                 return null;
 
-            var user = _context.Users.SingleOrDefault(x => x.UserName == username);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == username);
 
             if (user==null)
                 return null;
@@ -45,17 +46,18 @@ namespace FarmAppServer.Services
             return user;
         }
 
-        public IEnumerable<User> GetAll()
+        public IQueryable GetAllUsers()
         {
             return _context.Users;
         }
 
-        public User GetById(int id)
+        public IQueryable GetUserById(int id)
         {
-            return _context.Users.Find(id);
+            //return await _context.Users.FindAsync(id);
+            return _context.Users.Where(x => x.Id == id);
         }
 
-        public User Create(User user, string password)
+        public async Task<User> CreateUserAsync(User user, string password)
         {
             if (string.IsNullOrEmpty(password))
                 throw new AppException("Password is required");
@@ -63,19 +65,18 @@ namespace FarmAppServer.Services
             if (_context.Users.Any(x => x.UserName == user.UserName))
                 throw new AppException("Username \"" + user.UserName + "\" is already taken");
 
-            byte[] passwordHash, passwordSalt;
-            CreatePasswordHash(password, out passwordHash, out passwordSalt);
+            CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
             
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
 
             return user;
         }
 
-        public void Update(User userParam, string password = null)
+        public async void UpdateUser(User userParam, string password = null)
         {
             var user = _context.Users.Find(userParam.Id);
 
@@ -84,7 +85,7 @@ namespace FarmAppServer.Services
 
             if (!string.IsNullOrWhiteSpace(userParam.UserName) && userParam.UserName != user.UserName)
             {
-                if (_context.Users.Any(x => x.UserName == userParam.UserName))
+                if (await _context.Users.AnyAsync(x => x.UserName == userParam.UserName))
                     throw new AppException("UserNAme " + userParam.UserName + " is already taken");
 
                 user.UserName = userParam.UserName;
@@ -97,25 +98,24 @@ namespace FarmAppServer.Services
             // update password if provided
             if (!string.IsNullOrWhiteSpace(password))
             {
-                byte[] passwordHash, passwordSalt;
-                CreatePasswordHash(password, out passwordHash, out passwordSalt);
+                CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
 
                 user.PasswordHash = passwordHash;
                 user.PasswordSalt = passwordSalt;
             }
 
             _context.Users.Update(user);
-            _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
-        public void Delete(int id)
+        public async void DeleteUser(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = await _context.Users.FindAsync(id);
 
             if (user != null)
             {
                 _context.Users.Remove(user);
-                _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
         }
         

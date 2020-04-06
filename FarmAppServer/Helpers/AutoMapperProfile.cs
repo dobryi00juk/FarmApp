@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using FarmApp.Domain.Core.Entity;
 using FarmAppServer.Models;
 using FarmAppServer.Models.Users;
@@ -9,14 +10,14 @@ namespace FarmAppServer.Helpers
     {
         public AutoMapperProfile()
         {
-            CreateMap<Role, UserRoleDto>()
-                .ForMember(x => x.RoleName,
-                    o => o.MapFrom(s => s.RoleName));
-
+            CreateMap<Role, UserRoleDto>();
+            
+            //CreateMap<User, UserModelDto>();
             CreateMap<User, UserModelDto>()
                 .ForMember(x => x.Role,
                     o => o.MapFrom(s => s.Role));
-            
+            //CreateMap<User, IEnumerable<UserModelDto>>();
+
             CreateMap<RegisterModelDto, User>();
             CreateMap<UpdateModelDto, User>();
         }

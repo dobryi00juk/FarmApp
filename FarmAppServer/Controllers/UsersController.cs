@@ -6,16 +6,13 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
-using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Helpers;
 using FarmAppServer.Models;
-using FarmAppServer.Models.Users;
 using FarmAppServer.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -26,8 +23,8 @@ namespace FarmAppServer.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private IUserService _userService;
-        private IMapper _mapper;
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
         private readonly AppSettings _appSettings;
         public UsersController(IUserService userService, IMapper mapper, IOptions<AppSettings> appSettings)
         {
@@ -38,9 +35,9 @@ namespace FarmAppServer.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]AuthenticateModelDto model)
+        public async Task<IActionResult> Authenticate([FromBody]AuthenticateModelDto model)
         {
-            var user = _userService.Authenticate(model.Username, model.Password);
+            var user = await _userService.AuthenticateUserAsync(model.Username, model.Password);
 
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
@@ -72,9 +69,9 @@ namespace FarmAppServer.Controllers
         }
 
         //[AllowAnonymous]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         [HttpPost("register")]
-        public IActionResult Register([FromBody]RegisterModelDto model)
+        public async Task<ActionResult> Register([FromBody]RegisterModelDto model)
         {
             // map model to entity
             var user = _mapper.Map<User>(model);
@@ -82,7 +79,7 @@ namespace FarmAppServer.Controllers
             try
             {
                 // create user
-                _userService.Create(user, model.Password);
+                await _userService.CreateUserAsync(user, model.Password);
                 return Ok();
             }
             catch (AppException ex)
@@ -93,19 +90,22 @@ namespace FarmAppServer.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<ActionResult<IEnumerable<UserModelDto>>> GetAll()
         {
-            var users = _userService.GetAll();
-            var model = _mapper.Map<IList<UserModelDto>>(users);
+            var users = _userService.GetAllUsers();
+            var model = await _mapper.ProjectTo<UserModelDto>(users).ToListAsync();
             return Ok(model);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<ActionResult<User>> GetById(int id)
         {
-            var user = _userService.GetById(id);
-            var model = _mapper.Map<UserModelDto>(user);
-            return Ok(model);
+            //костыль
+            var users = _userService.GetUserById(id);
+            var model = await _mapper.ProjectTo<UserModelDto>(users).ToListAsync();
+            var result = model.Find(x =>  x.Id == id);
+            
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -118,7 +118,7 @@ namespace FarmAppServer.Controllers
             try
             {
                 // update user 
-                _userService.Update(user, model.Password);
+                _userService.UpdateUser(user, model.Password);
                 return Ok();
             }
             catch (AppException ex)
@@ -131,7 +131,7 @@ namespace FarmAppServer.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            _userService.Delete(id);
+            _userService.DeleteUser(id);
             return Ok();
         }
     }
