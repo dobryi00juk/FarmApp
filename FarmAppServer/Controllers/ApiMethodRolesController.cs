@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Models;
 
 namespace FarmAppServer.Controllers
 {
@@ -25,7 +26,7 @@ namespace FarmAppServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ApiMethodRole>>> GetApiMethodRoles()
         {
-            return await _context.ApiMethodRoles.ToListAsync();
+            return await _context.ApiMethodRoles.Where(x => x.IsDeleted == false).ToListAsync();
         }
 
         // GET: api/ApiMethodRoles/5
@@ -34,9 +35,18 @@ namespace FarmAppServer.Controllers
         {
             var apiMethodRole = await _context.ApiMethodRoles.FindAsync(id);
 
-            if (apiMethodRole == null)
+            if (apiMethodRole == null && apiMethodRole.IsDeleted == false)
             {
                 return NotFound();
+            }
+
+            if (apiMethodRole.IsDeleted == true)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Роль не найдена"
+                });
             }
 
             return apiMethodRole;
@@ -96,7 +106,8 @@ namespace FarmAppServer.Controllers
                 return NotFound();
             }
 
-            _context.ApiMethodRoles.Remove(apiMethodRole);
+            //_context.ApiMethodRoles.Remove(apiMethodRole);
+            apiMethodRole.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return apiMethodRole;
@@ -104,7 +115,7 @@ namespace FarmAppServer.Controllers
 
         private bool ApiMethodRoleExists(int id)
         {
-            return _context.ApiMethodRoles.Any(e => e.Id == id);
+            return _context.ApiMethodRoles.Any(e => e.Id == id && e.IsDeleted == false);
         }
     }
 }

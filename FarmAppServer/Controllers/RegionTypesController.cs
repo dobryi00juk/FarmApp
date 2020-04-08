@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Models;
 
 namespace FarmAppServer.Controllers
 {
@@ -25,7 +26,7 @@ namespace FarmAppServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RegionType>>> GetRegionTypes()
         {
-            return await _context.RegionTypes.ToListAsync();
+            return await _context.RegionTypes.Where(x => x.IsDeleted == false).ToListAsync();
         }
 
         // GET: api/RegionTypes/5
@@ -37,6 +38,15 @@ namespace FarmAppServer.Controllers
             if (regionType == null)
             {
                 return NotFound();
+            }
+
+            if (regionType.IsDeleted == true)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Роль не найдена"
+                });
             }
 
             return regionType;
@@ -96,7 +106,8 @@ namespace FarmAppServer.Controllers
                 return NotFound();
             }
 
-            _context.RegionTypes.Remove(regionType);
+            //_context.RegionTypes.Remove(regionType);
+            regionType.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return regionType;
@@ -104,7 +115,7 @@ namespace FarmAppServer.Controllers
 
         private bool RegionTypeExists(int id)
         {
-            return _context.RegionTypes.Any(e => e.Id == id);
+            return _context.RegionTypes.Any(e => e.Id == id && e.IsDeleted == false);
         }
     }
 }

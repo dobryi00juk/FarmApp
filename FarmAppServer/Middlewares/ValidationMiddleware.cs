@@ -24,7 +24,7 @@ namespace FarmAppServer.Middlewares
             }
             else
             {
-                context.Response.StatusCode = logger.Log.StatusCode.Value;
+                if (logger.Log.StatusCode != null) context.Response.StatusCode = logger.Log.StatusCode.Value;
                 context.Response.ContentType = "application/json; charset=utf-8";
                 await context.Response.WriteAsync(logger.ResponseBody.ToString(), Encoding.UTF8);
             }

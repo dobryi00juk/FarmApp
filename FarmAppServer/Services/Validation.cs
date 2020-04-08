@@ -36,7 +36,7 @@ namespace FarmAppServer.Services
 
             logger.Log.HeaderRequest = stringBuilder.ToString();
 
-            var body = string.Empty;
+            string body;
             context.Request.EnableBuffering();
             using (var reader = new StreamReader(context.Request.Body, encoding: Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true))
             {

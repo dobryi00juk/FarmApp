@@ -9,12 +9,13 @@ using System.Text;
 using System.Text.Encodings;
 using System.Threading.Tasks;
 using FarmApp.Infrastructure.Data.Contexts;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FarmAppServer.Services
 {
     public interface IUserService
     {
-        Task<User> AuthenticateUserAsync(string username, string password);
+        Task<IQueryable<User>> AuthenticateUserAsync(string username, string password);
         IQueryable GetAllUsers();
         IQueryable GetUserById(int id);
         Task<User> CreateUserAsync(User user, string password);
@@ -30,20 +31,21 @@ namespace FarmAppServer.Services
         {
             _context = context;
         }
-        public async Task<User> AuthenticateUserAsync(string username, string password)
+        public async Task<IQueryable<User>> AuthenticateUserAsync(string username, string password)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                 return null;
 
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == username);
-
+            var users = _context.Users.Where(x => x.UserName == username);
+            var user = await users.FirstOrDefaultAsync();
+            
             if (user==null)
                 return null;
 
             if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
                 return null;
 
-            return user;
+            return users;
         }
 
         public IQueryable GetAllUsers()
@@ -76,16 +78,17 @@ namespace FarmAppServer.Services
             return user;
         }
 
-        public async void UpdateUser(User userParam, string password = null)
+        public void UpdateUser(User userParam, string password = null)
         {
-            var user = _context.Users.Find(userParam.Id);
+            //var user = _context.Users.Find(userParam.Id);
+            var user = _context.Users.FirstOrDefault(x => x.Id == userParam.Id);
 
             if (user == null)
                 throw new AppException("User not found");
 
             if (!string.IsNullOrWhiteSpace(userParam.UserName) && userParam.UserName != user.UserName)
             {
-                if (await _context.Users.AnyAsync(x => x.UserName == userParam.UserName))
+                if (_context.Users.Any(x => x.UserName == userParam.UserName))
                     throw new AppException("UserNAme " + userParam.UserName + " is already taken");
 
                 user.UserName = userParam.UserName;
@@ -104,19 +107,19 @@ namespace FarmAppServer.Services
                 user.PasswordSalt = passwordSalt;
             }
 
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            _context.Entry(user).State = EntityState.Modified;
+            _context.SaveChanges();
         }
 
-        public async void DeleteUser(int id)
+        public void DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = _context.Users.Find(id);
 
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-            }
+            if (user == null) return ;
+            if (user.IsDeleted == true) return;
+            //_context.Users.Remove(user);
+            user.IsDeleted = true;
+            _context.SaveChanges();
         }
         
         //private helper method

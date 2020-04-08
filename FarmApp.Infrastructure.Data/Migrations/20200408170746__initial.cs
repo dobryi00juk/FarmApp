@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FarmApp.Infrastructure.Data.Migrations
 {
@@ -25,14 +26,14 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ApiMethodName = table.Column<string>(maxLength: 350, nullable: false),
                     StoredProcedureName = table.Column<string>(maxLength: 350, nullable: true),
                     PathUrl = table.Column<string>(maxLength: 350, nullable: false),
                     HttpMethod = table.Column<string>(maxLength: 350, nullable: false),
-                    IsNotNullParam = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
-                    IsNeedAuthentication = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
+                    IsNotNullParam = table.Column<bool>(nullable: false),
+                    IsNeedAuthentication = table.Column<bool>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,11 +46,11 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CodeAthId = table.Column<int>(nullable: true),
                     Code = table.Column<string>(maxLength: 50, nullable: false),
                     NameAth = table.Column<string>(maxLength: 350, nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -69,9 +70,9 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RegionTypeName = table.Column<string>(maxLength: 255, nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -84,9 +85,9 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoleName = table.Column<string>(maxLength: 50, nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -99,10 +100,11 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     VendorName = table.Column<string>(maxLength: 255, nullable: false),
-                    IsDomestic = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
+                    ProducingCountry = table.Column<string>(maxLength: 255, nullable: false),
+                    IsDomestic = table.Column<bool>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -115,7 +117,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<string>(maxLength: 50, nullable: true),
                     RoleId = table.Column<string>(maxLength: 50, nullable: true),
                     HttpMethod = table.Column<string>(maxLength: 255, nullable: true),
@@ -144,12 +146,12 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RegionId = table.Column<int>(nullable: true),
                     RegionTypeId = table.Column<int>(nullable: false),
                     RegionName = table.Column<string>(maxLength: 255, nullable: false),
-                    Population = table.Column<int>(nullable: false, defaultValueSql: "0"),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
+                    Population = table.Column<int>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -176,10 +178,10 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ApiMethodId = table.Column<int>(nullable: false),
                     RoleId = table.Column<int>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -206,14 +208,14 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserName = table.Column<string>(maxLength: 20, nullable: false),
                     FirstName = table.Column<string>(maxLength: 20, nullable: false),
                     LastName = table.Column<string>(maxLength: 20, nullable: false),
-                    PasswordHash = table.Column<byte[]>(maxLength: 255, nullable: false),
-                    PasswordSalt = table.Column<byte[]>(maxLength: 255, nullable: false),
-                    RoleId = table.Column<int>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
+                    PasswordHash = table.Column<byte[]>(nullable: false),
+                    PasswordSalt = table.Column<byte[]>(nullable: false),
+                    RoleId = table.Column<int>(maxLength: 20, nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -228,51 +230,19 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Drugs",
-                schema: "tab",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DrugName = table.Column<string>(maxLength: 255, nullable: false),
-                    CodeAthTypeId = table.Column<int>(nullable: false),
-                    VendorId = table.Column<int>(nullable: false),
-                    IsGeneric = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Drugs", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Drugs_CodeAthTypes_CodeAthTypeId",
-                        column: x => x.CodeAthTypeId,
-                        principalSchema: "dist",
-                        principalTable: "CodeAthTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Drugs_Vendors_VendorId",
-                        column: x => x.VendorId,
-                        principalSchema: "dist",
-                        principalTable: "Vendors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Pharmacies",
                 schema: "dist",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     PharmacyId = table.Column<int>(nullable: true),
                     PharmacyName = table.Column<string>(nullable: true),
                     RegionId = table.Column<int>(nullable: false),
-                    IsMode = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
-                    IsType = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
-                    IsNetwork = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
+                    IsMode = table.Column<bool>(nullable: false),
+                    IsType = table.Column<bool>(nullable: false),
+                    IsNetwork = table.Column<bool>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -294,19 +264,80 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Stocks",
+                schema: "tab",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PharmacyId = table.Column<int>(maxLength: 20, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Stocks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Stocks_Pharmacies_PharmacyId",
+                        column: x => x.PharmacyId,
+                        principalSchema: "dist",
+                        principalTable: "Pharmacies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Drugs",
+                schema: "tab",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    DrugName = table.Column<string>(maxLength: 255, nullable: false),
+                    CodeAthTypeId = table.Column<int>(nullable: false),
+                    VendorId = table.Column<int>(nullable: false),
+                    IsGeneric = table.Column<bool>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    StockId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Drugs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Drugs_CodeAthTypes_CodeAthTypeId",
+                        column: x => x.CodeAthTypeId,
+                        principalSchema: "dist",
+                        principalTable: "CodeAthTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Drugs_Stocks_StockId",
+                        column: x => x.StockId,
+                        principalSchema: "tab",
+                        principalTable: "Stocks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Drugs_Vendors_VendorId",
+                        column: x => x.VendorId,
+                        principalSchema: "dist",
+                        principalTable: "Vendors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Sales",
                 schema: "tab",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     DrugId = table.Column<int>(nullable: false),
                     PharmacyId = table.Column<int>(nullable: false),
-                    SaleDate = table.Column<DateTime>(type: "DATETIME", nullable: false),
+                    SaleDate = table.Column<DateTime>(type: "date", nullable: false),
                     Price = table.Column<decimal>(type: "MONEY", nullable: false),
                     Quantity = table.Column<int>(nullable: false),
-                    IsDiscount = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
+                    IsDiscount = table.Column<bool>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -340,43 +371,36 @@ namespace FarmApp.Infrastructure.Data.Migrations
             migrationBuilder.InsertData(
                 schema: "dist",
                 table: "RegionTypes",
-                columns: new[] { "Id", "RegionTypeName" },
+                columns: new[] { "Id", "IsDeleted", "RegionTypeName" },
                 values: new object[,]
                 {
-                    { 1, "Государство" },
-                    { 2, "Субъект(регион)" },
-                    { 3, "Город" },
-                    { 4, "Сёла, деревни и др." },
-                    { 5, "Микрорайон" }
+                    { 1, false, "Государство" },
+                    { 2, false, "Субъект(регион)" },
+                    { 3, false, "Город" },
+                    { 4, false, "Сёла, деревни и др." },
+                    { 5, false, "Микрорайон" }
                 });
 
             migrationBuilder.InsertData(
                 schema: "dist",
                 table: "Roles",
-                columns: new[] { "Id", "RoleName" },
+                columns: new[] { "Id", "IsDeleted", "RoleName" },
                 values: new object[,]
                 {
-                    { 1, "admin" },
-                    { 2, "user" }
+                    { 1, false, "admin" },
+                    { 2, false, "user" }
                 });
 
             migrationBuilder.InsertData(
                 schema: "api",
                 table: "ApiMethodRoles",
                 columns: new[] { "Id", "ApiMethodId", "IsDeleted", "RoleId" },
-                values: new object[] { 1, 1, false, 1 });
-
-            migrationBuilder.InsertData(
-                schema: "api",
-                table: "ApiMethodRoles",
-                columns: new[] { "Id", "ApiMethodId", "IsDeleted", "RoleId" },
-                values: new object[] { 3, 2, false, 1 });
-
-            migrationBuilder.InsertData(
-                schema: "api",
-                table: "ApiMethodRoles",
-                columns: new[] { "Id", "ApiMethodId", "IsDeleted", "RoleId" },
-                values: new object[] { 2, 1, false, 2 });
+                values: new object[,]
+                {
+                    { 1, 1, false, 1 },
+                    { 3, 2, false, 1 },
+                    { 2, 1, false, 2 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiMethodRoles_ApiMethodId",
@@ -440,6 +464,12 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 column: "CodeAthTypeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Drugs_StockId",
+                schema: "tab",
+                table: "Drugs",
+                column: "StockId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Drugs_VendorId",
                 schema: "tab",
                 table: "Drugs",
@@ -455,6 +485,12 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 name: "IX_Sales_PharmacyId",
                 schema: "tab",
                 table: "Sales",
+                column: "PharmacyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Stocks_PharmacyId",
+                schema: "tab",
+                table: "Stocks",
                 column: "PharmacyId");
         }
 
@@ -489,15 +525,19 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 schema: "tab");
 
             migrationBuilder.DropTable(
-                name: "Pharmacies",
-                schema: "dist");
-
-            migrationBuilder.DropTable(
                 name: "CodeAthTypes",
                 schema: "dist");
 
             migrationBuilder.DropTable(
+                name: "Stocks",
+                schema: "tab");
+
+            migrationBuilder.DropTable(
                 name: "Vendors",
+                schema: "dist");
+
+            migrationBuilder.DropTable(
+                name: "Pharmacies",
                 schema: "dist");
 
             migrationBuilder.DropTable(

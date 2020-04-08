@@ -30,7 +30,7 @@ namespace FarmAppServer.Middlewares
             
             try
             {
-                var entd = context.GetEndpoint();
+                //var entd = context.GetEndpoint();
                 await _next.Invoke(context);
             }
             catch (Exception ex)

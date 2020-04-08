@@ -13,7 +13,7 @@ namespace FarmApp.Domain.Core.Entity
         public decimal Price { get; set; }
         public int Quantity { get; set; }
         public bool? IsDiscount { get; set; }
-        public bool? IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; } = false;
         public virtual Drug Drug { get; set; }
         public virtual Pharmacy Pharmacy { get; set; }
     }

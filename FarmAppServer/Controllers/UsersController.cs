@@ -9,6 +9,7 @@ using AutoMapper;
 using FarmApp.Domain.Core.Entity;
 using FarmAppServer.Helpers;
 using FarmAppServer.Models;
+using FarmAppServer.Models.Users;
 using FarmAppServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace FarmAppServer.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -35,12 +36,22 @@ namespace FarmAppServer.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public async Task<IActionResult> Authenticate([FromBody]AuthenticateModelDto model)
+        public async Task<ActionResult<AuthResponseDto>> Authenticate([FromBody]AuthenticateModelDto model)
         {
-            var user = await _userService.AuthenticateUserAsync(model.Username, model.Password);
+            if (model == null) throw new ArgumentNullException(nameof(model));
+
+            var users = await _userService.AuthenticateUserAsync(model.Username, model.Password);
+
+            if (users == null)
+                return BadRequest(new ResponseBody { Result = "Username or password is incorrect", Header = "Authenticate" });
+            
+            var user = await users.SingleOrDefaultAsync();
 
             if (user == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
+                return BadRequest(new ResponseBody { Result = "Username or password is incorrect", Header = "Authenticate" });
+            
+            if (user.IsDeleted ?? true)
+                return BadRequest(new ResponseBody { Result = "Пользователь заблокирован!", Header = "Authenticate" });
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
@@ -48,24 +59,22 @@ namespace FarmAppServer.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
+                    new Claim("UserId", user.Id.ToString()),
+                    new Claim("RoleId", user.RoleId.ToString()) 
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
-
+            
             // return basic user info and authentication token
-            return Ok(new
-            {
-                Id = user.Id,
-                UserName = user.UserName,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Role = user.Role,
-                Token = tokenString
-            });
+
+            var response = await _mapper.ProjectTo<AuthResponseDto>(users).FirstOrDefaultAsync();
+            response.Token = tokenString;
+
+            return Ok(response);
+            
         }
 
         //[AllowAnonymous]
@@ -92,20 +101,32 @@ namespace FarmAppServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserModelDto>>> GetAll()
         {
-            var users = _userService.GetAllUsers();
-            var model = await _mapper.ProjectTo<UserModelDto>(users).ToListAsync();
-            return Ok(model);
+            try
+            {
+                var users = _userService.GetAllUsers();
+                var model = await _mapper.ProjectTo<UserModelDto>(users).ToListAsync();
+                return Ok(model);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new {e.Message, e.StackTrace});
+            }
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetById(int id)
+        public async Task<ActionResult<UserModelDto>> GetById(int id)
         {
-            //костыль
-            var users = _userService.GetUserById(id);
-            var model = await _mapper.ProjectTo<UserModelDto>(users).ToListAsync();
-            var result = model.Find(x =>  x.Id == id);
+            try
+            {
+                var user = _userService.GetUserById(id);
+                var model = await _mapper.ProjectTo<UserModelDto>(user).FirstOrDefaultAsync();
+                return Ok(model);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new {e.Message, e.StackTrace});
+            }
             
-            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -124,15 +145,23 @@ namespace FarmAppServer.Controllers
             catch (AppException ex)
             {
                 // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new { message = ex.Message, ex.StackTrace });
             }
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            _userService.DeleteUser(id);
-            return Ok();
+            try
+            {
+                _userService.DeleteUser(id);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { e.Message, e.StackTrace });
+            }
+
         }
     }
 }

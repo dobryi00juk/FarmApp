@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Helpers;
+using FarmAppServer.Models;
 
 namespace FarmAppServer.Controllers
 {
@@ -25,6 +26,7 @@ namespace FarmAppServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
         {
+            //return await _context.Roles.Where(x => x.IsDeleted == false).ToListAsync();
             return await _context.Roles.ToListAsync();
         }
 
@@ -36,7 +38,20 @@ namespace FarmAppServer.Controllers
 
             if (role == null)
             {
-                return NotFound();
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Роль не найдена"
+                });
+            }
+
+            if (role.IsDeleted == true)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Роль не найдена"
+                });
             }
 
             return role;
@@ -48,6 +63,8 @@ namespace FarmAppServer.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRole(int id, Role role)
         {
+            if (role == null) throw new ArgumentNullException(nameof(role));
+
             if (id != role.Id)
             {
                 return BadRequest();
@@ -61,7 +78,7 @@ namespace FarmAppServer.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!RoleExists(id))
+                if (!RoleExists(role.RoleName))
                 {
                     return NotFound();
                 }
@@ -80,6 +97,11 @@ namespace FarmAppServer.Controllers
         [HttpPost]
         public async Task<ActionResult<Role>> PostRole(Role role)
         {
+            if (role == null) throw new ArgumentNullException(nameof(role));
+            
+            if (RoleExists(role.RoleName))
+                return BadRequest("Username \"" + role.RoleName + "\" is already taken");
+
             _context.Roles.Add(role);
             await _context.SaveChangesAsync();
 
@@ -103,9 +125,12 @@ namespace FarmAppServer.Controllers
             return role;
         }
 
-        private bool RoleExists(int id)
+        private bool RoleExists(string roleName)
         {
-            return _context.Roles.Any(e => e.Id == id & e.IsDeleted == false);
+            if (string.IsNullOrEmpty(roleName))
+                throw new ArgumentException("Value cannot be null or empty.", nameof(roleName));
+
+            return _context.Roles.Any(e => e.RoleName == roleName && e.IsDeleted == false);
         }
     }
 }

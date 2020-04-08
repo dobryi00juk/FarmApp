@@ -25,7 +25,7 @@ namespace FarmAppServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Drug>>> GetDrugs()
         {
-            return await _context.Drugs.ToListAsync();
+            return await _context.Drugs.Where(x => x.IsDeleted == false).ToListAsync();
         }
 
         // GET: api/Drugs/5
@@ -35,6 +35,11 @@ namespace FarmAppServer.Controllers
             var drug = await _context.Drugs.FindAsync(id);
 
             if (drug == null)
+            {
+                return NotFound();
+            }
+
+            if (drug.IsDeleted == true)
             {
                 return NotFound();
             }
@@ -82,31 +87,47 @@ namespace FarmAppServer.Controllers
         {
             if (drug == null) throw new ArgumentNullException(nameof(drug));
 
-            _context.Drugs.Add(drug);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Drugs.Add(drug);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDrug", new { id = drug.Id }, drug);
+                return CreatedAtAction("GetDrug", new { id = drug.Id }, drug);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new {e.Message, e.StackTrace});
+            }
+            
         }
 
         // DELETE: api/Drugs/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Drug>> DeleteDrug(int id)
         {
-            var drug = await _context.Drugs.FindAsync(id);
-            if (drug == null)
+            try
             {
-                return NotFound();
+                var drug = await _context.Drugs.FindAsync(id);
+                if (drug == null)
+                {
+                    return NotFound();
+                }
+
+                //_context.Drugs.Remove(drug);
+                drug.IsDeleted = true;
+                await _context.SaveChangesAsync();
+
+                return drug;
             }
-
-            _context.Drugs.Remove(drug);
-            await _context.SaveChangesAsync();
-
-            return drug;
+            catch (Exception e)
+            {
+                return BadRequest(new { e.Message, e.StackTrace });
+            }
         }
 
         private bool DrugExists(int id)
         {
-            return _context.Drugs.Any(e => e.Id == id);
+            return _context.Drugs.Any(e => e.Id == id && e.IsDeleted == false);
         }
     }
 }

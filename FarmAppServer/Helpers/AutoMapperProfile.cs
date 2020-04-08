@@ -10,16 +10,23 @@ namespace FarmAppServer.Helpers
     {
         public AutoMapperProfile()
         {
+            //users map
             CreateMap<Role, UserRoleDto>();
             
-            //CreateMap<User, UserModelDto>();
             CreateMap<User, UserModelDto>()
                 .ForMember(x => x.Role,
                     o => o.MapFrom(s => s.Role));
-            //CreateMap<User, IEnumerable<UserModelDto>>();
+            
+            CreateMap<User, AuthResponseDto>()
+                .ForMember(x => x.Role,
+                    o => o.MapFrom(s => s.Role));
 
             CreateMap<RegisterModelDto, User>();
             CreateMap<UpdateModelDto, User>();
+
+            //vendor map
+            CreateMap<Vendor, VendorDto>();
+            CreateMap<VendorDto, Vendor>();
         }
     }
 }

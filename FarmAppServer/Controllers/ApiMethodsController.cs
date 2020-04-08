@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Models;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FarmAppServer.Controllers
@@ -27,7 +28,7 @@ namespace FarmAppServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ApiMethod>>> GetApiMethods()
         {
-            return await _context.ApiMethods.ToListAsync();
+            return await _context.ApiMethods.Where(x => x.IsDeleted == false).ToListAsync();
         }
 
         // GET: api/ApiMethods/5
@@ -39,6 +40,15 @@ namespace FarmAppServer.Controllers
             if (apiMethod == null)
             {
                 return NotFound();
+            }
+
+            if (apiMethod.IsDeleted == true)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Роль не найдена"
+                });
             }
 
             return apiMethod;
@@ -98,7 +108,8 @@ namespace FarmAppServer.Controllers
                 return NotFound();
             }
 
-            _context.ApiMethods.Remove(apiMethod);
+            //_context.ApiMethods.Remove(apiMethod);
+            apiMethod.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return apiMethod;
@@ -106,7 +117,7 @@ namespace FarmAppServer.Controllers
 
         private bool ApiMethodExists(int id)
         {
-            return _context.ApiMethods.Any(e => e.Id == id);
+            return _context.ApiMethods.Any(e => e.Id == id && e.IsDeleted == false);
         }
     }
 }

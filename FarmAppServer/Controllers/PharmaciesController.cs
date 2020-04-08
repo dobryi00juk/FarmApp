@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Models;
 
 namespace FarmAppServer.Controllers
 {
@@ -25,7 +26,7 @@ namespace FarmAppServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pharmacy>>> GetPharmacies()
         {
-            return await _context.Pharmacies.ToListAsync();
+            return await _context.Pharmacies.Where(x => x.IsDeleted == false).ToListAsync();
         }
 
         // GET: api/Pharmacies/5
@@ -37,6 +38,15 @@ namespace FarmAppServer.Controllers
             if (pharmacy == null)
             {
                 return NotFound();
+            }
+
+            if (pharmacy.IsDeleted == true)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Роль не найдена"
+                });
             }
 
             return pharmacy;
@@ -96,7 +106,8 @@ namespace FarmAppServer.Controllers
                 return NotFound();
             }
 
-            _context.Pharmacies.Remove(pharmacy);
+            //_context.Pharmacies.Remove(pharmacy);
+            pharmacy.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return pharmacy;
@@ -104,7 +115,7 @@ namespace FarmAppServer.Controllers
 
         private bool PharmacyExists(int id)
         {
-            return _context.Pharmacies.Any(e => e.Id == id);
+            return _context.Pharmacies.Any(e => e.Id == id && e.IsDeleted == false);
         }
     }
 }

@@ -28,10 +28,11 @@ namespace FarmApp.Domain.Core.Entity
         /// Сеть или нет
         /// </summary>
         public bool? IsNetwork { get; set; }
-        public bool? IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; } = false;
         public virtual Pharmacy ParentPharmacy { get; set; }
         public virtual Region Region { get; set; }
         public virtual ICollection<Pharmacy> Pharmacies { get; set; }
         public virtual ICollection<Sale> Sales { get; set; }
+
     }
 }

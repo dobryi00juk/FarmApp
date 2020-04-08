@@ -40,11 +40,13 @@ namespace FarmAppServer
             services.Configure<AppSettings>(appSettingsSection);
 
             //configure connection
-            string connection = Configuration.GetConnectionString("FarmAppContext");
-            services.AddDbContext<FarmAppContext>(options => options.UseSqlServer(connection));
+            var connection = Configuration.GetConnectionString("FarmAppContext");
+            services.AddDbContext<FarmAppContext>(options => options.UseNpgsql(connection));
 
-            //services.AddTransient<IValidation, Validation>();
-
+            //add validator
+            services.AddTransient<IValidation, Validation>();
+            
+            //add logger
             services.AddScoped<ICustomLogger, CustomLogger>();
             services.AddControllers();
 
@@ -88,18 +90,9 @@ namespace FarmAppServer
             });
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            //services.AddAutoMapper(typeof(Startup));
-            //services.AddAutoMapper(c => c.AddProfile<AutoMapperProfile>(), typeof(Startup));
-
-            //var mappingConfig = new MapperConfiguration(mc =>
-            //{
-            //    mc.AddProfile<AutoMapperProfile>();
-            //});
-
-            //IMapper mapper = mappingConfig.CreateMapper();
-            //services.AddSingleton(mapper);
 
             services.AddScoped<IUserService, UserService>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Farmacy app", Version = "v1" });
@@ -151,7 +144,7 @@ namespace FarmAppServer
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
+            
             //app.UseCors(builder => builder.WithOrigins(Configuration["ApplicationSettings:Client_URL"].ToString()).AllowAnyHeader().AllowAnyMethod());
 
             //app.UseMiddleware<ErrorHandlingMiddleware>();
@@ -168,9 +161,6 @@ namespace FarmAppServer
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
 
-
-            
-            
             using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
             var context = serviceScope.ServiceProvider.GetRequiredService<FarmAppContext>();
             context.Database.Migrate();

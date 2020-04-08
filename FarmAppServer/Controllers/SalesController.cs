@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Models;
 
 namespace FarmAppServer.Controllers
 {
@@ -25,7 +26,7 @@ namespace FarmAppServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Sale>>> GetSales()
         {
-            return await _context.Sales.ToListAsync();
+            return await _context.Sales.Where(x => x.IsDeleted == false).ToListAsync();
         }
 
         // GET: api/Sales/5
@@ -37,6 +38,15 @@ namespace FarmAppServer.Controllers
             if (sale == null)
             {
                 return NotFound();
+            }
+
+            if (sale.IsDeleted == true)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Роль не найдена"
+                });
             }
 
             return sale;
@@ -96,7 +106,8 @@ namespace FarmAppServer.Controllers
                 return NotFound();
             }
 
-            _context.Sales.Remove(sale);
+            //_context.Sales.Remove(sale);
+            sale.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return sale;
@@ -104,7 +115,7 @@ namespace FarmAppServer.Controllers
 
         private bool SaleExists(long id)
         {
-            return _context.Sales.Any(e => e.Id == id);
+            return _context.Sales.Any(e => e.Id == id && e.IsDeleted == false);
         }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Models;
 
 namespace FarmAppServer.Controllers
 {
@@ -25,7 +26,7 @@ namespace FarmAppServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CodeAthType>>> GetCodeAthTypes()
         {
-            return await _context.CodeAthTypes.ToListAsync();
+            return await _context.CodeAthTypes.Where(x => x.IsDeleted == false).ToListAsync();
         }
 
         // GET: api/CodeAthTypes/5
@@ -37,6 +38,15 @@ namespace FarmAppServer.Controllers
             if (codeAthType == null)
             {
                 return NotFound();
+            }
+
+            if (codeAthType.IsDeleted == true)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Роль не найдена"
+                });
             }
 
             return codeAthType;
@@ -96,7 +106,8 @@ namespace FarmAppServer.Controllers
                 return NotFound();
             }
 
-            _context.CodeAthTypes.Remove(codeAthType);
+            //_context.CodeAthTypes.Remove(codeAthType);
+            codeAthType.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return codeAthType;
@@ -104,7 +115,7 @@ namespace FarmAppServer.Controllers
 
         private bool CodeAthTypeExists(int id)
         {
-            return _context.CodeAthTypes.Any(e => e.Id == id);
+            return _context.CodeAthTypes.Any(e => e.Id == id && e.IsDeleted == false);
         }
     }
 }
