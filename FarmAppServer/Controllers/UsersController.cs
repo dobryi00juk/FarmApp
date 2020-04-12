@@ -19,7 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace FarmAppServer.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -38,6 +38,11 @@ namespace FarmAppServer.Controllers
         [HttpPost("authenticate")]
         public async Task<ActionResult<AuthResponseDto>> Authenticate([FromBody]AuthenticateModelDto model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             if (model == null) throw new ArgumentNullException(nameof(model));
 
             var users = await _userService.AuthenticateUserAsync(model.Username, model.Password);
