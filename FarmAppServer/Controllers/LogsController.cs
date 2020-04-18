@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Models;
+using FarmAppServer.Services.Paging;
 
 namespace FarmAppServer.Controllers
 {
@@ -23,9 +25,23 @@ namespace FarmAppServer.Controllers
 
         // GET: api/Logs
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Log>>> GetLogs()
+        public ActionResult<PagedResult<Log>> GetLogs([FromQuery]int page = 1, int pageSize = 25)
         {
-            return await _context.Logs.ToListAsync();
+            try
+            {
+                IQueryable<Log> logs = _context.Logs;
+                var query = logs.GetPaged(page, pageSize);
+
+                return Ok(query);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = $"{e.Message}"
+                });
+            }
         }
 
         // GET: api/Logs/5

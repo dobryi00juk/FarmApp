@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FarmApp.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(FarmAppContext))]
-    [Migration("20200411161148__initial")]
+    [Migration("20200416111339__initial")]
     partial class _initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,22 +70,582 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 1,
-                            ApiMethodName = "GetToken",
+                            ApiMethodName = "Authenticate",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = false,
                             IsNotNullParam = true,
-                            PathUrl = "/GetToken"
+                            PathUrl = "/api/Users/authenticate"
                         },
                         new
                         {
                             Id = 2,
-                            ApiMethodName = "GetUser",
+                            ApiMethodName = "Register",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = false,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Users/register"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ApiMethodName = "GetAll",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Users/getAll"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ApiMethodName = "GetById",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
                             IsNotNullParam = false,
-                            PathUrl = "/GetUser"
+                            PathUrl = "/api/Users/getById"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ApiMethodName = "Update",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Users/update"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ApiMethodName = "Delete",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "/api/Users/delete"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ApiMethodName = "GetUsersByRoleAsync",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Users/getUsersByRoleAsync"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ApiMethodName = "SearchUser",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Users/searchUser"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            ApiMethodName = "GetVendors",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "/api/Vendors/GetVendors"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            ApiMethodName = "GetVendor",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Vendors/GetVendor"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            ApiMethodName = "PutVendor",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Vendors/PutVendor"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            ApiMethodName = "PostVendor",
+                            HttpMethod = "POST",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Vendors/PostVendor"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            ApiMethodName = "DeleteVendor",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Vendors/DeleteVendor"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            ApiMethodName = "GetSales",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "/api/Sales/GetSales"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            ApiMethodName = "GetSale",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Sales/GetSale"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            ApiMethodName = "PutSale",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Sales/PutSale"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            ApiMethodName = "PostSale",
+                            HttpMethod = "POST",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Sales/PostSale"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            ApiMethodName = "DeleteSale",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Sales/DeleteSale"
+                        },
+                        new
+                        {
+                            Id = 54,
+                            ApiMethodName = "GetRoles",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "/api/Roles/GetRoles"
+                        },
+                        new
+                        {
+                            Id = 55,
+                            ApiMethodName = "GetRole",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/GetRole"
+                        },
+                        new
+                        {
+                            Id = 56,
+                            ApiMethodName = "PutRole",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PutRole"
+                        },
+                        new
+                        {
+                            Id = 57,
+                            ApiMethodName = "PostRole",
+                            HttpMethod = "POST",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PostRole"
+                        },
+                        new
+                        {
+                            Id = 58,
+                            ApiMethodName = "DeleteRole",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/GetDeleteRoleUser"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            ApiMethodName = "GetRegionTypes",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "/api/RegionTypes/GetRoles"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            ApiMethodName = "GetRegionType",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/RegionTypes/GetRole"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            ApiMethodName = "PutRegionType",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/RegionTypes/PutRole"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            ApiMethodName = "PostRegionType",
+                            HttpMethod = "POST",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/RegionTypes/PostRole"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            ApiMethodName = "DeleteRegionType",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/RegionTypes/GetDeleteRoleUser"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            ApiMethodName = "GetRegions",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "/api/Roles/GetRegions"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            ApiMethodName = "GetRegion",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/GetRegion"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            ApiMethodName = "PutRegion",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PutRegion"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            ApiMethodName = "PostRegion",
+                            HttpMethod = "POST",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PostRegion"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            ApiMethodName = "DeleteRegion",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/DeleteRegion"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            ApiMethodName = "GetPharmacies",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "/api/Roles/GetPharmacies"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            ApiMethodName = "GetPharmacy",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/GetPharmacy"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            ApiMethodName = "PutPharmacy",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PutPharmacy"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            ApiMethodName = "PostPharmacy",
+                            HttpMethod = "POST",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PostPharmacy"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            ApiMethodName = "DeletePharmacy",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/DeletePharmacy"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            ApiMethodName = "GetDrugs",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "/api/Roles/GetDrugs"
+                        },
+                        new
+                        {
+                            Id = 35,
+                            ApiMethodName = "GetDrug",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/GetDrug"
+                        },
+                        new
+                        {
+                            Id = 36,
+                            ApiMethodName = "PutDrug",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PutDrug"
+                        },
+                        new
+                        {
+                            Id = 37,
+                            ApiMethodName = "PostDrug",
+                            HttpMethod = "POST",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PostDrug"
+                        },
+                        new
+                        {
+                            Id = 38,
+                            ApiMethodName = "DeleteDrug",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/DeleteDrug"
+                        },
+                        new
+                        {
+                            Id = 39,
+                            ApiMethodName = "GetCodeAthTypes",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "/api/Roles/GetCodeAthTypes"
+                        },
+                        new
+                        {
+                            Id = 40,
+                            ApiMethodName = "GetCodeAthType",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/GetCodeAthType"
+                        },
+                        new
+                        {
+                            Id = 41,
+                            ApiMethodName = "PutCodeAthType",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PutCodeAthType"
+                        },
+                        new
+                        {
+                            Id = 42,
+                            ApiMethodName = "PostCodeAthType",
+                            HttpMethod = "POST",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PostCodeAthType"
+                        },
+                        new
+                        {
+                            Id = 43,
+                            ApiMethodName = "DeleteCodeAthType",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/DeleteCodeAthType"
+                        },
+                        new
+                        {
+                            Id = 44,
+                            ApiMethodName = "GetApiMethods",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "api/Roles/GetApiMethods"
+                        },
+                        new
+                        {
+                            Id = 45,
+                            ApiMethodName = "GetApiMethod",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "api/Roles/GetApiMethod"
+                        },
+                        new
+                        {
+                            Id = 46,
+                            ApiMethodName = "PutApiMethod",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "api/Roles/PutApiMethod"
+                        },
+                        new
+                        {
+                            Id = 47,
+                            ApiMethodName = "PostApiMethod",
+                            HttpMethod = "POST",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "api/Roles/PostApiMethod"
+                        },
+                        new
+                        {
+                            Id = 48,
+                            ApiMethodName = "DeleteApiMethod",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "api/Roles/DeleteApiMethod"
+                        },
+                        new
+                        {
+                            Id = 49,
+                            ApiMethodName = "GetApiMethodRoles",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = false,
+                            PathUrl = "/api/Roles/GetApiMethodRoles"
+                        },
+                        new
+                        {
+                            Id = 50,
+                            ApiMethodName = "GetApiMethodRole",
+                            HttpMethod = "GET",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/GetApiMethodRole"
+                        },
+                        new
+                        {
+                            Id = 51,
+                            ApiMethodName = "PutApiMethodRole",
+                            HttpMethod = "PUT",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PutApiMethodRole"
+                        },
+                        new
+                        {
+                            Id = 52,
+                            ApiMethodName = "PostApiMethodRole",
+                            HttpMethod = "POST",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/PostApiMethodRole"
+                        },
+                        new
+                        {
+                            Id = 53,
+                            ApiMethodName = "DeleteApiMethodRole",
+                            HttpMethod = "DELETE",
+                            IsDeleted = false,
+                            IsNeedAuthentication = true,
+                            IsNotNullParam = true,
+                            PathUrl = "/api/Roles/DeleteApiMethodRole"
                         });
                 });
 
@@ -520,6 +1080,9 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("character varying(20)")
                         .HasMaxLength(20);
+
+                    b.Property<string>("Login")
+                        .HasColumnType("text");
 
                     b.Property<byte[]>("PasswordHash")
                         .IsRequired()

@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
+using FarmAppServer.Services;
 
 namespace FarmAppServer.Controllers
 {
@@ -16,17 +18,23 @@ namespace FarmAppServer.Controllers
     public class RegionTypesController : ControllerBase
     {
         private readonly FarmAppContext _context;
+        private readonly IRegionTypeService _regionTypeService;
+        private readonly IMapper _mapper;
 
-        public RegionTypesController(FarmAppContext context)
+        public RegionTypesController(FarmAppContext context, IRegionTypeService regionTypeService, IMapper mapper)
         {
             _context = context;
+            _regionTypeService = regionTypeService;
+            _mapper = mapper;
         }
 
         // GET: api/RegionTypes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RegionType>>> GetRegionTypes()
         {
-            return await _context.RegionTypes.Where(x => x.IsDeleted == false).ToListAsync();
+            return await _context.RegionTypes
+                .Include(x => x.Regions)
+                .ToListAsync();//.Where(x => x.IsDeleted == false).ToListAsync();
         }
 
         // GET: api/RegionTypes/5
@@ -116,6 +124,24 @@ namespace FarmAppServer.Controllers
         private bool RegionTypeExists(int id)
         {
             return _context.RegionTypes.Any(e => e.Id == id && e.IsDeleted == false);
+        }
+        
+
+        //Фильтр: Текстбокс по RegionTypes и IsEnabled
+        [HttpGet("RegionTypeSearch")]
+        public async Task<ActionResult<RegionTypeDto>> RegionTypeSearch([FromQuery]string param, bool isEnabled)
+        {
+            if (string.IsNullOrWhiteSpace(param))
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = $"Value cannot be null or whitespace. {nameof(param)}"
+                });
+            
+            var regionsType = _regionTypeService.SearchRegionType(param);
+            var model = await _mapper.ProjectTo<RegionTypeDto>(regionsType).ToListAsync();
+
+            return Ok(model.FirstOrDefault());
         }
     }
 }

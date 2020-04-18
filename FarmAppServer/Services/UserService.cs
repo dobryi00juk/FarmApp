@@ -21,6 +21,9 @@ namespace FarmAppServer.Services
         Task<User> CreateUserAsync(User user, string password);
         void UpdateUser(User user, string password = null);
         void DeleteUser(int id);
+        IQueryable UsersByRoleAsync(string role);
+        IQueryable UserSearchAsync(string param);
+        IQueryable IsEnabled(bool isChecked);
     }
     
     public class UserService : IUserService
@@ -31,12 +34,12 @@ namespace FarmAppServer.Services
         {
             _context = context;
         }
-        public async Task<IQueryable<User>> AuthenticateUserAsync(string username, string password)
+        public async Task<IQueryable<User>> AuthenticateUserAsync(string login, string password)
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
                 return null;
 
-            var users = _context.Users.Where(x => x.UserName == username);
+            var users = _context.Users.Where(x => x.Login == login && x.IsDeleted == false);
             var user = await users.FirstOrDefaultAsync();
             
             if (user==null)
@@ -50,21 +53,21 @@ namespace FarmAppServer.Services
 
         public IQueryable GetAllUsers()
         {
-            return _context.Users;
+            return _context.Users;//.Where(x => x.IsDeleted == false);
         }
 
         public IQueryable GetUserById(int id)
         {
             //return await _context.Users.FindAsync(id);
-            return _context.Users.Where(x => x.Id == id);
+            return _context.Users.Where(x => x.Id == id && x.IsDeleted == false);
         }
 
         public async Task<User> CreateUserAsync(User user, string password)
         {
             if (string.IsNullOrEmpty(password))
                 throw new AppException("Password is required");
-
-            if (_context.Users.Any(x => x.UserName == user.UserName))
+            
+            if (_context.Users.Any(x => x.UserName == user.UserName & x.IsDeleted == false))
                 throw new AppException("Username \"" + user.UserName + "\" is already taken");
 
             CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
@@ -81,7 +84,7 @@ namespace FarmAppServer.Services
         public void UpdateUser(User userParam, string password = null)
         {
             //var user = _context.Users.Find(userParam.Id);
-            var user = _context.Users.FirstOrDefault(x => x.Id == userParam.Id);
+            var user = _context.Users.FirstOrDefault(x => x.Id == userParam.Id && x.IsDeleted == false);
 
             if (user == null)
                 throw new AppException("User not found");
@@ -121,9 +124,58 @@ namespace FarmAppServer.Services
             user.IsDeleted = true;
             _context.SaveChanges();
         }
-        
-        //private helper method
 
+
+        //user Filter By Role  //⦁	Combobox -> По ролям (Админ, пользователь …)
+        public IQueryable UsersByRoleAsync(string role)
+        {
+            try
+            {
+                var users = _context.Users.Where(r => r.Role.RoleName == role);
+                return users;
+
+            }
+            catch (Exception e)
+            {
+                throw new AppException(e.Message);
+            }
+        }
+
+
+        //user search by //⦁	TextBox  -> По Login, UserName
+        public IQueryable UserSearchAsync(string param)
+        {
+            //search by login
+            var users = _context.Users.Where(x => x.Login == param);
+            var usersLogin = users.ToList();
+            
+            if (usersLogin.Count == 0)
+            {
+                var usersUsername = _context.Users.Where(x => x.UserName == param);
+                return usersUsername;
+            }
+            else
+            {
+                return users;
+            }
+        }
+
+        //check is enabled
+        public IQueryable IsEnabled(bool isChecked)
+        {
+            if (isChecked)
+            {
+                var users = _context.Users.Where(x => x.IsDeleted == true);
+                return users;
+            }
+            else
+            {
+                var users = _context.Users.Where(x => x.IsDeleted == false);
+                return users;
+            }
+        }
+
+        //private helper method
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             if (password == null) throw new ArgumentNullException(nameof(password));
@@ -136,7 +188,6 @@ namespace FarmAppServer.Services
                 passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
             }
         }
-
         private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
         {
             if (password == null) throw new ArgumentNullException(nameof(password));

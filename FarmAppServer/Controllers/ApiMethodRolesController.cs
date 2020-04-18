@@ -60,7 +60,11 @@ namespace FarmAppServer.Controllers
         {
             if (id != apiMethodRole.Id)
             {
-                return BadRequest();
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Роль не найдена"
+                });
             }
 
             _context.Entry(apiMethodRole).State = EntityState.Modified;
@@ -103,7 +107,11 @@ namespace FarmAppServer.Controllers
             var apiMethodRole = await _context.ApiMethodRoles.FindAsync(id);
             if (apiMethodRole == null)
             {
-                return NotFound();
+                return NotFound(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "ApiMethodRoles no found!"
+                });
             }
 
             //_context.ApiMethodRoles.Remove(apiMethodRole);

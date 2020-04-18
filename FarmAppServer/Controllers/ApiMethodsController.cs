@@ -8,11 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
+using FarmAppServer.Services.Paging;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FarmAppServer.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ApiMethodsController : ControllerBase
@@ -26,9 +27,24 @@ namespace FarmAppServer.Controllers
 
         // GET: api/ApiMethods
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ApiMethod>>> GetApiMethods()
+        public ActionResult<IEnumerable<ApiMethod>> GetApiMethods([FromQuery]int page = 1, int pageSize = 20)
         {
-            return await _context.ApiMethods.Where(x => x.IsDeleted == false).ToListAsync();
+            var apiMethods = _context.ApiMethods.Where(x => x.IsDeleted == false);
+            
+            try
+            {
+                var query = apiMethods.GetPaged(page, pageSize);
+
+                return Ok(query);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = $"{e.Message}"
+                });
+            }
         }
 
         // GET: api/ApiMethods/5
@@ -39,7 +55,11 @@ namespace FarmAppServer.Controllers
 
             if (apiMethod == null)
             {
-                return NotFound();
+                return NotFound(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Api method not found!"
+                });
             }
 
             if (apiMethod.IsDeleted == true)
@@ -47,7 +67,7 @@ namespace FarmAppServer.Controllers
                 return BadRequest(new ResponseBody()
                 {
                     Header = "Error",
-                    Result = "Роль не найдена"
+                    Result = "Role not found"
                 });
             }
 

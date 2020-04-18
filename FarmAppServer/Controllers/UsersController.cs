@@ -7,19 +7,24 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using FarmApp.Domain.Core.Entity;
+using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Extantions;
 using FarmAppServer.Helpers;
 using FarmAppServer.Models;
 using FarmAppServer.Models.Users;
 using FarmAppServer.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace FarmAppServer.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -34,27 +39,29 @@ namespace FarmAppServer.Controllers
             _appSettings = appSettings.Value;
         }
 
+        #region My auth
+
         [AllowAnonymous]
         [HttpPost("authenticate")]
         public async Task<ActionResult<AuthResponseDto>> Authenticate([FromBody]AuthenticateModelDto model)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest();
-            }
+
+            //var model = JsonConvert.DeserializeObject<AuthenticateModelDto>(requestBody.Param);
 
             if (model == null) throw new ArgumentNullException(nameof(model));
 
-            var users = await _userService.AuthenticateUserAsync(model.Username, model.Password);
+            var users = await _userService.AuthenticateUserAsync(model.Login, model.Password);
 
             if (users == null)
-                return BadRequest(new ResponseBody { Result = "Username or password is incorrect", Header = "Authenticate" });
-            
+                return BadRequest(new ResponseBody { Result = "Login or password is incorrect", Header = "Authenticate" });
+
             var user = await users.SingleOrDefaultAsync();
 
             if (user == null)
-                return BadRequest(new ResponseBody { Result = "Username or password is incorrect", Header = "Authenticate" });
-            
+                return BadRequest(new ResponseBody { Result = "Login or password is incorrect", Header = "Authenticate" });
+
             if (user.IsDeleted ?? true)
                 return BadRequest(new ResponseBody { Result = "Пользователь заблокирован!", Header = "Authenticate" });
 
@@ -65,25 +72,76 @@ namespace FarmAppServer.Controllers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim("UserId", user.Id.ToString()),
-                    new Claim("RoleId", user.RoleId.ToString()) 
+                    new Claim("RoleId", user.RoleId.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
-            
+
             // return basic user info and authentication token
 
             var response = await _mapper.ProjectTo<AuthResponseDto>(users).FirstOrDefaultAsync();
             response.Token = tokenString;
 
             return Ok(response);
-            
+
         }
+
+        #endregion
+
+        //#region GetToken
+
+        //[HttpPost, Route("GetToken")]
+        //public async Task<IActionResult> Auntification([FromBody]RequestBody requestBody)
+        //{
+        //    var user = JsonConvert.DeserializeObject<User>(requestBody.Param);
+        //    user = await _context.Users.FirstOrDefaultAsync(x => x.Login == user.Login && x.Password == user.Password);
+
+        //    if (user == null)
+        //        return NotFound(new ResponseBody { Header = "Аунтификация", Result = "Неверный логин или пароль!" });
+
+        //    if (user.IsDeleted ?? true)
+        //        return BadRequest(new ResponseBody { Result = "Пользователь заблокирован!", Header = "Аунтификация" });
+        //    throw new Exception("сука");
+
+        //    var role = await _context.Roles.FirstOrDefaultAsync(x => x.Id == user.RoleId);
+        //    if (role == null)
+        //        return NotFound(new ResponseBody { Header = "Аунтификация", Result = "Неизвестная роль пользователя!" });
+
+        //    if (role.IsDeleted ?? true)
+        //        return BadRequest(new ResponseBody { Header = "Аунтификация", Result = "Роль удалена!" });
+
+        //    var tokenDescriptor = new SecurityTokenDescriptor
+        //    {
+        //        Subject = new ClaimsIdentity(new Claim[]
+        //        {
+        //            new Claim("UserId", user.Id.ToString()),
+        //            new Claim("RoleId", role.Id.ToString())
+        //        }),
+        //        Expires = DateTime.UtcNow.AddDays(1),
+        //        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.JWT_Secret)), SecurityAlgorithms.HmacSha256Signature)
+        //    };
+        //    var tokenHandler = new JwtSecurityTokenHandler();
+        //    var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+        //    var token = tokenHandler.WriteToken(securityToken);
+        //    return Ok(new ResponseBody { Header = "Ok", Result = token });
+        //}
+
+        //#endregion
+
+
+
+
+
+
+
 
         //[AllowAnonymous]
         //[Authorize(Roles = "admin")]
+
+
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody]RegisterModelDto model)
         {
@@ -104,8 +162,30 @@ namespace FarmAppServer.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserModelDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<UserModelDto>>> GetAll([FromQuery]int page = 1, int pageSize = 25)
         {
+            /*
+             
+            var sales = _context.Regions.Where(x => x.IsDeleted == false);
+            
+            try
+            {
+                var query = sales.GetPaged(page, pageSize);
+
+                return Ok(query);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = $"{e.Message}"
+                });
+            }
+            
+            */
+            
+            
             try
             {
                 var users = _userService.GetAllUsers();
@@ -134,7 +214,7 @@ namespace FarmAppServer.Controllers
             
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}")]///////////&&&?????
         public IActionResult Update(int id, [FromBody]UpdateModelDto model)
         {
             // map model to entity and set id
@@ -167,6 +247,52 @@ namespace FarmAppServer.Controllers
                 return BadRequest(new { e.Message, e.StackTrace });
             }
 
+        }
+
+
+
+        //use User service UserFilterByRole
+        //⦁	Combobox -> По ролям (Админ, пользователь …)
+        [HttpGet]
+        [Route("RoleName")]
+        public async Task<ActionResult<IEnumerable<UserFilterByRoleDto>>> GetUsersByRoleAsync([FromQuery]string role)
+        {
+            //&&&???
+            if (string.IsNullOrEmpty(role))
+                return BadRequest(new
+                {
+                    Message = $"Value cannot be null or empty.  {nameof(role)}"
+                });
+
+            var users = _userService.UsersByRoleAsync(role);
+            var model = await _mapper.ProjectTo<UserFilterByRoleDto>(users).ToListAsync();
+            return Ok(model);
+        }
+
+        //search by Login or UserName
+        //⦁	TextBox  -> По Login, UserName
+        [HttpGet]
+        [Route("Search")]
+        public async Task<ActionResult<UserFilterByRoleDto>> SearchUser([FromQuery] string param)
+        {
+            if (string.IsNullOrEmpty(param))
+                return BadRequest(new ResponseBody { Result = "param cannot be null or empty", Header = "Search" });
+
+            var users = _userService.UserSearchAsync(param);
+            var model = await _mapper.ProjectTo<UserFilterByRoleDto>(users).ToListAsync();
+
+            return Ok(model);
+        }
+
+        //checkbox switch
+        [HttpGet]
+        [Route("CheckBox")]
+        public async Task<ActionResult<IEnumerable<UserFilterByRoleDto>>> CheckBoxFilter([FromQuery] bool isChecked)
+        {
+            var users = _userService.IsEnabled(isChecked);
+            var model = await _mapper.ProjectTo<UserFilterByRoleDto>(users).ToListAsync();
+
+            return model;
         }
     }
 }

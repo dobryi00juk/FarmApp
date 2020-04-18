@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
@@ -16,23 +17,28 @@ namespace FarmAppServer.Controllers
     public class RolesController : ControllerBase
     {
         private readonly FarmAppContext _context;
+        private readonly IMapper _mapper;
 
-        public RolesController(FarmAppContext context)
+        public RolesController(FarmAppContext context,IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Roles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
+        public ActionResult<IEnumerable<RoleDto>> GetRoles()
         {
             //return await _context.Roles.Where(x => x.IsDeleted == false).ToListAsync();
-            return await _context.Roles.ToListAsync();
+            var roles = _context.Roles.AsQueryable();
+            var model = _mapper.ProjectTo<RoleDto>(roles);
+
+            return Ok(model);
         }
 
         // GET: api/Roles/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Role>> GetRole(int id)
+        public async Task<ActionResult<RoleDto>> GetRole(int id)
         {
             var role = await _context.Roles.FindAsync(id);
 
@@ -54,7 +60,8 @@ namespace FarmAppServer.Controllers
                 });
             }
 
-            return role;
+            var model = _mapper.Map<RoleDto>(role);
+            return model;
         }
 
         // PUT: api/Roles/5

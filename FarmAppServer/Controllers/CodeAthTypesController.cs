@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
+using FarmAppServer.Services.Paging;
 
 namespace FarmAppServer.Controllers
 {
@@ -24,9 +25,24 @@ namespace FarmAppServer.Controllers
 
         // GET: api/CodeAthTypes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CodeAthType>>> GetCodeAthTypes()
+        public ActionResult<IEnumerable<CodeAthType>> GetCodeAthTypes([FromQuery]int page = 1, int pageSize = 25)
         {
-            return await _context.CodeAthTypes.Where(x => x.IsDeleted == false).ToListAsync();
+            var codeAthType = _context.CodeAthTypes.Where(x => x.IsDeleted == false);
+            
+            try
+            {
+                var query = codeAthType.GetPaged(page, pageSize);
+
+                return Ok(query);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = $"{e.Message}"
+                });
+            }
         }
 
         // GET: api/CodeAthTypes/5

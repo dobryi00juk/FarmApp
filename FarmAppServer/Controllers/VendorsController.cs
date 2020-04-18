@@ -109,6 +109,10 @@ namespace FarmAppServer.Controllers
         [HttpPost]
         public async Task<ActionResult<Vendor>> PostVendor(VendorDto vendorDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
             try
             {
                 var vendor = _mapper.Map<Vendor>(vendorDto);

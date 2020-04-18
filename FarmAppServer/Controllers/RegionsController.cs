@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
+using FarmAppServer.Services;
+using FarmAppServer.Services.Paging;
 
 namespace FarmAppServer.Controllers
 {
@@ -16,17 +19,41 @@ namespace FarmAppServer.Controllers
     public class RegionsController : ControllerBase
     {
         private readonly FarmAppContext _context;
+        private readonly IRegionService _regionService;
+        private readonly IMapper _mapper;
 
-        public RegionsController(FarmAppContext context)
+        public RegionsController(FarmAppContext context, IRegionService regionService, IMapper mapper)
         {
             _context = context;
+            _regionService = regionService;
+            _mapper = mapper;
         }
 
         // GET: api/Regions
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Region>>> GetRegions()
+        public ActionResult<IEnumerable<RegionDto>> GetRegions([FromQuery]int page = 1, int pageSize = 25)
         {
-            return await _context.Regions.Where(x => x.IsDeleted == false).ToListAsync();
+            var regions = _context.Regions.Where(x => x.IsDeleted == false);
+            
+            try
+            {
+                var model = _mapper.ProjectTo<RegionDto>(regions);
+                var query = model.GetPaged(page, pageSize);
+
+                return Ok(query);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = $"{e.Message}"
+                });
+            }
+            
+            // return await _context.Regions.Where(x => x.IsDeleted == false)
+            // .Include(x => x.RegionType)
+            // .ToListAsync();
         }
 
         // GET: api/Regions/5
@@ -45,7 +72,7 @@ namespace FarmAppServer.Controllers
                 return BadRequest(new ResponseBody()
                 {
                     Header = "Error",
-                    Result = "Роль не найдена"
+                    Result = "Region not found!"
                 });
             }
 
@@ -117,5 +144,26 @@ namespace FarmAppServer.Controllers
         {
             return _context.Regions.Any(e => e.Id == id && e.IsDeleted == false);
         }
+
+        //Фильтры: TextBox -> RegionName
+        [HttpGet("SearchRegion")]
+        public async Task<ActionResult<RegionDto>> SearchRegion(string regionName)
+        {
+            if (string.IsNullOrEmpty(regionName))
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = $"Value cannot be null or empty. {nameof(regionName)}"
+                });
+
+            var regions = _regionService.RegionNameSearch(regionName);
+            var model = await _mapper.ProjectTo<RegionDto>(regions).ToListAsync();
+
+            return Ok(model);
+        }
+
+        //Фильтры: CheckBoxCombobox(Мультивыбор) -> ParentRegionName
+        //public async Task<ActionResult<>>
+
     }
 }

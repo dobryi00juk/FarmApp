@@ -19,6 +19,9 @@ using Microsoft.OpenApi.Models;
 using FarmAppServer.Helpers;
 using AutoMapper;
 using FarmAppServer.Controllers;
+using Newtonsoft.Json;
+
+//using FarmAppServer.Services.UserServices;
 
 namespace FarmAppServer
 {
@@ -44,11 +47,14 @@ namespace FarmAppServer
             services.AddDbContext<FarmAppContext>(options => options.UseNpgsql(connection));
 
             //add validator
-            //services.AddTransient<IValidation, Validation>();
-            
+            services.AddTransient<IValidation, Validation>();
+
             //add logger
             services.AddScoped<ICustomLogger, CustomLogger>();
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
 
             //configure jwt auth
             var appSettings = appSettingsSection.Get<AppSettings>();
@@ -77,42 +83,12 @@ namespace FarmAppServer
             });
 
 
-            //services.AddAuthentication(x =>
-            //{
-            //    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            //})
-            //    .AddJwtBearer(x =>
-            //{
-            //    x.Events = new JwtBearerEvents
-            //    {
-            //        OnTokenValidated = context =>
-            //        {
-            //            var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-            //            var userId = int.Parse(context.Principal.Identity.Name);
-            //            var user = userService.GetUserById(userId);
-            //            if (user == null)
-            //            {
-            //                // return unauthorized if user no longer exists
-            //                context.Fail("Unauthorized");
-            //            }
-            //            return Task.CompletedTask;
-            //        }
-            //    };
-            //    x.RequireHttpsMetadata = false;
-            //    x.SaveToken = true;
-            //    x.TokenValidationParameters = new TokenValidationParameters
-            //    {
-            //        ValidateIssuerSigningKey = true,
-            //        IssuerSigningKey = new SymmetricSecurityKey(key),
-            //        ValidateIssuer = false,
-            //        ValidateAudience = false
-            //    };
-            //});
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRegionService, RegionService>();
+            services.AddScoped<IRegionTypeService, RegionTypeService>();
 
             services.AddSwaggerGen(c =>
             {
@@ -168,9 +144,8 @@ namespace FarmAppServer
             
             //app.UseCors(builder => builder.WithOrigins(Configuration["ApplicationSettings:Client_URL"].ToString()).AllowAnyHeader().AllowAnyMethod());
 
-            app.UseMiddleware<ErrorHandlingMiddleware>();
+            //app.UseMiddleware<ErrorHandlingMiddleware>();
             //app.UseMiddleware<ValidationMiddleware>();      
-            //app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
