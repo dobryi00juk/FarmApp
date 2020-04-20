@@ -67,7 +67,7 @@ namespace FarmAppServer.Services
             if (string.IsNullOrEmpty(password))
                 throw new AppException("Password is required");
             
-            if (_context.Users.Any(x => x.UserName == user.UserName & x.IsDeleted == false))
+            if (_context.Users.Any(x => x.Login == user.Login & x.IsDeleted == false))
                 throw new AppException("Username \"" + user.UserName + "\" is already taken");
 
             CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
