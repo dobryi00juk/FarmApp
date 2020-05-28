@@ -25,7 +25,7 @@ namespace FarmAppServer.Controllers
 
         // GET: api/Logs
         [HttpGet]
-        public ActionResult<PagedResult<Log>> GetLogs([FromQuery]int page = 1, int pageSize = 25)
+        public ActionResult<PagedResult<Log>> GetLogs([FromQuery]int page = 1, [FromQuery]int pageSize = 25)
         {
             try
             {
@@ -45,8 +45,8 @@ namespace FarmAppServer.Controllers
         }
 
         // GET: api/Logs/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Log>> GetLog(int id)
+        [HttpGet("LogById")]
+        public async Task<ActionResult<Log>> GetLog([FromQuery]int id)
         {
             var log = await _context.Logs.FindAsync(id);
 
@@ -59,9 +59,8 @@ namespace FarmAppServer.Controllers
         }
 
         // PUT: api/Logs/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [NonAction]
         public async Task<IActionResult> PutLog(int id, Log log)
         {
             if (id != log.Id)
@@ -91,9 +90,8 @@ namespace FarmAppServer.Controllers
         }
 
         // POST: api/Logs
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [NonAction]
         public async Task<ActionResult<Log>> PostLog(Log log)
         {
             _context.Logs.Add(log);
@@ -104,6 +102,7 @@ namespace FarmAppServer.Controllers
 
         // DELETE: api/Logs/5
         [HttpDelete("{id}")]
+        [NonAction]
         public async Task<ActionResult<Log>> DeleteLog(int id)
         {
             var log = await _context.Logs.FindAsync(id);
@@ -121,6 +120,22 @@ namespace FarmAppServer.Controllers
         private bool LogExists(int id)
         {
             return _context.Logs.Any(e => e.Id == id);
+        }
+
+        [HttpGet("LogForPeriod")]
+        public IActionResult LogForPeriod([FromQuery]DateTime start, [FromQuery]DateTime end, [FromQuery]int page = 1, [FromQuery]int pageSize = 25)
+        {
+            var logs = _context.Logs.Where(x => x.RequestTime >= start && x.RequestTime <= end);
+            var result = logs.GetPaged(page, pageSize);
+
+            if (result == null)
+                return NotFound(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Logs not found"
+                });
+
+            return Ok(result);
         }
     }
 }

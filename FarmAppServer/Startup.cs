@@ -50,7 +50,7 @@ namespace FarmAppServer
             services.AddTransient<IValidation, Validation>();
 
             //add logger
-            services.AddScoped<ICustomLogger, CustomLogger>();
+            services.AddTransient<ICustomLogger, CustomLogger>();
             services.AddControllers().AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
@@ -67,7 +67,6 @@ namespace FarmAppServer
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x =>
             {
                 x.RequireHttpsMetadata = false;
@@ -82,17 +81,20 @@ namespace FarmAppServer
                 };
             });
 
-
-
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRegionService, RegionService>();
             services.AddScoped<IRegionTypeService, RegionTypeService>();
+            services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IPharmacyService, PharmacyService>();
+            services.AddScoped<IDrugService, DrugService>();
+            services.AddScoped<ISaleService, SaleService>();
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Farmacy app", Version = "v1" });
+                    
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -102,22 +104,24 @@ namespace FarmAppServer
                     In = ParameterLocation.Header,
                     Description = "JWT Authorization header using the Bearer scheme."
                 });
+                c.OperationFilter<AuthenticationRequirementsOperationFilter>();
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[] {}
-
-                    }
-                });
+                
+                // c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                // {
+                //     {
+                //         new OpenApiSecurityScheme
+                //         {
+                //             Reference = new OpenApiReference
+                //             {
+                //                 Type = ReferenceType.SecurityScheme,
+                //                 Id = "Bearer"
+                //             }
+                //         },
+                //         new string[] {}
+                //
+                //     }
+                // });
             });
         }
 
@@ -129,6 +133,16 @@ namespace FarmAppServer
                 app.UseDeveloperExceptionPage();
             }
 
+            //swagger
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "FarmApp V1");
+            });
+
+            app.UseHttpsRedirection();
+            app.UseRouting();
+
             app.UseCookiePolicy(new CookiePolicyOptions
             {
                 MinimumSameSitePolicy = SameSiteMode.Strict,
@@ -138,25 +152,21 @@ namespace FarmAppServer
             
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
             //app.UseCors(builder => builder.WithOrigins(Configuration["ApplicationSettings:Client_URL"].ToString()).AllowAnyHeader().AllowAnyMethod());
 
-            //app.UseMiddleware<ErrorHandlingMiddleware>();
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             //app.UseMiddleware<ValidationMiddleware>();      
+            //app.UseMiddleware<RequestResponseLoggingMiddleware>();      
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
+            
 
             using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
             var context = serviceScope.ServiceProvider.GetRequiredService<FarmAppContext>();

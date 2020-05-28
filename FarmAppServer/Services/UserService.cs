@@ -67,8 +67,8 @@ namespace FarmAppServer.Services
             if (string.IsNullOrEmpty(password))
                 throw new AppException("Password is required");
             
-            if (_context.Users.Any(x => x.UserName == user.UserName & x.IsDeleted == false))
-                throw new AppException("Username \"" + user.UserName + "\" is already taken");
+            if (_context.Users.Any(x => x.Login == user.Login & x.IsDeleted == false))
+                throw new AppException("Username \"" + user.Login + "\" is already taken");
 
             CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
 
@@ -145,19 +145,14 @@ namespace FarmAppServer.Services
         //user search by //⦁	TextBox  -> По Login, UserName
         public IQueryable UserSearchAsync(string param)
         {
-            //search by login
-            var users = _context.Users.Where(x => x.Login == param);
-            var usersLogin = users.ToList();
-            
-            if (usersLogin.Count == 0)
-            {
-                var usersUsername = _context.Users.Where(x => x.UserName == param);
-                return usersUsername;
-            }
-            else
-            {
-                return users;
-            }
+            if (string.IsNullOrEmpty(param))
+                throw new ArgumentException("Value cannot be null or empty.", nameof(param));
+
+            var query = _context.Users
+                .Where(x => x.FirstName.Contains(param) || x.LastName.Contains(param) || x.Role.RoleName.Contains(param)
+                || x.UserName.Contains(param)) ;
+
+            return query;
         }
 
         //check is enabled

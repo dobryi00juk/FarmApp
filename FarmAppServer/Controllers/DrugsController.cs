@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
+using FarmAppServer.Models.Drug;
+using FarmAppServer.Services;
 using FarmAppServer.Services.Paging;
 
 namespace FarmAppServer.Controllers
@@ -17,10 +20,14 @@ namespace FarmAppServer.Controllers
     public class DrugsController : ControllerBase
     {
         private readonly FarmAppContext _context;
+        private readonly IMapper _mapper;
+        private readonly IDrugService _drugService;
 
-        public DrugsController(FarmAppContext context)
+        public DrugsController(FarmAppContext context, IMapper mapper, IDrugService drugService)
         {
             _context = context;
+            _mapper = mapper;
+            _drugService = drugService;
         }
 
         // GET: api/Drugs
@@ -100,20 +107,25 @@ namespace FarmAppServer.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Drug>> PostDrug(Drug drug)
+        public async Task<ActionResult<DrugDto>> PostDrug([FromBody]DrugDto model)
         {
-            if (drug == null) throw new ArgumentNullException(nameof(drug));
+            if (!ModelState.IsValid)
+                return BadRequest();
 
             try
             {
-                _context.Drugs.Add(drug);
-                await _context.SaveChangesAsync();
+                var drug = _mapper.Map<Drug>(model);
+                var result = await _drugService.PostDrug(drug);
 
-                return CreatedAtAction("GetDrug", new { id = drug.Id }, drug);
+                return Created("PostDrug", result);
             }
             catch (Exception e)
             {
-                return BadRequest(new {e.Message, e.StackTrace});
+                return BadRequest(new ResponseBody
+                {
+                    Header = "Error",
+                    Result = $"{e.Message}"
+                });
             }
             
         }

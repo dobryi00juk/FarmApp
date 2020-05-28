@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Helpers;
 using FarmAppServer.Models;
+using FarmAppServer.Models.Pharmacy;
+using FarmAppServer.Services;
 using FarmAppServer.Services.Paging;
 
 namespace FarmAppServer.Controllers
@@ -17,21 +21,26 @@ namespace FarmAppServer.Controllers
     public class PharmaciesController : ControllerBase
     {
         private readonly FarmAppContext _context;
+        private readonly IMapper _mapper;
+        private readonly IPharmacyService _pharmacyService;
 
-        public PharmaciesController(FarmAppContext context)
+        public PharmaciesController(FarmAppContext context, IMapper mapper, IPharmacyService pharmacyService)
         {
             _context = context;
+            _mapper = mapper;
+            _pharmacyService = pharmacyService;
         }
 
         // GET: api/Pharmacies
         [HttpGet]
-        public ActionResult<IEnumerable<Pharmacy>> GetPharmacies([FromQuery]int page = 1, int pageSize = 25)
+        public ActionResult<IEnumerable<PharmacyFilterDto>> GetPharmacies([FromQuery]int page = 1, int pageSize = 25)
         {
             var pharmacies = _context.Pharmacies.Where(x => x.IsDeleted == false);
             
             try
             {
-                var query = pharmacies.GetPaged(page, pageSize);
+                var model = _mapper.ProjectTo<PharmacyFilterDto>(pharmacies);
+                var query = model.GetPaged(page, pageSize);
 
                 return Ok(query);
             }
@@ -46,14 +55,18 @@ namespace FarmAppServer.Controllers
         }
 
         // GET: api/Pharmacies/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Pharmacy>> GetPharmacy(int id)
+        [HttpGet("GetById")]
+        public async Task<ActionResult<Pharmacy>> GetPharmacy([FromQuery]int id)
         {
             var pharmacy = await _context.Pharmacies.FindAsync(id);
 
             if (pharmacy == null)
             {
-                return NotFound();
+                return NotFound(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Pharmacy not found"
+                });
             }
 
             if (pharmacy.IsDeleted == true)
@@ -61,7 +74,7 @@ namespace FarmAppServer.Controllers
                 return BadRequest(new ResponseBody()
                 {
                     Header = "Error",
-                    Result = "Роль не найдена"
+                    Result = "Pharmacy not found"
                 });
             }
 
@@ -71,50 +84,55 @@ namespace FarmAppServer.Controllers
         // PUT: api/Pharmacies/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPharmacy(int id, Pharmacy pharmacy)
+        [HttpPut]
+        public IActionResult PutPharmacy([FromQuery]int id, [FromBody]PharmacyDto model)
         {
-            if (id != pharmacy.Id)
-            {
+            if (!ModelState.IsValid)
                 return BadRequest();
-            }
 
-            _context.Entry(pharmacy).State = EntityState.Modified;
+            var pharmacy = _mapper.Map<Pharmacy>(model);
+            pharmacy.Id = id;
 
             try
             {
-                await _context.SaveChangesAsync();
+                _pharmacyService.UpdatePharmacyAsync(pharmacy);
+                return Ok();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (AppException ex)
             {
-                if (!PharmacyExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest(new {message = ex.Message, ex.StackTrace});
             }
-
-            return NoContent();
         }
 
         // POST: api/Pharmacies
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Pharmacy>> PostPharmacy(Pharmacy pharmacy)
+        public async Task<ActionResult<Pharmacy>> PostPharmacy([FromBody]PharmacyDto model)
         {
-            _context.Pharmacies.Add(pharmacy);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+                return BadRequest();
+                
+            try
+            {
+                var pharmacy = _mapper.Map<Pharmacy>(model);
+                var result = await _pharmacyService.PostPharmacyAsync(pharmacy);
 
-            return CreatedAtAction("GetPharmacy", new { id = pharmacy.Id }, pharmacy);
+                return Created("PostPharmacy", result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new ResponseBody
+                {
+                    Header = "Error",
+                    Result = $"{e.Message}"
+                });
+            }
         }
 
         // DELETE: api/Pharmacies/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Pharmacy>> DeletePharmacy(int id)
+        [HttpDelete]
+        public async Task<ActionResult<Pharmacy>> DeletePharmacy([FromQuery]int id)
         {
             var pharmacy = await _context.Pharmacies.FindAsync(id);
             if (pharmacy == null)
@@ -132,6 +150,28 @@ namespace FarmAppServer.Controllers
         private bool PharmacyExists(int id)
         {
             return _context.Pharmacies.Any(e => e.Id == id && e.IsDeleted == false);
+        }
+
+
+        //Фильтры: TextBox -> PharmacyName
+        [HttpGet("Search")]
+        public async Task<ActionResult<PharmacyFilterDto>> SearchAsync([FromQuery] string pharmacyName)
+        {
+            try
+            {
+                var pharmacies = _pharmacyService.SearchPharmacy(pharmacyName);
+                var model = await _mapper.ProjectTo<PharmacyFilterDto>(pharmacies).ToListAsync();
+
+                return Ok(model);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new ResponseBody
+                {
+                    Header = "Error",
+                    Result = $"{e.Message}"
+                });
+            }
         }
     }
 }

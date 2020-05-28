@@ -31,6 +31,9 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(350)")
                         .HasMaxLength(350);
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<string>("HttpMethod")
                         .IsRequired()
                         .HasColumnType("character varying(350)")
@@ -1008,6 +1011,9 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
                     b.Property<int>("DrugId")
                         .HasColumnType("integer");
 
@@ -1031,13 +1037,41 @@ namespace FarmApp.Infrastructure.Data.Migrations
                     b.Property<DateTime>("SaleDate")
                         .HasColumnType("date");
 
+                    b.Property<int?>("SaleImportFileId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DrugId");
 
                     b.HasIndex("PharmacyId");
 
+                    b.HasIndex("SaleImportFileId");
+
                     b.ToTable("Sales","tab");
+                });
+
+            modelBuilder.Entity("FarmApp.Domain.Core.Entity.SaleImportFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("date");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("character varying(255)")
+                        .HasMaxLength(255);
+
+                    b.Property<DateTime>("UpdateTime")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SaleImportFiles","tab");
                 });
 
             modelBuilder.Entity("FarmApp.Domain.Core.Entity.Stock", b =>
@@ -1219,6 +1253,10 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         .HasForeignKey("PharmacyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("FarmApp.Domain.Core.Entity.SaleImportFile", "SaleImportFile")
+                        .WithMany()
+                        .HasForeignKey("SaleImportFileId");
                 });
 
             modelBuilder.Entity("FarmApp.Domain.Core.Entity.Stock", b =>

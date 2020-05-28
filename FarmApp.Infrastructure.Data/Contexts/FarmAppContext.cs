@@ -12,7 +12,7 @@ namespace FarmApp.Infrastructure.Data.Contexts
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<Drug> Drugs { get; set; }
-        public virtual DbSet<Stock> Stoks { get; set; }
+        public virtual DbSet<Stock> Stocks { get; set; }
         public virtual DbSet<CodeAthType> CodeAthTypes { get; set; }
         public virtual DbSet<Pharmacy> Pharmacies { get; set; }
         public virtual DbSet<Region> Regions { get; set; }
@@ -20,6 +20,7 @@ namespace FarmApp.Infrastructure.Data.Contexts
         public virtual DbSet<Sale> Sales { get; set; }
         public virtual DbSet<Vendor> Vendors { get; set; }
         public virtual DbSet<Log> Logs { get; set; }
+        public virtual DbSet<SaleImportFile> SaleImportFiles { get; set; }
 
         public FarmAppContext(DbContextOptions<FarmAppContext> options)
             : base(options)
@@ -163,6 +164,14 @@ namespace FarmApp.Infrastructure.Data.Contexts
                     entity.Property(p => p.ProducingCountry).IsRequired().HasMaxLength(255);
                     entity.Property(p => p.IsDomestic).IsRequired();//.HasDefaultValueSql(CommandSql.DefaultFalse);
                     entity.Property(p => p.IsDeleted).IsRequired();//.HasDefaultValueSql(CommandSql.DefaultFalse);
+                });
+
+                modelBuilder.Entity<SaleImportFile>(entity =>
+                {
+                    entity.ToTable(Table.SaleImportFile, Schema.Tab);
+                    entity.Property(p => p.FileName).IsRequired().HasMaxLength(255);
+                    entity.Property(p => p.CreateTime).IsRequired().HasColumnType(CommandSql.DateTime);
+                    entity.Property(p => p.UpdateTime).IsRequired().HasColumnType(CommandSql.DateTime);
                 });
             }
         }

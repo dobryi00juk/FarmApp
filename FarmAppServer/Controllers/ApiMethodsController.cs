@@ -75,8 +75,6 @@ namespace FarmAppServer.Controllers
         }
 
         // PUT: api/ApiMethods/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
         public async Task<IActionResult> PutApiMethod(int id, ApiMethod apiMethod)
         {
@@ -107,8 +105,6 @@ namespace FarmAppServer.Controllers
         }
 
         // POST: api/ApiMethods
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
         public async Task<ActionResult<ApiMethod>> PostApiMethod(ApiMethod apiMethod)
         {

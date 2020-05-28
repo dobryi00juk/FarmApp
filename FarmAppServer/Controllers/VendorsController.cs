@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.OpenApi.Validations;
 
 namespace FarmAppServer.Controllers
 {
@@ -29,127 +31,100 @@ namespace FarmAppServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<VendorDto>>> GetVendors()
         {
-            try
-            {
-                var vendors = _context.Vendors.Where(x => x.IsDeleted == false);
-                var model = await _mapper.ProjectTo<VendorDto>(vendors).ToListAsync();
-                return model;
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new {e.Message, e.StackTrace});
-            }
+            var vendors = _context.Vendors;
+
+            if (vendors == null)
+                return NotFound(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Vendors not found"
+                });
+
+            var model = await _mapper.ProjectTo<VendorDto>(vendors).ToListAsync();
+            
+            return model;
         }
 
         // GET: api/Vendors/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Vendor>> GetVendor(int id)
+        [HttpGet("VendorById")]
+        public async Task<ActionResult<VendorDto>> GetVendor([FromQuery]int id)
         {
-            try
-            {
-                var vendor = await _context.Vendors.FindAsync(id);
+             var vendor = await _context.Vendors.FindAsync(id);
 
-                if (vendor == null)
-                {
-                    return NotFound();
-                }
+             if (vendor == null)
+                 return NotFound();
 
-                if (vendor.IsDeleted == true)
-                {
-                    return BadRequest(new ResponseBody()
-                    {
-                        Header = "Error",
-                        Result = "Роль не найдена"
-                    });
-                }
+             if (vendor.IsDeleted == true)
+                 return BadRequest(new ResponseBody()
+                 {
+                     Header = "Error",
+                     Result = "Vendor not found"
+                 });
+             
+             var result = _mapper.Map<VendorDto>(vendor);
 
-                return vendor;
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new {e.Message, e.StackTrace});
-            }
+             return Ok(result);
         }
 
         // PUT: api/Vendors/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutVendor(int id, Vendor vendor)
+        [HttpPut]
+        public async Task<ActionResult<VendorDto>> PutVendor([FromQuery]int id, [FromBody]JsonPatchDocument model)// Vendor model)
         {
-            if (id != vendor.Id)
-            {
+            if (!ModelState.IsValid)
                 return BadRequest();
-            }
 
-            _context.Entry(vendor).State = EntityState.Modified;
+            var vendor = await _context.Vendors.Where(x => x.Id == id).FirstOrDefaultAsync();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!VendorExists(id))
+            if (vendor == null)
+                return NotFound(new ResponseBody()
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    Header = "Error",
+                    Result = "Vendor nor found"
+                });
 
-            return NoContent();
+            _mapper.Map(model, vendor);
+            _context.Update(vendor);
+            await _context.SaveChangesAsync();
+
+            var result = _mapper.Map<VendorDto>(vendor);
+
+            return Ok(result);
         }
 
         // POST: api/Vendors
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Vendor>> PostVendor(VendorDto vendorDto)
+        public async Task<ActionResult<VendorDto>> PostVendor([FromBody]VendorDto model)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest();
-            }
-            try
-            {
-                var vendor = _mapper.Map<Vendor>(vendorDto);
-                _context.Vendors.Add(vendor);
-                await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetVendor", new { id = vendor.Id }, vendor);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new {e.Message, e.StackTrace});
-            }
+            var vendor = _mapper.Map<Vendor>(model);
+            _context.Vendors.Add(vendor);
+            await _context.SaveChangesAsync();
+
+            return Created("PostRegion", vendor);
         }
 
         // DELETE: api/Vendors/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Vendor>> DeleteVendor(int id)
+        [HttpDelete]
+        public async Task<ActionResult<VendorDto>> DeleteVendor([FromQuery]int id)
         {
-            try
-            {
-                var vendor = await _context.Vendors.FindAsync(id);
-                if (vendor == null)
-                {
-                    return NotFound();
-                }
+             var vendor = await _context.Vendors.FindAsync(id);
 
-                //_context.Vendors.Remove(vendor);
-                vendor.IsDeleted = true;
-                await _context.SaveChangesAsync();
+             if (vendor == null)
+                 return NotFound(new ResponseBody()
+                 {
+                     Header = "Error",
+                     Result = "vendor not found"
+                 });
 
-                return vendor;
-            }
-            catch (Exception e)
-            {
-                BadRequest(new {e.Message, e.StackTrace});
-                throw;
-            }
+             //_context.Vendors.Remove(vendor);
+             vendor.IsDeleted = true;
+             await _context.SaveChangesAsync();
+
+             var result = _mapper.Map<VendorDto>(vendor);
+
+             return result;
         }
 
         private bool VendorExists(int id)

@@ -9,20 +9,26 @@ using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Helpers;
 using FarmAppServer.Models;
+using FarmAppServer.Models.Roles;
+using FarmAppServer.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FarmAppServer.Controllers
 {
+    //[Authorize(Roles = "admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class RolesController : ControllerBase
     {
         private readonly FarmAppContext _context;
         private readonly IMapper _mapper;
+        private readonly IRoleService _roleService;
 
-        public RolesController(FarmAppContext context,IMapper mapper)
+        public RolesController(FarmAppContext context,IMapper mapper, IRoleService roleService)
         {
             _context = context;
             _mapper = mapper;
+            _roleService = roleService;
         }
 
         // GET: api/Roles
@@ -37,8 +43,8 @@ namespace FarmAppServer.Controllers
         }
 
         // GET: api/Roles/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<RoleDto>> GetRole(int id)
+        [HttpGet("RoleById")]
+        public async Task<ActionResult<RoleDto>> GetRole([FromQuery]int id)
         {
             var role = await _context.Roles.FindAsync(id);
 
@@ -47,7 +53,7 @@ namespace FarmAppServer.Controllers
                 return BadRequest(new ResponseBody()
                 {
                     Header = "Error",
-                    Result = "Роль не найдена"
+                    Result = "Role no found"
                 });
             }
 
@@ -56,7 +62,7 @@ namespace FarmAppServer.Controllers
                 return BadRequest(new ResponseBody()
                 {
                     Header = "Error",
-                    Result = "Роль не найдена"
+                    Result = "Role no found"
                 });
             }
 
@@ -65,59 +71,43 @@ namespace FarmAppServer.Controllers
         }
 
         // PUT: api/Roles/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutRole(int id, Role role)
+        [HttpPut]
+        public async Task<IActionResult> PutRole([FromQuery]int id, [FromBody]UpdateRoleDto model)
         {
-            if (role == null) throw new ArgumentNullException(nameof(role));
-
-            if (id != role.Id)
-            {
+            if (!ModelState.IsValid)
                 return BadRequest();
-            }
 
-            _context.Entry(role).State = EntityState.Modified;
+            var role = await _context.Roles.Where(x => x.Id == id).FirstOrDefaultAsync();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RoleExists(role.RoleName))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            if (role == null)
+                return NotFound("Role not found");
+
+            _mapper.Map(model, role);
+            _context.Update(role);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         // POST: api/Roles
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Role>> PostRole(Role role)
+        public async Task<IActionResult> PostRole([FromBody]PostRoleDto model)
         {
-            if (role == null) throw new ArgumentNullException(nameof(role));
+            if (!ModelState.IsValid) return BadRequest();
             
-            if (RoleExists(role.RoleName))
-                return BadRequest("Username \"" + role.RoleName + "\" is already taken");
+            if (RoleExists(model.RoleName))
+                return BadRequest("Username \"" + model.RoleName + "\" is already taken");
 
+            var role = _mapper.Map<Role>(model);
             _context.Roles.Add(role);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRole", new { id = role.Id }, role);
+            return Created("PostRole", _mapper.Map<RoleDto>(role));
         }
 
         // DELETE: api/Roles/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Role>> DeleteRole(int id)
+        [HttpDelete]
+        public async Task<ActionResult<Role>> DeleteRole([FromQuery]int id)
         {
             var role = await _context.Roles.FindAsync(id);
             if (role == null)
@@ -134,10 +124,26 @@ namespace FarmAppServer.Controllers
 
         private bool RoleExists(string roleName)
         {
-            if (string.IsNullOrEmpty(roleName))
-                throw new ArgumentException("Value cannot be null or empty.", nameof(roleName));
+            return !string.IsNullOrEmpty(roleName) && _context.Roles.Any(e => e.RoleName == roleName && e.IsDeleted == false);
+        }
 
-            return _context.Roles.Any(e => e.RoleName == roleName && e.IsDeleted == false);
+        [HttpGet("SearchRole")]
+        public async Task<ActionResult<IEnumerable<RoleDto>>> Search([FromQuery]string param)
+        {
+            try
+            {
+                var query = _roleService.RoleSearch(param);
+                var result = await _mapper.ProjectTo<RoleDto>(query).ToListAsync();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = $"{e.Message}"
+                });
+            }
         }
     }
 }

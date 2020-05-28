@@ -1,30 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using FarmApp.Domain.Core.Entity;
-using FarmApp.Infrastructure.Data.Contexts;
-using FarmAppServer.Extantions;
 using FarmAppServer.Helpers;
 using FarmAppServer.Models;
 using FarmAppServer.Models.Users;
 using FarmAppServer.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 
 namespace FarmAppServer.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -38,8 +32,6 @@ namespace FarmAppServer.Controllers
             _mapper = mapper;
             _appSettings = appSettings.Value;
         }
-
-        #region My auth
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
@@ -89,59 +81,8 @@ namespace FarmAppServer.Controllers
 
         }
 
-        #endregion
-
-        //#region GetToken
-
-        //[HttpPost, Route("GetToken")]
-        //public async Task<IActionResult> Auntification([FromBody]RequestBody requestBody)
-        //{
-        //    var user = JsonConvert.DeserializeObject<User>(requestBody.Param);
-        //    user = await _context.Users.FirstOrDefaultAsync(x => x.Login == user.Login && x.Password == user.Password);
-
-        //    if (user == null)
-        //        return NotFound(new ResponseBody { Header = "Аунтификация", Result = "Неверный логин или пароль!" });
-
-        //    if (user.IsDeleted ?? true)
-        //        return BadRequest(new ResponseBody { Result = "Пользователь заблокирован!", Header = "Аунтификация" });
-        //    throw new Exception("сука");
-
-        //    var role = await _context.Roles.FirstOrDefaultAsync(x => x.Id == user.RoleId);
-        //    if (role == null)
-        //        return NotFound(new ResponseBody { Header = "Аунтификация", Result = "Неизвестная роль пользователя!" });
-
-        //    if (role.IsDeleted ?? true)
-        //        return BadRequest(new ResponseBody { Header = "Аунтификация", Result = "Роль удалена!" });
-
-        //    var tokenDescriptor = new SecurityTokenDescriptor
-        //    {
-        //        Subject = new ClaimsIdentity(new Claim[]
-        //        {
-        //            new Claim("UserId", user.Id.ToString()),
-        //            new Claim("RoleId", role.Id.ToString())
-        //        }),
-        //        Expires = DateTime.UtcNow.AddDays(1),
-        //        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.JWT_Secret)), SecurityAlgorithms.HmacSha256Signature)
-        //    };
-        //    var tokenHandler = new JwtSecurityTokenHandler();
-        //    var securityToken = tokenHandler.CreateToken(tokenDescriptor);
-        //    var token = tokenHandler.WriteToken(securityToken);
-        //    return Ok(new ResponseBody { Header = "Ok", Result = token });
-        //}
-
-        //#endregion
-
-
-
-
-
-
-
-
         //[AllowAnonymous]
-        //[Authorize(Roles = "admin")]
-
-
+        [Authorize(Roles = "admin")]
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody]RegisterModelDto model)
         {
@@ -162,30 +103,8 @@ namespace FarmAppServer.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserModelDto>>> GetAll([FromQuery]int page = 1, int pageSize = 25)
+        public async Task<ActionResult<IEnumerable<UserModelDto>>> GetAll([FromQuery]int page = 1, [FromQuery]int pageSize = 25)
         {
-            /*
-             
-            var sales = _context.Regions.Where(x => x.IsDeleted == false);
-            
-            try
-            {
-                var query = sales.GetPaged(page, pageSize);
-
-                return Ok(query);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = $"{e.Message}"
-                });
-            }
-            
-            */
-            
-            
             try
             {
                 var users = _userService.GetAllUsers();
@@ -198,8 +117,8 @@ namespace FarmAppServer.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserModelDto>> GetById(int id)
+        [HttpGet("UserById")]
+        public async Task<ActionResult<UserModelDto>> GetById([FromQuery]int id)
         {
             try
             {
@@ -214,8 +133,8 @@ namespace FarmAppServer.Controllers
             
         }
 
-        [HttpPut("{id}")]///////////&&&?????
-        public IActionResult Update(int id, [FromBody]UpdateModelDto model)
+        [HttpPut]
+        public IActionResult Update([FromQuery]int id, [FromBody]UpdateModelDto model)
         {
             // map model to entity and set id
             var user = _mapper.Map<User>(model);
@@ -234,8 +153,8 @@ namespace FarmAppServer.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [HttpDelete]
+        public IActionResult Delete([FromQuery]int id)
         {
             try
             {

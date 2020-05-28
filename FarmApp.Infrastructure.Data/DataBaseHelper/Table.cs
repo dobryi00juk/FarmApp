@@ -19,5 +19,6 @@ namespace FarmApp.Infrastructure.Data.DataBaseHelper
         public const string ApiMethod = "ApiMethods";
         public const string ApiMethodRole = "ApiMethodRoles";
         public const string Logs = "Logs";
+        public const string SaleImportFile = "SaleImportFiles";
     }
 }

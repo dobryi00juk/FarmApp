@@ -13,7 +13,7 @@ namespace FarmApp.Domain.Core.Entity
         }
 
         public int Id { get; set; }
-        public int? CodeAthId { get; set; }
+        public int? CodeAthId { get; set; }//parent code
         public string Code { get; set; }
         public string NameAth { get; set; }
         public bool? IsDeleted { get; set; } = false;

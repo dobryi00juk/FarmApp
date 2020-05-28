@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
+using FarmAppServer.Models.Regions;
 using FarmAppServer.Services;
 using FarmAppServer.Services.Paging;
 
@@ -31,41 +32,24 @@ namespace FarmAppServer.Controllers
 
         // GET: api/Regions
         [HttpGet]
-        public ActionResult<IEnumerable<RegionDto>> GetRegions([FromQuery]int page = 1, int pageSize = 25)
+        public ActionResult<IEnumerable<RegionDto>> GetRegions([FromQuery]int page = 1, [FromQuery]int pageSize = 25)
         {
-            var regions = _context.Regions.Where(x => x.IsDeleted == false);
+            var regions = _context.Regions.Include(x => x.Regions);
             
-            try
-            {
-                var model = _mapper.ProjectTo<RegionDto>(regions);
-                var query = model.GetPaged(page, pageSize);
+            var model = _mapper.ProjectTo<RegionDto>(regions);
+            var query = model.GetPaged(page, pageSize);
 
-                return Ok(query);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = $"{e.Message}"
-                });
-            }
-            
-            // return await _context.Regions.Where(x => x.IsDeleted == false)
-            // .Include(x => x.RegionType)
-            // .ToListAsync();
+            return Ok(query);
         }
 
         // GET: api/Regions/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Region>> GetRegion(int id)
+        [HttpGet("RegionById")]
+        public async Task<ActionResult<RegionDto>> GetRegion([FromQuery]int id)
         {
             var region = await _context.Regions.FindAsync(id);
 
             if (region == null)
-            {
                 return NotFound();
-            }
 
             if (region.IsDeleted == true)
             {
@@ -76,68 +60,55 @@ namespace FarmAppServer.Controllers
                 });
             }
 
-            return region;
+            var result = _mapper.Map<RegionDto>(region);
+            return result;
         }
 
         // PUT: api/Regions/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutRegion(int id, Region region)
+        [HttpPut]
+        public async Task<ActionResult<RegionDto>> PutRegion([FromQuery]int id, [FromBody]UpdateRegionDto model)
         {
-            if (id != region.Id)
-            {
+            if(!ModelState.IsValid) 
                 return BadRequest();
-            }
+            
+            var region = await _context.Regions.Where(r => r.Id == id).FirstOrDefaultAsync();
 
-            _context.Entry(region).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RegionExists(id))
+            if (region == null)
+                return NotFound(new ResponseBody()
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    Header = "Error",
+                    Result = "Region not found"
+                });
 
-            return NoContent();
-        }
-
-        // POST: api/Regions
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPost]
-        public async Task<ActionResult<Region>> PostRegion(Region region)
-        {
-            _context.Regions.Add(region);
+            _mapper.Map(model, region);
+            _context.Update(region);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRegion", new { id = region.Id }, region);
+            var result = _mapper.Map<RegionDto>(region);
+            
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<RegionDto>> PostRegion([FromBody]PostRegionDto model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var region = _mapper.Map<Region>(model);
+            var request = await _regionService.PostRegion(region);
+            var result = _mapper.Map<RegionDto>(request);
+
+            return Created("PostRegion", result);
         }
 
         // DELETE: api/Regions/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Region>> DeleteRegion(int id)
+        [HttpDelete]
+        public async Task<ActionResult<RegionDto>> DeleteRegion([FromQuery]int id)
         {
-            var region = await _context.Regions.FindAsync(id);
-            if (region == null)
-            {
-                return NotFound();
-            }
+            if (await _regionService.DeleteRegionAsync(id)) return Ok();
 
-            //_context.Regions.Remove(region);
-            region.IsDeleted = true;
-            await _context.SaveChangesAsync();
-
-            return region;
+            return NotFound("Region not found!");
         }
 
         private bool RegionExists(int id)
@@ -147,23 +118,12 @@ namespace FarmAppServer.Controllers
 
         //Фильтры: TextBox -> RegionName
         [HttpGet("SearchRegion")]
-        public async Task<ActionResult<RegionDto>> SearchRegion(string regionName)
+        public async Task<ActionResult<RegionDto>> SearchRegion([FromQuery]string regionName)
         {
-            if (string.IsNullOrEmpty(regionName))
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = $"Value cannot be null or empty. {nameof(regionName)}"
-                });
-
             var regions = _regionService.RegionNameSearch(regionName);
             var model = await _mapper.ProjectTo<RegionDto>(regions).ToListAsync();
-
+         
             return Ok(model);
         }
-
-        //Фильтры: CheckBoxCombobox(Мультивыбор) -> ParentRegionName
-        //public async Task<ActionResult<>>
-
     }
 }
