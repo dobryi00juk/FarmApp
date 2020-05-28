@@ -18,7 +18,7 @@ import { Sales } from '../sales/Sales';
 import { Route } from 'react-router-dom';
 import { Role } from '../administration/role/Role';
 import { Greeting } from '../greeting/Greeting';
-import { Chart } from '../reports/chart/Chart';
+import ChartComp from '../reports/chart/Chart';
 import { Pharmacy } from '../directories/pharmacy/Pharmacy';
 import { Preparations } from '../directories/preparation/Preparations';
 import { ATH } from '../directories/ath/ATH';
@@ -26,7 +26,6 @@ import { Produced } from '../directories/produced.tsx/Produced';
 import { Region } from '../directories/region/Region';
 import { User } from '../administration/user/User';
 import { Method } from '../administration/method/Method';
-import { Log } from '../administration/log/Log';
 import { AccessRole } from '../administration/accessRoles/AccessRole';
 const drawerWidth = 240;
 
@@ -180,7 +179,7 @@ export const ResponsiveDrawer = (props: ResponsiveDrawerProps) => {
             <Sales />
           </Route>
           <Route path={"/farm-app/charts/"}>
-            <Chart />
+            <ChartComp />
           </Route>
           <Route path={"/farm-app/pharmacy/"}>
             <Pharmacy />
@@ -208,9 +207,6 @@ export const ResponsiveDrawer = (props: ResponsiveDrawerProps) => {
           </Route>
           <Route path={"/farm-app/access/"}>
             <AccessRole />
-          </Route>
-          <Route path={"/farm-app/logs/"}>
-            <Log />
           </Route>
         </Typography>
       </main>
