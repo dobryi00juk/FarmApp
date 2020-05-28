@@ -3,8 +3,8 @@ using System;
 using FarmApp.Infrastructure.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FarmApp.Infrastructure.Data.Migrations
 {
@@ -15,49 +15,57 @@ namespace FarmApp.Infrastructure.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 .HasAnnotation("ProductVersion", "3.1.3")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("FarmApp.Domain.Core.Entity.ApiMethod", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ApiMethodName")
                         .IsRequired()
-                        .HasColumnType("character varying(350)")
+                        .HasColumnType("nvarchar(350)")
                         .HasMaxLength(350);
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(4000)")
+                        .HasMaxLength(4000);
 
                     b.Property<string>("HttpMethod")
                         .IsRequired()
-                        .HasColumnType("character varying(350)")
+                        .HasColumnType("nvarchar(350)")
                         .HasMaxLength(350);
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<bool?>("IsNeedAuthentication")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<bool?>("IsNotNullParam")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<string>("PathUrl")
                         .IsRequired()
-                        .HasColumnType("character varying(350)")
+                        .HasColumnType("nvarchar(350)")
                         .HasMaxLength(350);
 
                     b.Property<string>("StoredProcedureName")
-                        .HasColumnType("character varying(350)")
+                        .HasColumnType("nvarchar(350)")
                         .HasMaxLength(350);
 
                     b.HasKey("Id");
@@ -72,6 +80,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 1,
                             ApiMethodName = "Authenticate",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = false,
@@ -82,6 +91,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 2,
                             ApiMethodName = "Register",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = false,
@@ -92,6 +102,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 3,
                             ApiMethodName = "GetAll",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -102,6 +113,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 4,
                             ApiMethodName = "GetById",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -112,6 +124,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 5,
                             ApiMethodName = "Update",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -122,6 +135,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 6,
                             ApiMethodName = "Delete",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -132,6 +146,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 7,
                             ApiMethodName = "GetUsersByRoleAsync",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -142,6 +157,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 8,
                             ApiMethodName = "SearchUser",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -152,6 +168,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 9,
                             ApiMethodName = "GetVendors",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -162,6 +179,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 10,
                             ApiMethodName = "GetVendor",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -172,6 +190,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 11,
                             ApiMethodName = "PutVendor",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -182,6 +201,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 12,
                             ApiMethodName = "PostVendor",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -192,6 +212,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 13,
                             ApiMethodName = "DeleteVendor",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -202,6 +223,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 14,
                             ApiMethodName = "GetSales",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -212,6 +234,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 15,
                             ApiMethodName = "GetSale",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -222,6 +245,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 16,
                             ApiMethodName = "PutSale",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -232,6 +256,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 17,
                             ApiMethodName = "PostSale",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -242,6 +267,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 18,
                             ApiMethodName = "DeleteSale",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -252,6 +278,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 54,
                             ApiMethodName = "GetRoles",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -262,6 +289,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 55,
                             ApiMethodName = "GetRole",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -272,6 +300,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 56,
                             ApiMethodName = "PutRole",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -282,6 +311,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 57,
                             ApiMethodName = "PostRole",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -292,6 +322,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 58,
                             ApiMethodName = "DeleteRole",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -302,6 +333,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 19,
                             ApiMethodName = "GetRegionTypes",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -312,6 +344,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 20,
                             ApiMethodName = "GetRegionType",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -322,6 +355,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 21,
                             ApiMethodName = "PutRegionType",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -332,6 +366,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 22,
                             ApiMethodName = "PostRegionType",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -342,6 +377,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 23,
                             ApiMethodName = "DeleteRegionType",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -352,6 +388,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 24,
                             ApiMethodName = "GetRegions",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -362,6 +399,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 25,
                             ApiMethodName = "GetRegion",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -372,6 +410,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 26,
                             ApiMethodName = "PutRegion",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -382,6 +421,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 27,
                             ApiMethodName = "PostRegion",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -392,6 +432,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 28,
                             ApiMethodName = "DeleteRegion",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -402,6 +443,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 29,
                             ApiMethodName = "GetPharmacies",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -412,6 +454,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 30,
                             ApiMethodName = "GetPharmacy",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -422,6 +465,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 31,
                             ApiMethodName = "PutPharmacy",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -432,6 +476,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 32,
                             ApiMethodName = "PostPharmacy",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -442,6 +487,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 33,
                             ApiMethodName = "DeletePharmacy",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -452,6 +498,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 34,
                             ApiMethodName = "GetDrugs",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -462,6 +509,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 35,
                             ApiMethodName = "GetDrug",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -472,6 +520,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 36,
                             ApiMethodName = "PutDrug",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -482,6 +531,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 37,
                             ApiMethodName = "PostDrug",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -492,6 +542,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 38,
                             ApiMethodName = "DeleteDrug",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -502,6 +553,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 39,
                             ApiMethodName = "GetCodeAthTypes",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -512,6 +564,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 40,
                             ApiMethodName = "GetCodeAthType",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -522,6 +575,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 41,
                             ApiMethodName = "PutCodeAthType",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -532,6 +586,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 42,
                             ApiMethodName = "PostCodeAthType",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -542,6 +597,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 43,
                             ApiMethodName = "DeleteCodeAthType",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -552,6 +608,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 44,
                             ApiMethodName = "GetApiMethods",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -562,6 +619,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 45,
                             ApiMethodName = "GetApiMethod",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -572,6 +630,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 46,
                             ApiMethodName = "PutApiMethod",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -582,6 +641,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 47,
                             ApiMethodName = "PostApiMethod",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -592,6 +652,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 48,
                             ApiMethodName = "DeleteApiMethod",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -602,6 +663,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 49,
                             ApiMethodName = "GetApiMethodRoles",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -612,6 +674,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 50,
                             ApiMethodName = "GetApiMethodRole",
+                            Description = "",
                             HttpMethod = "GET",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -622,6 +685,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 51,
                             ApiMethodName = "PutApiMethodRole",
+                            Description = "",
                             HttpMethod = "PUT",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -632,6 +696,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 52,
                             ApiMethodName = "PostApiMethodRole",
+                            Description = "",
                             HttpMethod = "POST",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -642,6 +707,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         {
                             Id = 53,
                             ApiMethodName = "DeleteApiMethodRole",
+                            Description = "",
                             HttpMethod = "DELETE",
                             IsDeleted = false,
                             IsNeedAuthentication = true,
@@ -654,18 +720,20 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("ApiMethodId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<int>("RoleId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -703,24 +771,26 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
                     b.Property<int?>("CodeAthId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<string>("NameAth")
                         .IsRequired()
-                        .HasColumnType("character varying(350)")
+                        .HasColumnType("nvarchar(350)")
                         .HasMaxLength(350);
 
                     b.HasKey("Id");
@@ -734,30 +804,34 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("CodeAthTypeId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("DrugName")
                         .IsRequired()
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<bool?>("IsGeneric")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<int?>("StockId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("VendorId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -774,66 +848,66 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Exception")
-                        .HasColumnType("character varying(4000)")
+                        .HasColumnType("nvarchar(4000)")
                         .HasMaxLength(4000);
 
                     b.Property<DateTime?>("FactTime")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Header")
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
                     b.Property<string>("HeaderRequest")
-                        .HasColumnType("character varying(4000)")
+                        .HasColumnType("nvarchar(4000)")
                         .HasMaxLength(4000);
 
                     b.Property<string>("HeaderResponse")
-                        .HasColumnType("character varying(4000)")
+                        .HasColumnType("nvarchar(4000)")
                         .HasMaxLength(4000);
 
                     b.Property<string>("HttpMethod")
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
                     b.Property<string>("MethodRoute")
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
                     b.Property<string>("Param")
-                        .HasColumnType("character varying(4000)")
+                        .HasColumnType("nvarchar(4000)")
                         .HasMaxLength(4000);
 
                     b.Property<string>("PathUrl")
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
                     b.Property<DateTime?>("RequestTime")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid?>("ResponseId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("ResponseTime")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Result")
-                        .HasColumnType("character varying(4000)")
+                        .HasColumnType("nvarchar(4000)")
                         .HasMaxLength(4000);
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
                     b.Property<int?>("StatusCode")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
                     b.HasKey("Id");
@@ -845,33 +919,41 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<bool?>("IsMode")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<bool?>("IsNetwork")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<bool?>("IsType")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<int?>("PharmacyId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("PharmacyName")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RegionId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -886,26 +968,30 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<int>("Population")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValueSql("0");
 
                     b.Property<int?>("RegionId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("RegionName")
                         .IsRequired()
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
                     b.Property<int>("RegionTypeId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -920,16 +1006,18 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<string>("RegionTypeName")
                         .IsRequired()
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
                     b.HasKey("Id");
@@ -973,16 +1061,18 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<string>("RoleName")
                         .IsRequired()
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
                     b.HasKey("Id");
@@ -1009,36 +1099,40 @@ namespace FarmApp.Infrastructure.Data.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("MONEY");
 
                     b.Property<int>("DrugId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<bool?>("IsDiscount")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<int>("PharmacyId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("MONEY");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("SaleDate")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime");
 
                     b.Property<int?>("SaleImportFileId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1055,19 +1149,19 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime");
 
                     b.HasKey("Id");
 
@@ -1078,11 +1172,11 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("PharmacyId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasMaxLength(20);
 
                     b.HasKey("Id");
@@ -1096,41 +1190,43 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
 
                     b.Property<string>("Login")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("bytea");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PasswordSalt")
                         .IsRequired()
-                        .HasColumnType("bytea");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<int>("RoleId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasMaxLength(20);
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
 
                     b.HasKey("Id");
@@ -1144,25 +1240,29 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<bool?>("IsDomestic")
                         .IsRequired()
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((0))");
 
                     b.Property<string>("ProducingCountry")
                         .IsRequired()
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
                     b.Property<string>("VendorName")
                         .IsRequired()
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
                     b.HasKey("Id");

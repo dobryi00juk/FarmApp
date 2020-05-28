@@ -10,5 +10,6 @@ namespace FarmAppServer.Models
         public string LastName { get; set; }
         public string Login { get; set; }
         public UserRoleDto Role { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FarmApp.Infrastructure.Data.Migrations
 {
@@ -26,14 +25,15 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     ApiMethodName = table.Column<string>(maxLength: 350, nullable: false),
+                    Description = table.Column<string>(maxLength: 4000, nullable: false),
                     StoredProcedureName = table.Column<string>(maxLength: 350, nullable: true),
                     PathUrl = table.Column<string>(maxLength: 350, nullable: false),
                     HttpMethod = table.Column<string>(maxLength: 350, nullable: false),
-                    IsNotNullParam = table.Column<bool>(nullable: false),
-                    IsNeedAuthentication = table.Column<bool>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsNotNullParam = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
+                    IsNeedAuthentication = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {
@@ -46,11 +46,11 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     CodeAthId = table.Column<int>(nullable: true),
                     Code = table.Column<string>(maxLength: 50, nullable: false),
                     NameAth = table.Column<string>(maxLength: 350, nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {
@@ -70,9 +70,9 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     RegionTypeName = table.Column<string>(maxLength: 255, nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {
@@ -85,9 +85,9 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     RoleName = table.Column<string>(maxLength: 50, nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {
@@ -100,11 +100,11 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     VendorName = table.Column<string>(maxLength: 255, nullable: false),
                     ProducingCountry = table.Column<string>(maxLength: 255, nullable: false),
-                    IsDomestic = table.Column<bool>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsDomestic = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {
@@ -117,7 +117,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(maxLength: 50, nullable: true),
                     RoleId = table.Column<string>(maxLength: 50, nullable: true),
                     HttpMethod = table.Column<string>(maxLength: 255, nullable: true),
@@ -141,17 +141,33 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SaleImportFiles",
+                schema: "tab",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FileName = table.Column<string>(maxLength: 255, nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "datetime", nullable: false),
+                    UpdateTime = table.Column<DateTime>(type: "datetime", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SaleImportFiles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Regions",
                 schema: "dist",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     RegionId = table.Column<int>(nullable: true),
                     RegionTypeId = table.Column<int>(nullable: false),
                     RegionName = table.Column<string>(maxLength: 255, nullable: false),
-                    Population = table.Column<int>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    Population = table.Column<int>(nullable: false, defaultValueSql: "0"),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {
@@ -178,10 +194,10 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     ApiMethodId = table.Column<int>(nullable: false),
                     RoleId = table.Column<int>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {
@@ -208,7 +224,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Login = table.Column<string>(nullable: true),
                     UserName = table.Column<string>(maxLength: 20, nullable: false),
                     FirstName = table.Column<string>(maxLength: 20, nullable: false),
@@ -216,7 +232,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                     PasswordHash = table.Column<byte[]>(nullable: false),
                     PasswordSalt = table.Column<byte[]>(nullable: false),
                     RoleId = table.Column<int>(maxLength: 20, nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {
@@ -236,14 +252,14 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     PharmacyId = table.Column<int>(nullable: true),
                     PharmacyName = table.Column<string>(nullable: true),
                     RegionId = table.Column<int>(nullable: false),
-                    IsMode = table.Column<bool>(nullable: false),
-                    IsType = table.Column<bool>(nullable: false),
-                    IsNetwork = table.Column<bool>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsMode = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
+                    IsType = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
+                    IsNetwork = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {
@@ -270,7 +286,7 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     PharmacyId = table.Column<int>(maxLength: 20, nullable: false)
                 },
                 constraints: table =>
@@ -291,12 +307,12 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     DrugName = table.Column<string>(maxLength: 255, nullable: false),
                     CodeAthTypeId = table.Column<int>(nullable: false),
                     VendorId = table.Column<int>(nullable: false),
-                    IsGeneric = table.Column<bool>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false),
+                    IsGeneric = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
                     StockId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -331,14 +347,16 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     DrugId = table.Column<int>(nullable: false),
                     PharmacyId = table.Column<int>(nullable: false),
-                    SaleDate = table.Column<DateTime>(type: "date", nullable: false),
+                    SaleImportFileId = table.Column<int>(nullable: true),
+                    SaleDate = table.Column<DateTime>(type: "datetime", nullable: false),
                     Price = table.Column<decimal>(type: "MONEY", nullable: false),
+                    Amount = table.Column<decimal>(type: "MONEY", nullable: false),
                     Quantity = table.Column<int>(nullable: false),
-                    IsDiscount = table.Column<bool>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsDiscount = table.Column<bool>(nullable: false, defaultValueSql: "((0))"),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {
@@ -357,72 +375,79 @@ namespace FarmApp.Infrastructure.Data.Migrations
                         principalTable: "Pharmacies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Sales_SaleImportFiles_SaleImportFileId",
+                        column: x => x.SaleImportFileId,
+                        principalSchema: "tab",
+                        principalTable: "SaleImportFiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.InsertData(
                 schema: "api",
                 table: "ApiMethods",
-                columns: new[] { "Id", "ApiMethodName", "HttpMethod", "IsDeleted", "IsNeedAuthentication", "IsNotNullParam", "PathUrl", "StoredProcedureName" },
+                columns: new[] { "Id", "ApiMethodName", "Description", "HttpMethod", "IsDeleted", "IsNeedAuthentication", "IsNotNullParam", "PathUrl", "StoredProcedureName" },
                 values: new object[,]
                 {
-                    { 1, "Authenticate", "POST", false, false, true, "/api/Users/authenticate", null },
-                    { 27, "PostRegion", "POST", false, true, true, "/api/Roles/PostRegion", null },
-                    { 29, "GetPharmacies", "GET", false, true, false, "/api/Roles/GetPharmacies", null },
-                    { 30, "GetPharmacy", "GET", false, true, true, "/api/Roles/GetPharmacy", null },
-                    { 31, "PutPharmacy", "PUT", false, true, true, "/api/Roles/PutPharmacy", null },
-                    { 32, "PostPharmacy", "POST", false, true, true, "/api/Roles/PostPharmacy", null },
-                    { 33, "DeletePharmacy", "DELETE", false, true, true, "/api/Roles/DeletePharmacy", null },
-                    { 34, "GetDrugs", "GET", false, true, false, "/api/Roles/GetDrugs", null },
-                    { 35, "GetDrug", "GET", false, true, true, "/api/Roles/GetDrug", null },
-                    { 36, "PutDrug", "PUT", false, true, true, "/api/Roles/PutDrug", null },
-                    { 37, "PostDrug", "POST", false, true, true, "/api/Roles/PostDrug", null },
-                    { 38, "DeleteDrug", "DELETE", false, true, true, "/api/Roles/DeleteDrug", null },
-                    { 39, "GetCodeAthTypes", "GET", false, true, false, "/api/Roles/GetCodeAthTypes", null },
-                    { 26, "PutRegion", "PUT", false, true, true, "/api/Roles/PutRegion", null },
-                    { 40, "GetCodeAthType", "GET", false, true, true, "/api/Roles/GetCodeAthType", null },
-                    { 42, "PostCodeAthType", "POST", false, true, true, "/api/Roles/PostCodeAthType", null },
-                    { 43, "DeleteCodeAthType", "DELETE", false, true, true, "/api/Roles/DeleteCodeAthType", null },
-                    { 44, "GetApiMethods", "GET", false, true, false, "api/Roles/GetApiMethods", null },
-                    { 45, "GetApiMethod", "GET", false, true, true, "api/Roles/GetApiMethod", null },
-                    { 46, "PutApiMethod", "PUT", false, true, true, "api/Roles/PutApiMethod", null },
-                    { 47, "PostApiMethod", "POST", false, true, true, "api/Roles/PostApiMethod", null },
-                    { 48, "DeleteApiMethod", "DELETE", false, true, true, "api/Roles/DeleteApiMethod", null },
-                    { 49, "GetApiMethodRoles", "GET", false, true, false, "/api/Roles/GetApiMethodRoles", null },
-                    { 50, "GetApiMethodRole", "GET", false, true, true, "/api/Roles/GetApiMethodRole", null },
-                    { 51, "PutApiMethodRole", "PUT", false, true, true, "/api/Roles/PutApiMethodRole", null },
-                    { 52, "PostApiMethodRole", "POST", false, true, true, "/api/Roles/PostApiMethodRole", null },
-                    { 53, "DeleteApiMethodRole", "DELETE", false, true, true, "/api/Roles/DeleteApiMethodRole", null },
-                    { 41, "PutCodeAthType", "PUT", false, true, true, "/api/Roles/PutCodeAthType", null },
-                    { 25, "GetRegion", "GET", false, true, true, "/api/Roles/GetRegion", null },
-                    { 28, "DeleteRegion", "DELETE", false, true, true, "/api/Roles/DeleteRegion", null },
-                    { 23, "DeleteRegionType", "DELETE", false, true, true, "/api/RegionTypes/GetDeleteRoleUser", null },
-                    { 2, "Register", "GET", false, false, true, "/api/Users/register", null },
-                    { 3, "GetAll", "GET", false, true, true, "/api/Users/getAll", null },
-                    { 4, "GetById", "GET", false, true, false, "/api/Users/getById", null },
-                    { 5, "Update", "PUT", false, true, true, "/api/Users/update", null },
-                    { 6, "Delete", "DELETE", false, true, false, "/api/Users/delete", null },
-                    { 7, "GetUsersByRoleAsync", "GET", false, true, true, "/api/Users/getUsersByRoleAsync", null },
-                    { 8, "SearchUser", "GET", false, true, true, "/api/Users/searchUser", null },
-                    { 9, "GetVendors", "GET", false, true, false, "/api/Vendors/GetVendors", null },
-                    { 10, "GetVendor", "GET", false, true, true, "/api/Vendors/GetVendor", null },
-                    { 11, "PutVendor", "PUT", false, true, true, "/api/Vendors/PutVendor", null },
-                    { 24, "GetRegions", "GET", false, true, false, "/api/Roles/GetRegions", null },
-                    { 13, "DeleteVendor", "DELETE", false, true, true, "/api/Vendors/DeleteVendor", null },
-                    { 14, "GetSales", "GET", false, true, false, "/api/Sales/GetSales", null },
-                    { 12, "PostVendor", "POST", false, true, true, "/api/Vendors/PostVendor", null },
-                    { 16, "PutSale", "PUT", false, true, true, "/api/Sales/PutSale", null },
-                    { 22, "PostRegionType", "POST", false, true, true, "/api/RegionTypes/PostRole", null },
-                    { 21, "PutRegionType", "PUT", false, true, true, "/api/RegionTypes/PutRole", null },
-                    { 15, "GetSale", "GET", false, true, true, "/api/Sales/GetSale", null },
-                    { 19, "GetRegionTypes", "GET", false, true, false, "/api/RegionTypes/GetRoles", null },
-                    { 58, "DeleteRole", "DELETE", false, true, true, "/api/Roles/GetDeleteRoleUser", null },
-                    { 20, "GetRegionType", "GET", false, true, true, "/api/RegionTypes/GetRole", null },
-                    { 56, "PutRole", "PUT", false, true, true, "/api/Roles/PutRole", null },
-                    { 55, "GetRole", "GET", false, true, true, "/api/Roles/GetRole", null },
-                    { 54, "GetRoles", "GET", false, true, false, "/api/Roles/GetRoles", null },
-                    { 18, "DeleteSale", "DELETE", false, true, true, "/api/Sales/DeleteSale", null },
-                    { 17, "PostSale", "POST", false, true, true, "/api/Sales/PostSale", null },
-                    { 57, "PostRole", "POST", false, true, true, "/api/Roles/PostRole", null }
+                    { 1, "Authenticate", "", "POST", false, false, true, "/api/Users/authenticate", null },
+                    { 27, "PostRegion", "", "POST", false, true, true, "/api/Roles/PostRegion", null },
+                    { 29, "GetPharmacies", "", "GET", false, true, false, "/api/Roles/GetPharmacies", null },
+                    { 30, "GetPharmacy", "", "GET", false, true, true, "/api/Roles/GetPharmacy", null },
+                    { 31, "PutPharmacy", "", "PUT", false, true, true, "/api/Roles/PutPharmacy", null },
+                    { 32, "PostPharmacy", "", "POST", false, true, true, "/api/Roles/PostPharmacy", null },
+                    { 33, "DeletePharmacy", "", "DELETE", false, true, true, "/api/Roles/DeletePharmacy", null },
+                    { 34, "GetDrugs", "", "GET", false, true, false, "/api/Roles/GetDrugs", null },
+                    { 35, "GetDrug", "", "GET", false, true, true, "/api/Roles/GetDrug", null },
+                    { 36, "PutDrug", "", "PUT", false, true, true, "/api/Roles/PutDrug", null },
+                    { 37, "PostDrug", "", "POST", false, true, true, "/api/Roles/PostDrug", null },
+                    { 38, "DeleteDrug", "", "DELETE", false, true, true, "/api/Roles/DeleteDrug", null },
+                    { 39, "GetCodeAthTypes", "", "GET", false, true, false, "/api/Roles/GetCodeAthTypes", null },
+                    { 26, "PutRegion", "", "PUT", false, true, true, "/api/Roles/PutRegion", null },
+                    { 40, "GetCodeAthType", "", "GET", false, true, true, "/api/Roles/GetCodeAthType", null },
+                    { 42, "PostCodeAthType", "", "POST", false, true, true, "/api/Roles/PostCodeAthType", null },
+                    { 43, "DeleteCodeAthType", "", "DELETE", false, true, true, "/api/Roles/DeleteCodeAthType", null },
+                    { 44, "GetApiMethods", "", "GET", false, true, false, "api/Roles/GetApiMethods", null },
+                    { 45, "GetApiMethod", "", "GET", false, true, true, "api/Roles/GetApiMethod", null },
+                    { 46, "PutApiMethod", "", "PUT", false, true, true, "api/Roles/PutApiMethod", null },
+                    { 47, "PostApiMethod", "", "POST", false, true, true, "api/Roles/PostApiMethod", null },
+                    { 48, "DeleteApiMethod", "", "DELETE", false, true, true, "api/Roles/DeleteApiMethod", null },
+                    { 49, "GetApiMethodRoles", "", "GET", false, true, false, "/api/Roles/GetApiMethodRoles", null },
+                    { 50, "GetApiMethodRole", "", "GET", false, true, true, "/api/Roles/GetApiMethodRole", null },
+                    { 51, "PutApiMethodRole", "", "PUT", false, true, true, "/api/Roles/PutApiMethodRole", null },
+                    { 52, "PostApiMethodRole", "", "POST", false, true, true, "/api/Roles/PostApiMethodRole", null },
+                    { 53, "DeleteApiMethodRole", "", "DELETE", false, true, true, "/api/Roles/DeleteApiMethodRole", null },
+                    { 41, "PutCodeAthType", "", "PUT", false, true, true, "/api/Roles/PutCodeAthType", null },
+                    { 25, "GetRegion", "", "GET", false, true, true, "/api/Roles/GetRegion", null },
+                    { 28, "DeleteRegion", "", "DELETE", false, true, true, "/api/Roles/DeleteRegion", null },
+                    { 23, "DeleteRegionType", "", "DELETE", false, true, true, "/api/RegionTypes/GetDeleteRoleUser", null },
+                    { 2, "Register", "", "GET", false, false, true, "/api/Users/register", null },
+                    { 3, "GetAll", "", "GET", false, true, true, "/api/Users/getAll", null },
+                    { 4, "GetById", "", "GET", false, true, false, "/api/Users/getById", null },
+                    { 5, "Update", "", "PUT", false, true, true, "/api/Users/update", null },
+                    { 6, "Delete", "", "DELETE", false, true, false, "/api/Users/delete", null },
+                    { 7, "GetUsersByRoleAsync", "", "GET", false, true, true, "/api/Users/getUsersByRoleAsync", null },
+                    { 8, "SearchUser", "", "GET", false, true, true, "/api/Users/searchUser", null },
+                    { 9, "GetVendors", "", "GET", false, true, false, "/api/Vendors/GetVendors", null },
+                    { 10, "GetVendor", "", "GET", false, true, true, "/api/Vendors/GetVendor", null },
+                    { 11, "PutVendor", "", "PUT", false, true, true, "/api/Vendors/PutVendor", null },
+                    { 24, "GetRegions", "", "GET", false, true, false, "/api/Roles/GetRegions", null },
+                    { 13, "DeleteVendor", "", "DELETE", false, true, true, "/api/Vendors/DeleteVendor", null },
+                    { 14, "GetSales", "", "GET", false, true, false, "/api/Sales/GetSales", null },
+                    { 12, "PostVendor", "", "POST", false, true, true, "/api/Vendors/PostVendor", null },
+                    { 16, "PutSale", "", "PUT", false, true, true, "/api/Sales/PutSale", null },
+                    { 22, "PostRegionType", "", "POST", false, true, true, "/api/RegionTypes/PostRole", null },
+                    { 21, "PutRegionType", "", "PUT", false, true, true, "/api/RegionTypes/PutRole", null },
+                    { 15, "GetSale", "", "GET", false, true, true, "/api/Sales/GetSale", null },
+                    { 19, "GetRegionTypes", "", "GET", false, true, false, "/api/RegionTypes/GetRoles", null },
+                    { 58, "DeleteRole", "", "DELETE", false, true, true, "/api/Roles/GetDeleteRoleUser", null },
+                    { 20, "GetRegionType", "", "GET", false, true, true, "/api/RegionTypes/GetRole", null },
+                    { 56, "PutRole", "", "PUT", false, true, true, "/api/Roles/PutRole", null },
+                    { 55, "GetRole", "", "GET", false, true, true, "/api/Roles/GetRole", null },
+                    { 54, "GetRoles", "", "GET", false, true, false, "/api/Roles/GetRoles", null },
+                    { 18, "DeleteSale", "", "DELETE", false, true, true, "/api/Sales/DeleteSale", null },
+                    { 17, "PostSale", "", "POST", false, true, true, "/api/Sales/PostSale", null },
+                    { 57, "PostRole", "", "POST", false, true, true, "/api/Roles/PostRole", null }
                 });
 
             migrationBuilder.InsertData(
@@ -452,12 +477,19 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 schema: "api",
                 table: "ApiMethodRoles",
                 columns: new[] { "Id", "ApiMethodId", "IsDeleted", "RoleId" },
-                values: new object[,]
-                {
-                    { 1, 1, false, 1 },
-                    { 3, 2, false, 1 },
-                    { 2, 1, false, 2 }
-                });
+                values: new object[] { 1, 1, false, 1 });
+
+            migrationBuilder.InsertData(
+                schema: "api",
+                table: "ApiMethodRoles",
+                columns: new[] { "Id", "ApiMethodId", "IsDeleted", "RoleId" },
+                values: new object[] { 3, 2, false, 1 });
+
+            migrationBuilder.InsertData(
+                schema: "api",
+                table: "ApiMethodRoles",
+                columns: new[] { "Id", "ApiMethodId", "IsDeleted", "RoleId" },
+                values: new object[] { 2, 1, false, 2 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiMethodRoles_ApiMethodId",
@@ -545,6 +577,12 @@ namespace FarmApp.Infrastructure.Data.Migrations
                 column: "PharmacyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Sales_SaleImportFileId",
+                schema: "tab",
+                table: "Sales",
+                column: "SaleImportFileId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Stocks_PharmacyId",
                 schema: "tab",
                 table: "Stocks",
@@ -579,6 +617,10 @@ namespace FarmApp.Infrastructure.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Drugs",
+                schema: "tab");
+
+            migrationBuilder.DropTable(
+                name: "SaleImportFiles",
                 schema: "tab");
 
             migrationBuilder.DropTable(

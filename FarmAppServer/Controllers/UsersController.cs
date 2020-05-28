@@ -81,8 +81,8 @@ namespace FarmAppServer.Controllers
 
         }
 
-        //[AllowAnonymous]
-        [Authorize(Roles = "admin")]
+        [AllowAnonymous]
+        //[Authorize(Roles = "admin")]
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody]RegisterModelDto model)
         {

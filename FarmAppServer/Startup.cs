@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -44,7 +45,7 @@ namespace FarmAppServer
 
             //configure connection
             var connection = Configuration.GetConnectionString("FarmAppContext");
-            services.AddDbContext<FarmAppContext>(options => options.UseNpgsql(connection));
+            services.AddDbContext<FarmAppContext>(options => options.UseSqlServer(connection));
 
             //add validator
             services.AddTransient<IValidation, Validation>();
@@ -106,8 +107,7 @@ namespace FarmAppServer
                 });
                 c.OperationFilter<AuthenticationRequirementsOperationFilter>();
 
-                
-                // c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                //c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 // {
                 //     {
                 //         new OpenApiSecurityScheme
@@ -119,7 +119,7 @@ namespace FarmAppServer
                 //             }
                 //         },
                 //         new string[] {}
-                //
+
                 //     }
                 // });
             });

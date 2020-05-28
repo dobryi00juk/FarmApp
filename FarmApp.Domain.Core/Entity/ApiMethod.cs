@@ -12,6 +12,7 @@ namespace FarmApp.Domain.Core.Entity
         }
         public int Id { get; set; }
         public string ApiMethodName { get; set; }
+        public string Description { get; set; }
         public string StoredProcedureName { get; set; }
         public string PathUrl { get; set; }
         public string HttpMethod { get; set; }
