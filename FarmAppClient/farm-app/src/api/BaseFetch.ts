@@ -1,3 +1,7 @@
+import {BASE_URL} from "../core/constants";
+var qs = require('qs');
+
+const axios = require('axios');
 export type IHttpMethods = "GET" | "POST" | "PUT" | "DELETE";
 
 interface IResponse<R> {
@@ -49,3 +53,26 @@ export const baseFetch = async <P, R>(
     };
   }
 };
+
+
+export const authRequest = async (login:string, password:string) => {
+  await localStorage.setItem('login', login)
+  try {
+    let data = {
+      username: login,
+      password: password,
+    }
+    let response = await axios.post(`${BASE_URL}/das/login`, qs.stringify(data), {
+      headers: {
+        'Access-Control-Allow-Headers': 'X-Merp-Session-Id, Access-Control-Allow-Origin',
+        'Access-Control-Expose-Headers': 'X-Merp-Session-Id, Access-Control-Allow-Origin',
+        'Content-Type': 'application/x-www-form-urlencoded;; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    })
+    //console.log('api response data', response)
+    return response
+  } catch (error) {
+    console.log('error', error)
+  }
+}

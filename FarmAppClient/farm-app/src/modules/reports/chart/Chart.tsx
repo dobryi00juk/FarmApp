@@ -35,6 +35,7 @@ const dataArray = data.map(function(item) {
 
 class ChartComp extends React.Component {
   render() {
+    // @ts-ignore
     return (
       <Chart
         title="Pizza Shop Complaints"
@@ -65,12 +66,10 @@ class ChartComp extends React.Component {
         <ValueAxis
           name="frequency"
           position="left"
-          // tickInterval={300}
         />
         <ValueAxis
           name="percentage"
           position="right"
-          // tickInterval={20}
           showZero={true}
           valueMarginsEnabled={false}
         >

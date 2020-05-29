@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, {useEffect, useState, useRef} from 'react';
+import {bindActionCreators, Dispatch} from "redux";
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -6,12 +7,15 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import boy from "../../resources/boy.svg"
-import { useDispatch, useSelector } from 'react-redux';
+import {connect, useDispatch, useSelector} from 'react-redux';
 import { authSelector } from '../../store/auth/authSelector';
 import { callApiLogin } from '../../store/auth/authStateActionsAsync';
 import { useHistory } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 import { PositionedSnackbar } from '../../components/snackbar/SnackbarResult';
+import {IAppState} from "../../core/mainReducer";
+import {authLogin} from "../../store/auth/authActions";
+var validator = require('validator');
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -47,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export const SignIn = () => {
+const SignIn = () => {
     const [login_text, setLogin] = useState('');
     const [pass_text, setPass] = useState('');
     const [open, setOpen] = useState(false);
@@ -66,11 +70,17 @@ export const SignIn = () => {
         history.push('/farm-app/main/');
     }
     const handleClick = () => {
-        dispatch(callApiLogin({ login: login_text, password: pass_text }, onSuccess))
-        if (selector.error) {
-            console.log(selector.error)
-            handleOpen();
+        if (login_text?.length !== 0 && validator.isEmail('foo@bar.com') && pass_text?.length !== 0 ) {
+
         }
+
+
+
+        // dispatch(callApiLogin({ login: login_text, password: pass_text }, onSuccess))
+        // if (selector.error) {
+        //     console.log(selector.error)
+        //     handleOpen();
+        // }
     }
 
     return (
@@ -133,3 +143,16 @@ export const SignIn = () => {
     )
 }
 
+const mapStateToProps = (state:IAppState) => {
+    const { auth } = state
+     return {
+        loadState: auth.loadState
+    }
+}
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+    return bindActionCreators({authLogin}, dispatch)
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn)
