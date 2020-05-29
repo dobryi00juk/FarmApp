@@ -65,6 +65,7 @@ namespace FarmAppServer
             services.AddAuthorization();
 
 
+
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
