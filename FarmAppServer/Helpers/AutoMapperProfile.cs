@@ -31,7 +31,9 @@ namespace FarmAppServer.Helpers
             CreateMap<RegisterModelDto, User>()
                 .ForMember(x => x.UserName,
                     o => o.MapFrom(s => s.FirstName + " " + s.LastName));
-            CreateMap<UpdateModelDto, User>();
+            CreateMap<UpdateModelDto, User>()
+                .ForMember(x => x.UserName, 
+                    o => o.MapFrom(s => s.FirstName + " " + s.LastName));
 
             //map for UserFilterByRole 
             CreateMap<User, UserFilterByRoleDto>()

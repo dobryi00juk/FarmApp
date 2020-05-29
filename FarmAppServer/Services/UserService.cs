@@ -60,6 +60,7 @@ namespace FarmAppServer.Services
         {
             //return await _context.Users.FindAsync(id);
             return _context.Users.Where(x => x.Id == id && x.IsDeleted == false);
+            
         }
 
         public async Task<User> CreateUserAsync(User user, string password)
@@ -100,7 +101,8 @@ namespace FarmAppServer.Services
             //update
             if (!string.IsNullOrWhiteSpace(userParam.FirstName)) user.FirstName = userParam.FirstName;
             if (!string.IsNullOrWhiteSpace(userParam.LastName)) user.LastName = userParam.LastName;
-            
+            if (!string.IsNullOrWhiteSpace(userParam.Login)) user.Login = userParam.Login;
+
             // update password if provided
             if (!string.IsNullOrWhiteSpace(password))
             {
@@ -150,7 +152,7 @@ namespace FarmAppServer.Services
 
             var query = _context.Users
                 .Where(x => x.FirstName.Contains(param) || x.LastName.Contains(param) || x.Role.RoleName.Contains(param)
-                || x.UserName.Contains(param)) ;
+                || x.UserName.Contains(param) || x.Login.Contains(param)) ;
 
             return query;
         }

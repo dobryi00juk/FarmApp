@@ -124,6 +124,9 @@ namespace FarmAppServer.Controllers
             {
                 var user = _userService.GetUserById(id);
                 var model = await _mapper.ProjectTo<UserModelDto>(user).FirstOrDefaultAsync();
+                
+                if (model == null) return NotFound("User not found");
+                
                 return Ok(model);
             }
             catch (Exception e)
@@ -173,6 +176,7 @@ namespace FarmAppServer.Controllers
         //use User service UserFilterByRole
         //⦁	Combobox -> По ролям (Админ, пользователь …)
         [HttpGet]
+        [NonAction]
         [Route("RoleName")]
         public async Task<ActionResult<IEnumerable<UserFilterByRoleDto>>> GetUsersByRoleAsync([FromQuery]string role)
         {
@@ -200,11 +204,19 @@ namespace FarmAppServer.Controllers
             var users = _userService.UserSearchAsync(param);
             var model = await _mapper.ProjectTo<UserFilterByRoleDto>(users).ToListAsync();
 
+            if (model.Count == 0)
+                return NotFound(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "User not found"
+                });
+
             return Ok(model);
         }
 
         //checkbox switch
         [HttpGet]
+        [NonAction]
         [Route("CheckBox")]
         public async Task<ActionResult<IEnumerable<UserFilterByRoleDto>>> CheckBoxFilter([FromQuery] bool isChecked)
         {
