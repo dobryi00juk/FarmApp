@@ -56,7 +56,7 @@ export const baseFetch = async <P, R>(
 
 
 export const authRequest = async (login:string, password:string) => {
-  await localStorage.setItem('login', login)
+  localStorage.setItem('login', login)
   try {
     let data = {
       username: login,

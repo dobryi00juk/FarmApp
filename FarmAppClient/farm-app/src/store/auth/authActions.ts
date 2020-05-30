@@ -26,8 +26,7 @@ export const AUTH_ERROR = 'AUTH_ERROR'
 
 export const authLogin = (email:string,pass:string) => async (dispatch:Dispatch, getState:IAppState) =>  {
 
-  dispatch({ type: login.started })
-
+  debugger
   try {
     const response = await authRequest(email,pass)
     const status =  response.status;

@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import { SignIn } from "./modules/auth/SignIn";
+import SignIn from "./modules/auth/SignIn";
 import { ResponsiveDrawer } from "./modules/menu/ResponsiveDrawer";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 

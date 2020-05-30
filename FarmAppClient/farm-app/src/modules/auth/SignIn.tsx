@@ -1,5 +1,4 @@
 import React, {useEffect, useState, useRef} from 'react';
-import {bindActionCreators, Dispatch} from "redux";
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -13,8 +12,10 @@ import { callApiLogin } from '../../store/auth/authStateActionsAsync';
 import { useHistory } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 import { PositionedSnackbar } from '../../components/snackbar/SnackbarResult';
-import {IAppState} from "../../core/mainReducer";
-import {authLogin} from "../../store/auth/authActions";
+
+import {useSnackbar, VariantType} from 'notistack';
+
+
 var validator = require('validator');
 
 const useStyles = makeStyles((theme) => ({
@@ -51,6 +52,8 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+
+
 const SignIn = () => {
     const [login_text, setLogin] = useState('');
     const [pass_text, setPass] = useState('');
@@ -59,6 +62,15 @@ const SignIn = () => {
     const history = useHistory();
     const dispatch = useDispatch();
     const selector = useSelector(authSelector);
+
+    const { enqueueSnackbar } = useSnackbar();
+
+    // const handleClickVariant = (variant: VariantType) => () => {
+    //     enqueueSnackbar('Логин или пароль введен неверно.', { variant });
+    // };
+    const handleClickVariant = (message:string,variant: VariantType) => {
+        enqueueSnackbar(message, { variant });
+    };
 
     const handleOpen = () => {
         setOpen(true);
@@ -70,17 +82,15 @@ const SignIn = () => {
         history.push('/farm-app/main/');
     }
     const handleClick = () => {
-        if (login_text?.length !== 0 && validator.isEmail('foo@bar.com') && pass_text?.length !== 0 ) {
-
+        if (login_text?.length !== 0 && validator.isEmail(login_text) && pass_text?.length !== 0 ) {
+            dispatch(callApiLogin({login: login_text, password: pass_text}, onSuccess))
+            if (selector.error) {
+                handleClickVariant(selector.error.message,'error')
+                handleOpen();
+            }
+        } else {
+            handleClickVariant('Логин или пароль введен неверно.','error')
         }
-
-
-
-        // dispatch(callApiLogin({ login: login_text, password: pass_text }, onSuccess))
-        // if (selector.error) {
-        //     console.log(selector.error)
-        //     handleOpen();
-        // }
     }
 
     return (
@@ -143,16 +153,5 @@ const SignIn = () => {
     )
 }
 
-const mapStateToProps = (state:IAppState) => {
-    const { auth } = state
-     return {
-        loadState: auth.loadState
-    }
-}
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
-    return bindActionCreators({authLogin}, dispatch)
-}
-
-
-export default connect(mapStateToProps, mapDispatchToProps)(SignIn)
+export default SignIn
