@@ -15,9 +15,9 @@ namespace FarmAppServer.Services
     public interface ISaleService
     {
         Task<Sale> PostSale(Sale sale);
-        Task<SaleDto> GetSaleById(long id);
+        Task<SaleDto> GetSaleById(int id);
         IQueryable<SaleDto> GetSales();
-        Task<bool> DeleteSaleAsync(long id);
+        Task<bool> DeleteSaleAsync(int id);
     }
     public class SaleService : ISaleService
     {
@@ -43,9 +43,9 @@ namespace FarmAppServer.Services
             return sale;
         }
 
-        public async Task<SaleDto> GetSaleById(long id)
+        public async Task<SaleDto> GetSaleById(int id)
         {
-            var sale = _context.Sales.Where(x => x.Id == id);
+            var sale = _context.Sales.Where(x => x.Id == id && x.IsDeleted == false);
 
             if(sale == null)
                 throw new AppException("Sale not found!" );
@@ -67,11 +67,11 @@ namespace FarmAppServer.Services
             return result;
         }
 
-        public async Task<bool> DeleteSaleAsync(long id)
+        public async Task<bool> DeleteSaleAsync(int id)
         {
             var sale = await _context.Sales.FindAsync(id);
 
-            if (sale == null) return false;
+            if (sale == null || sale.IsDeleted == true) return false;
 
             sale.IsDeleted = true;
             await _context.SaveChangesAsync();

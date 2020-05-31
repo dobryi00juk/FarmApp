@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using AutoMapper;
 using FarmApp.Domain.Core.Entity;
 using FarmAppServer.Models;
+using FarmAppServer.Models.ApiMethods;
+using FarmAppServer.Models.CodeAthTypes;
 using FarmAppServer.Models.Drug;
+using FarmAppServer.Models.Pharmacies;
 using FarmAppServer.Models.Pharmacy;
 using FarmAppServer.Models.Regions;
 using FarmAppServer.Models.Roles;
 using FarmAppServer.Models.Sales;
 using FarmAppServer.Models.Users;
+using FarmAppServer.Models.Vendors;
 using static System.Decimal;
 
 namespace FarmAppServer.Helpers
@@ -42,6 +46,8 @@ namespace FarmAppServer.Helpers
 
             //vendor map
             CreateMap<Vendor, VendorDto>().ReverseMap();
+            CreateMap<Vendor, PostVendorDto>().ReverseMap();
+            CreateMap<Vendor, UpdateVendorDto>().ReverseMap();
 
             //regions
             CreateMap<Region, RegionDto>()
@@ -74,6 +80,8 @@ namespace FarmAppServer.Helpers
                 .ForMember(x => x.RegionName,
                     o => o.MapFrom(s => s.Region.RegionName));
             CreateMap<PharmacyFilterDto,Pharmacy>();
+            CreateMap<PharmacyDto, Pharmacy>().ReverseMap();
+            CreateMap<PostPharmacyDto, Pharmacy>().ReverseMap();
 
             //drugs
             CreateMap<Drug, DrugDto>().ReverseMap();
@@ -90,16 +98,33 @@ namespace FarmAppServer.Helpers
                     o => o.MapFrom(s => s.SaleImportFile.FileName))
                 .ReverseMap();
 
-           CreateMap<Sale, UpdateSaleDto>();
-           CreateMap<UpdateSaleDto, Sale>()
-               .ForMember(x => x.Amount,
-                   o => o.MapFrom(s => Multiply(s.Price, s.Quantity)))
-               .ForMember(x => x.Price, o => o.Ignore());
+            CreateMap<Sale, UpdateSaleDto>();
+            CreateMap<UpdateSaleDto, Sale>()
+                .ForMember(x => x.Amount,
+                    o => o.MapFrom(s => Multiply(s.Price, s.Quantity)))
+                .ForMember(x => x.Price, o => o.Ignore());
 
-           CreateMap<PostSaleDto, Sale>()
-               .ForMember(x => x.Amount,
-                   o => o.MapFrom(s => Multiply(s.Price, s.Quantity)))
-               .ReverseMap();
+            CreateMap<PostSaleDto, Sale>()
+                .ForMember(x => x.Amount,
+                    o => o.MapFrom(s => Multiply(s.Price, s.Quantity)))
+                .ReverseMap();
+
+            //CodeAthType
+            CreateMap<CodeAthType, CodeAthTypeDto>()
+                .ForMember(x => x.IdCodeAthId,
+                    o => o.MapFrom(s => s.CodeAthId))
+                .ForMember(x => x.ParentCode,
+                    o => o.MapFrom(s => s.CodeAth.Code));
+
+            CreateMap<PostCodeAthType, CodeAthType>()
+                .ForMember(x => x.CodeAthId, 
+                    o => o.MapFrom(s => s.ParentId));
+           
+            CreateMap<UpdateRegionDto, CodeAthType>().ReverseMap();
+
+            //ApiMethods
+            CreateMap<ApiMethod, ApiMethodDto>().ReverseMap();
+            CreateMap<ApiMethodDto, UpdateApiMethodDto>().ReverseMap();
         }
     }
 }

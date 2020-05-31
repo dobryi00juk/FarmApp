@@ -8,7 +8,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings;
 using System.Threading.Tasks;
+using AutoMapper;
 using FarmApp.Infrastructure.Data.Contexts;
+using FarmAppServer.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FarmAppServer.Services
@@ -19,8 +21,8 @@ namespace FarmAppServer.Services
         IQueryable GetAllUsers();
         IQueryable GetUserById(int id);
         Task<User> CreateUserAsync(User user, string password);
-        void UpdateUser(User user, string password = null);
-        void DeleteUser(int id);
+        Task<bool> UpdateUserAsync(int id, UpdateModelDto model);
+        Task<bool> DeleteUserAsync(int id);
         IQueryable UsersByRoleAsync(string role);
         IQueryable UserSearchAsync(string param);
         IQueryable IsEnabled(bool isChecked);
@@ -29,10 +31,12 @@ namespace FarmAppServer.Services
     public class UserService : IUserService
     {
         private readonly FarmAppContext _context;
+        private readonly IMapper _mapper;
 
-        public UserService(FarmAppContext context)
+        public UserService(FarmAppContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         public async Task<IQueryable<User>> AuthenticateUserAsync(string login, string password)
         {
@@ -82,49 +86,69 @@ namespace FarmAppServer.Services
             return user;
         }
 
-        public void UpdateUser(User userParam, string password = null)
+        public async Task<bool> UpdateUserAsync(int id, UpdateModelDto model)
         {
-            //var user = _context.Users.Find(userParam.Id);
-            var user = _context.Users.FirstOrDefault(x => x.Id == userParam.Id && x.IsDeleted == false);
+            var user = await _context.Users.Where(x => x.Id == id && x.IsDeleted == false).FirstOrDefaultAsync();
 
-            if (user == null)
-                throw new AppException("User not found");
+            if (user == null) return false;
 
-            if (!string.IsNullOrWhiteSpace(userParam.UserName) && userParam.UserName != user.UserName)
+            if (!string.IsNullOrWhiteSpace(model.Password))
             {
-                if (_context.Users.Any(x => x.UserName == userParam.UserName))
-                    throw new AppException("UserNAme " + userParam.UserName + " is already taken");
-
-                user.UserName = userParam.UserName;
-            }
-            
-            //update
-            if (!string.IsNullOrWhiteSpace(userParam.FirstName)) user.FirstName = userParam.FirstName;
-            if (!string.IsNullOrWhiteSpace(userParam.LastName)) user.LastName = userParam.LastName;
-            if (!string.IsNullOrWhiteSpace(userParam.Login)) user.Login = userParam.Login;
-
-            // update password if provided
-            if (!string.IsNullOrWhiteSpace(password))
-            {
-                CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
+                CreatePasswordHash(model.Password, out var passwordHash, out var passwordSalt);
 
                 user.PasswordHash = passwordHash;
                 user.PasswordSalt = passwordSalt;
             }
 
-            _context.Entry(user).State = EntityState.Modified;
-            _context.SaveChanges();
+            _mapper.Map(model, user);
+            _context.Update(user);
+            var updated = await _context.SaveChangesAsync();
+
+            return updated > 0;
+
+
+            //var user = _context.Users.Find(userParam.Id);
+            //var user = _context.Users.FirstOrDefault(x => x.Id == userParam.Id && x.IsDeleted == false);
+
+            //if (user == null)
+            //    throw new AppException("User not found");
+
+            //if (!string.IsNullOrWhiteSpace(userParam.UserName) && userParam.UserName != user.UserName)
+            //{
+            //    if (_context.Users.Any(x => x.UserName == userParam.UserName))
+            //        throw new AppException("UserNAme " + userParam.UserName + " is already taken");
+
+            //    user.UserName = userParam.UserName;
+            //}
+
+            ////update
+            //if (!string.IsNullOrWhiteSpace(userParam.FirstName)) user.FirstName = userParam.FirstName;
+            //if (!string.IsNullOrWhiteSpace(userParam.LastName)) user.LastName = userParam.LastName;
+            //if (!string.IsNullOrWhiteSpace(userParam.Login)) user.Login = userParam.Login;
+
+            //// update password if provided
+            //if (!string.IsNullOrWhiteSpace(password))
+            //{
+            //    CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
+
+            //    user.PasswordHash = passwordHash;
+            //    user.PasswordSalt = passwordSalt;
+            //}
+
+            //_context.Entry(user).State = EntityState.Modified;
+            //_context.SaveChanges();
         }
 
-        public void DeleteUser(int id)
+        public async Task<bool> DeleteUserAsync(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = await _context.Users.FindAsync(id);
 
-            if (user == null) return ;
-            if (user.IsDeleted == true) return;
-            //_context.Users.Remove(user);
+            if (user == null || user.IsDeleted == true) return false;
+            
             user.IsDeleted = true;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
 

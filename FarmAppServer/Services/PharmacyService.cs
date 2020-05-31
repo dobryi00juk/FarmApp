@@ -15,7 +15,7 @@ namespace FarmAppServer.Services
     {
         Task<Pharmacy> PostPharmacyAsync(Pharmacy pharmacy);
         void UpdatePharmacyAsync(Pharmacy modelPharmacy);
-        void DeleteUser(int id);
+        Task<bool> DeletePharmacyAsync(int id);
         IQueryable SearchPharmacy(string pharmacyName);
     }
     public class PharmacyService : IPharmacyService
@@ -34,9 +34,12 @@ namespace FarmAppServer.Services
             if (_context.Pharmacies.Any(x => x.PharmacyName == pharmacy.PharmacyName & x.IsDeleted == false))
                 throw new AppException("PharmacyName \"" + pharmacy.PharmacyName + "\" is already taken");
 
+            if (!CheckForeignKey(pharmacy))
+                throw new AppException("Region not found");
+            
             await _context.Pharmacies.AddAsync(pharmacy);
             await _context.SaveChangesAsync();
-
+    
             return pharmacy;
         }
 
@@ -69,15 +72,16 @@ namespace FarmAppServer.Services
             _context.SaveChanges();
         }
 
-        public void DeleteUser(int id)
+        public async Task<bool> DeletePharmacyAsync(int id)
         {
-            var pharmacy = _context.Users.Find(id);
+            var pharmacy = await _context.Pharmacies.FindAsync(id);
 
-            if (pharmacy == null) return;
-            if (pharmacy.IsDeleted == true) return;
-            //_context.Users.Remove(user);
+            if (pharmacy == null || pharmacy.IsDeleted == true) return false;
+
             pharmacy.IsDeleted = true;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
         //TextBox -> PharmacyName
@@ -90,6 +94,11 @@ namespace FarmAppServer.Services
                 .Contains(pharmacyName.ToLower()));
 
             return pharmacy;
+        }
+
+        public bool CheckForeignKey(Pharmacy pharmacy)
+        {
+            return _context.Regions.Any(x => x.Id == pharmacy.RegionId);
         }
 
     }

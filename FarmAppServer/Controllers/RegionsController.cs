@@ -48,17 +48,8 @@ namespace FarmAppServer.Controllers
         {
             var region = await _context.Regions.FindAsync(id);
 
-            if (region == null)
+            if (region == null || region.IsDeleted == true)
                 return NotFound();
-
-            if (region.IsDeleted == true)
-            {
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = "Region not found!"
-                });
-            }
 
             var result = _mapper.Map<RegionDto>(region);
             return result;
@@ -70,23 +61,17 @@ namespace FarmAppServer.Controllers
         {
             if(!ModelState.IsValid) 
                 return BadRequest();
-            
-            var region = await _context.Regions.Where(r => r.Id == id).FirstOrDefaultAsync();
 
-            if (region == null)
-                return NotFound(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = "Region not found"
-                });
+            var updated = await _regionService.UpdateRegionAsync(id, model);
 
-            _mapper.Map(model, region);
-            _context.Update(region);
-            await _context.SaveChangesAsync();
+            if (updated)
+                return Ok();
 
-            var result = _mapper.Map<RegionDto>(region);
-            
-            return Ok(result);
+            return NotFound(new ResponseBody()
+            {
+                Header = "Error",
+                Result = "user not found"
+            });
         }
 
         [HttpPost]
@@ -96,6 +81,9 @@ namespace FarmAppServer.Controllers
                 return BadRequest();
 
             var region = _mapper.Map<Region>(model);
+
+            if (region == null) return BadRequest();
+
             var request = await _regionService.PostRegion(region);
             var result = _mapper.Map<RegionDto>(request);
 
@@ -106,9 +94,14 @@ namespace FarmAppServer.Controllers
         [HttpDelete]
         public async Task<ActionResult<RegionDto>> DeleteRegion([FromQuery]int id)
         {
-            if (await _regionService.DeleteRegionAsync(id)) return Ok();
+            if (await _regionService.DeleteRegionAsync(id))
+                return Ok();
 
-            return NotFound("Region not found!");
+            return NotFound(new ResponseBody()
+            {
+                Header = "Error",
+                Result = "User not found"
+            });
         }
 
         private bool RegionExists(int id)
@@ -122,7 +115,11 @@ namespace FarmAppServer.Controllers
         {
             var regions = _regionService.RegionNameSearch(regionName);
             var model = await _mapper.ProjectTo<RegionDto>(regions).ToListAsync();
-         
+
+            //???
+            foreach (var item in model.Where(item => item.IsDeleted))
+                model.Remove(item);
+
             return Ok(model);
         }
     }

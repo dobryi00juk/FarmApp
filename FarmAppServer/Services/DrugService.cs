@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Helpers;
@@ -16,10 +17,12 @@ namespace FarmAppServer.Services
     public class DrugService : IDrugService
     {
         private readonly FarmAppContext _context;
+        private readonly IMapper _mapper;
 
-        public DrugService(FarmAppContext context)
+        public DrugService(FarmAppContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         public async Task<Drug> PostDrug(Drug drug)
         {

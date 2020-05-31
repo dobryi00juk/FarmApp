@@ -42,7 +42,7 @@ namespace FarmAppServer.Controllers
 
         // GET: api/Sales/5
         [HttpGet("SaleById")]
-        public async Task<ActionResult<SaleDto>> GetSale([FromQuery]long id)
+        public async Task<ActionResult<SaleDto>> GetSale([FromQuery]int id)
         {
             var sale = await _saleService.GetSaleById(id);
 
@@ -51,7 +51,7 @@ namespace FarmAppServer.Controllers
 
         // PUT: api/Sales/5
         [HttpPut]
-        public async Task<IActionResult> PutSale([FromQuery]long id, [FromBody]UpdateSaleDto model)
+        public async Task<IActionResult> PutSale([FromQuery]int id, [FromBody]UpdateSaleDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -85,7 +85,7 @@ namespace FarmAppServer.Controllers
 
         // DELETE: api/Sales/5
         [HttpDelete]
-        public async Task<ActionResult> DeleteSale([FromQuery]long id)
+        public async Task<ActionResult> DeleteSale([FromQuery]int id)
         {
             if (await _saleService.DeleteSaleAsync(id))
                 return Ok();
@@ -93,9 +93,21 @@ namespace FarmAppServer.Controllers
             return NotFound("Sale not found");
         }
 
-        private bool SaleExists(long id)
+        // GET: api/Sales/SaleForPeriod
+        [HttpGet("SaleForPeriod")]
+        public IActionResult SaleForPeriod([FromQuery]DateTime start, [FromQuery]DateTime end, [FromQuery]int page = 1, [FromQuery]int pageSize = 25)
         {
-            return _context.Sales.Any(e => e.Id == id && e.IsDeleted == false);
+            var sales= _context.Sales.Where(x => x.SaleDate >= start && x.SaleDate <= end);
+            var result = sales.GetPaged(page, pageSize);
+
+            if (result == null)
+                return NotFound(new ResponseBody()
+                {
+                    Header = "Error",
+                    Result = "Logs not found"
+                });
+
+            return Ok(result);
         }
     }
 }

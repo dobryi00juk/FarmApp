@@ -32,7 +32,7 @@ namespace FarmAppServer.Controllers
 
         // GET: api/Drugs
         [HttpGet]
-        public ActionResult<IEnumerable<Drug>> GetDrugs([FromQuery]int page = 1, int pageSize = 25)
+        public ActionResult<IEnumerable<Drug>> GetDrugs([FromQuery]int page = 1 ,[FromQuery]int pageSize = 25)
         {
             var drugs = _context.Drugs.Where(x => x.IsDeleted == false);
             
@@ -72,8 +72,6 @@ namespace FarmAppServer.Controllers
         }
 
         // PUT: api/Drugs/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDrug(int id, Drug drug)
         {
@@ -104,8 +102,6 @@ namespace FarmAppServer.Controllers
         }
 
         // POST: api/Drugs
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
         public async Task<ActionResult<DrugDto>> PostDrug([FromBody]DrugDto model)
         {

@@ -77,16 +77,16 @@ namespace FarmAppServer.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var role = await _context.Roles.Where(x => x.Id == id).FirstOrDefaultAsync();
+            var updated = await _roleService.UpdateRoleAsync(id, model);
 
-            if (role == null)
-                return NotFound("Role not found");
+            if (updated)
+                return Ok();
 
-            _mapper.Map(model, role);
-            _context.Update(role);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return NotFound(new ResponseBody()
+            {
+                Header = "Error",
+                Result = "user not found"
+            });
         }
 
         // POST: api/Roles
@@ -110,10 +110,9 @@ namespace FarmAppServer.Controllers
         public async Task<ActionResult<Role>> DeleteRole([FromQuery]int id)
         {
             var role = await _context.Roles.FindAsync(id);
+           
             if (role == null)
-            {
                 return NotFound();
-            }
 
             role.IsDeleted = true;
             //_context.Roles.Remove(role);

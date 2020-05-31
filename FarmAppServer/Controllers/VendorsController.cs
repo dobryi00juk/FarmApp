@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
+using FarmAppServer.Models.Vendors;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.OpenApi.Validations;
 
@@ -93,7 +94,7 @@ namespace FarmAppServer.Controllers
 
         // POST: api/Vendors
         [HttpPost]
-        public async Task<ActionResult<VendorDto>> PostVendor([FromBody]VendorDto model)
+        public async Task<ActionResult<VendorDto>> PostVendor([FromBody]PostVendorDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest();

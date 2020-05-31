@@ -18,6 +18,7 @@ namespace FarmAppServer.Services
         IQueryable RegionNameSearch(string param);
         Task<Region> PostRegion(Region region);
         Task<bool> DeleteRegionAsync(int id);
+        Task<bool> UpdateRegionAsync(int id, UpdateRegionDto model);
     }
     public class RegionService : IRegionService
     {
@@ -48,12 +49,25 @@ namespace FarmAppServer.Services
         {
             var region = await _context.Regions.FindAsync(id);
 
-            if (region == null) return false;
+            if (region == null || region.IsDeleted == true) return false;
 
             region.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<bool> UpdateRegionAsync(int id, UpdateRegionDto model)
+        {
+            var region = await _context.Regions.Where(x => x.Id == id && x.IsDeleted == false).FirstOrDefaultAsync();
+
+            if (region == null) return false;
+
+            _mapper.Map(model, region);
+            _context.Update(region);
+            var updated = await _context.SaveChangesAsync();
+
+            return updated > 0;
         }
 
         //Фильтры: TextBox -> RegionName
@@ -67,15 +81,7 @@ namespace FarmAppServer.Services
             var regions = _context.Regions.Where(x => x.RegionName.ToUpper().Contains(request) ||
                                                       x.Population.ToString().Contains(request));// ||
                                                       //x.ParentRegion.RegionName.ToUpper().Contains(request));
-           // var region = regions.FirstOrDefault();
-
-
-            //var test = _context.Regions.Include(x => x.ParentRegion)
-            //    .Where(x => x.Id == regions.Id);
-
             return regions;
         }
-
-        
     }
 }

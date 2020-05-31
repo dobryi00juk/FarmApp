@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
+using FarmAppServer.Models.CodeAthTypes;
+using FarmAppServer.Models.Sales;
+using FarmAppServer.Services;
 using FarmAppServer.Services.Paging;
 
 namespace FarmAppServer.Controllers
@@ -17,65 +21,47 @@ namespace FarmAppServer.Controllers
     public class CodeAthTypesController : ControllerBase
     {
         private readonly FarmAppContext _context;
+        private readonly IMapper _mapper;
+        private readonly ICodeAthService _codeAthService;
 
-        public CodeAthTypesController(FarmAppContext context)
+        public CodeAthTypesController(FarmAppContext context, IMapper mapper, ICodeAthService codeAthService)
         {
             _context = context;
+            _mapper = mapper;
+            _codeAthService = codeAthService;
         }
 
         // GET: api/CodeAthTypes
         [HttpGet]
-        public ActionResult<IEnumerable<CodeAthType>> GetCodeAthTypes([FromQuery]int page = 1, int pageSize = 25)
+        public ActionResult<IEnumerable<CodeAthTypeDto>> GetCodeAthTypes([FromQuery]int page = 1, [FromQuery]int pageSize = 25)
         {
-            var codeAthType = _context.CodeAthTypes.Where(x => x.IsDeleted == false);
-            
-            try
-            {
-                var query = codeAthType.GetPaged(page, pageSize);
+            var codesAthType = _codeAthService.GetCodeAthTypes();
+            var result = codesAthType.GetPaged(page, pageSize);
 
-                return Ok(query);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = $"{e.Message}"
-                });
-            }
+            if (result == null)
+                return NotFound("CodeAthType not found");
+
+            return Ok(result);
         }
 
         // GET: api/CodeAthTypes/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CodeAthType>> GetCodeAthType(int id)
+        [HttpGet("CodeAthById")]
+        public async Task<ActionResult<CodeAthType>> GetCodeAthType([FromQuery]int id)
         {
-            var codeAthType = await _context.CodeAthTypes.FindAsync(id);
+            var codeAthType = await _codeAthService.GetCodeAthTypeById(id);
 
             if (codeAthType == null)
-            {
-                return NotFound();
-            }
+                return NotFound("CodeAthType not found");
 
-            if (codeAthType.IsDeleted == true)
-            {
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = "Роль не найдена"
-                });
-            }
-
-            return codeAthType;
+            return Ok(codeAthType);
         }
 
         // PUT: api/CodeAthTypes/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCodeAthType(int id, CodeAthType codeAthType)
+        [HttpPut]
+        public async Task<IActionResult> PutCodeAthType([FromQuery]int id, [FromBody]CodeAthType codeAthType)
         {
             if (id != codeAthType.Id)
-            {
                 return BadRequest();
-            }
 
             _context.Entry(codeAthType).State = EntityState.Modified;
 
@@ -100,17 +86,20 @@ namespace FarmAppServer.Controllers
 
         // POST: api/CodeAthTypes
         [HttpPost]
-        public async Task<ActionResult<CodeAthType>> PostCodeAthType(CodeAthType codeAthType)
+        public async Task<ActionResult<CodeAthType>> PostCodeAthType([FromBody]PostCodeAthType model)
         {
-            _context.CodeAthTypes.Add(codeAthType);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid) return BadRequest();
 
-            return CreatedAtAction("GetCodeAthType", new { id = codeAthType.Id }, codeAthType);
+            var codeAthType = _mapper.Map<CodeAthType>(model);
+            var request = await _codeAthService.PostCodeAthTypeAsync(codeAthType);
+            var result = _mapper.Map<CodeAthTypeDto>(request);
+
+            return Created("PostCodeAthType", result);
         }
 
         // DELETE: api/CodeAthTypes/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<CodeAthType>> DeleteCodeAthType(int id)
+        [HttpDelete]
+        public async Task<ActionResult<CodeAthType>> DeleteCodeAthType([FromQuery]int id)
         {
             var codeAthType = await _context.CodeAthTypes.FindAsync(id);
             if (codeAthType == null)

@@ -10,6 +10,7 @@ using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Helpers;
 using FarmAppServer.Models;
+using FarmAppServer.Models.Pharmacies;
 using FarmAppServer.Models.Pharmacy;
 using FarmAppServer.Services;
 using FarmAppServer.Services.Paging;
@@ -82,8 +83,6 @@ namespace FarmAppServer.Controllers
         }
 
         // PUT: api/Pharmacies/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut]
         public IActionResult PutPharmacy([FromQuery]int id, [FromBody]PharmacyDto model)
         {
@@ -105,51 +104,26 @@ namespace FarmAppServer.Controllers
         }
 
         // POST: api/Pharmacies
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Pharmacy>> PostPharmacy([FromBody]PharmacyDto model)
+        public async Task<ActionResult<Pharmacy>> PostPharmacy([FromBody]PostPharmacyDto model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
-                
-            try
-            {
-                var pharmacy = _mapper.Map<Pharmacy>(model);
-                var result = await _pharmacyService.PostPharmacyAsync(pharmacy);
+            if(!ModelState.IsValid) return BadRequest();
 
-                return Created("PostPharmacy", result);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new ResponseBody
-                {
-                    Header = "Error",
-                    Result = $"{e.Message}"
-                });
-            }
+            var pharmacy = _mapper.Map<Pharmacy>(model);
+            var request = await _pharmacyService.PostPharmacyAsync(pharmacy);
+            var result = _mapper.Map<PharmacyDto>(request);
+
+            return Created("PostPharmacy", result);
         }
 
         // DELETE: api/Pharmacies/5
         [HttpDelete]
         public async Task<ActionResult<Pharmacy>> DeletePharmacy([FromQuery]int id)
         {
-            var pharmacy = await _context.Pharmacies.FindAsync(id);
-            if (pharmacy == null)
-            {
-                return NotFound();
-            }
+            if (await _pharmacyService.DeletePharmacyAsync(id))
+                return Ok();
 
-            //_context.Pharmacies.Remove(pharmacy);
-            pharmacy.IsDeleted = true;
-            await _context.SaveChangesAsync();
-
-            return pharmacy;
-        }
-
-        private bool PharmacyExists(int id)
-        {
-            return _context.Pharmacies.Any(e => e.Id == id && e.IsDeleted == false);
+            return NotFound("Sale not found");
         }
 
 

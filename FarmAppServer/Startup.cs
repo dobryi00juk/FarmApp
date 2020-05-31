@@ -91,6 +91,8 @@ namespace FarmAppServer
             services.AddScoped<IPharmacyService, PharmacyService>();
             services.AddScoped<IDrugService, DrugService>();
             services.AddScoped<ISaleService, SaleService>();
+            services.AddScoped<IApiMethodService, ApiMethodService>();
+            services.AddScoped<ICodeAthService, CodeAthService>();
 
             services.AddSwaggerGen(c =>
             {
@@ -106,22 +108,6 @@ namespace FarmAppServer
                     Description = "JWT Authorization header using the Bearer scheme."
                 });
                 c.OperationFilter<AuthenticationRequirementsOperationFilter>();
-
-                //c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                // {
-                //     {
-                //         new OpenApiSecurityScheme
-                //         {
-                //             Reference = new OpenApiReference
-                //             {
-                //                 Type = ReferenceType.SecurityScheme,
-                //                 Id = "Bearer"
-                //             }
-                //         },
-                //         new string[] {}
-
-                //     }
-                // });
             });
         }
 

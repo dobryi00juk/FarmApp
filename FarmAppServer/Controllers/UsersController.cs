@@ -66,7 +66,7 @@ namespace FarmAppServer.Controllers
                     new Claim("UserId", user.Id.ToString()),
                     new Claim("RoleId", user.RoleId.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddDays(1),
+                Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -78,11 +78,10 @@ namespace FarmAppServer.Controllers
             response.Token = tokenString;
 
             return Ok(response);
-
         }
 
         [AllowAnonymous]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody]RegisterModelDto model)
         {
@@ -137,38 +136,34 @@ namespace FarmAppServer.Controllers
         }
 
         [HttpPut]
-        public IActionResult Update([FromQuery]int id, [FromBody]UpdateModelDto model)
+        public async Task<IActionResult> Update([FromQuery]int id, [FromBody]UpdateModelDto userToUpdate)
         {
-            // map model to entity and set id
-            var user = _mapper.Map<User>(model);
-            user.Id = id;
+            if (!ModelState.IsValid)
+                return BadRequest();
 
-            try
-            {
-                // update user 
-                _userService.UpdateUser(user, model.Password);
+            var updated = await _userService.UpdateUserAsync(id, userToUpdate);
+
+            if (updated)
                 return Ok();
-            }
-            catch (AppException ex)
+
+            return NotFound(new ResponseBody()
             {
-                // return error message if there was an exception
-                return BadRequest(new { message = ex.Message, ex.StackTrace });
-            }
+                Header = "Error",
+                Result = "user not found"
+            });
         }
 
         [HttpDelete]
-        public IActionResult Delete([FromQuery]int id)
+        public async Task<IActionResult> Delete([FromQuery]int id)
         {
-            try
-            {
-                _userService.DeleteUser(id);
+            if (await _userService.DeleteUserAsync(id))
                 return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new { e.Message, e.StackTrace });
-            }
 
+            return NotFound(new ResponseBody()
+            {
+                Header = "Error",
+                Result = "User not found"
+            });
         }
 
 
@@ -180,7 +175,6 @@ namespace FarmAppServer.Controllers
         [Route("RoleName")]
         public async Task<ActionResult<IEnumerable<UserFilterByRoleDto>>> GetUsersByRoleAsync([FromQuery]string role)
         {
-            //&&&???
             if (string.IsNullOrEmpty(role))
                 return BadRequest(new
                 {

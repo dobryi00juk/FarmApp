@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
+using FarmAppServer.Models.ApiMethods;
+using FarmAppServer.Models.Sales;
+using FarmAppServer.Services;
 using FarmAppServer.Services.Paging;
 using Microsoft.AspNetCore.Authorization;
+using ServiceStack;
 
 namespace FarmAppServer.Controllers
 {
@@ -19,121 +24,93 @@ namespace FarmAppServer.Controllers
     public class ApiMethodsController : ControllerBase
     {
         private readonly FarmAppContext _context;
+        private readonly IApiMethodService _apiMethodService;
+        private readonly IMapper _mapper;
 
-        public ApiMethodsController(FarmAppContext context)
+        public ApiMethodsController(FarmAppContext context, IApiMethodService apiMethodService, IMapper mapper)
         {
             _context = context;
+            _apiMethodService = apiMethodService;
+            _mapper = mapper;
         }
 
         // GET: api/ApiMethods
         [HttpGet]
-        public ActionResult<IEnumerable<ApiMethod>> GetApiMethods([FromQuery]int page = 1, int pageSize = 20)
+        public ActionResult<IEnumerable<ApiMethodDto>> GetApiMethods([FromQuery]int page = 1, [FromQuery]int pageSize = 20)
         {
-            var apiMethods = _context.ApiMethods.Where(x => x.IsDeleted == false);
-            
-            try
-            {
-                var query = apiMethods.GetPaged(page, pageSize);
+            var apiMethod = _apiMethodService.GetApiMethodsDto();
+            var result = apiMethod.GetPaged(page, pageSize);
 
-                return Ok(query);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = $"{e.Message}"
-                });
-            }
+            return Ok(result);
         }
 
         // GET: api/ApiMethods/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ApiMethod>> GetApiMethod(int id)
+        [HttpGet("ApiMethodById")]
+        public async Task<ActionResult<ApiMethodDto>> GetApiMethod([FromQuery]int id)
         {
-            var apiMethod = await _context.ApiMethods.FindAsync(id);
+            var apiMethod = await _apiMethodService.GetApiMethodByIdAsync(id);
 
-            if (apiMethod == null)
-            {
-                return NotFound(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = "Api method not found!"
-                });
-            }
-
-            if (apiMethod.IsDeleted == true)
-            {
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = "Role not found"
-                });
-            }
-
-            return apiMethod;
+            return Ok(apiMethod);
         }
 
         // PUT: api/ApiMethods/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutApiMethod(int id, ApiMethod apiMethod)
+        [HttpPut]
+        public async Task<IActionResult> Update([FromQuery]int id, [FromBody]UpdateApiMethodDto apiMethodToUpdate)
         {
-            if (id != apiMethod.Id)
-            {
+            if (!ModelState.IsValid)
                 return BadRequest();
-            }
 
-            _context.Entry(apiMethod).State = EntityState.Modified;
+            var updated = await _apiMethodService.UpdateApiMethodAsync(id, apiMethodToUpdate);
 
-            try
+            if (updated)
+                return Ok();
+
+            return NotFound(new ResponseBody()
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ApiMethodExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+                Header = "Error",
+                Result = "user not found"
+            });
         }
 
         // POST: api/ApiMethods
         [HttpPost]
-        public async Task<ActionResult<ApiMethod>> PostApiMethod(ApiMethod apiMethod)
+        public async Task<ActionResult<ApiMethod>> PostApiMethod(PostApiMethodDto model)
         {
-            _context.ApiMethods.Add(apiMethod);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid) return BadRequest();
 
-            return CreatedAtAction("GetApiMethod", new { id = apiMethod.Id }, apiMethod);
+            var apiMethod = _mapper.Map<ApiMethod>(model);
+            var request = await _apiMethodService.PostApiMethodAsync(apiMethod);
+            var result = _mapper.Map<ApiMethodDto>(request);
+
+            return Created("PostApiMethod", result);
         }
 
         // DELETE: api/ApiMethods/5
-        [HttpDelete("{id}")]
+        [HttpDelete]
         public async Task<ActionResult<ApiMethod>> DeleteApiMethod(int id)
         {
-            var apiMethod = await _context.ApiMethods.FindAsync(id);
-            if (apiMethod == null)
-            {
-                return NotFound();
-            }
+            if (await _apiMethodService.DeleteSaleAsync(id))
+                return Ok();
 
-            //_context.ApiMethods.Remove(apiMethod);
-            apiMethod.IsDeleted = true;
-            await _context.SaveChangesAsync();
-
-            return apiMethod;
+            return NotFound("Sale not found");
         }
 
-        private bool ApiMethodExists(int id)
-        {
-            return _context.ApiMethods.Any(e => e.Id == id && e.IsDeleted == false);
-        }
+
+        ///////Search!!!!!!
+    //    [HttpGet("Search")]
+    //    public async Task<ActionResult<ApiMethodDto>> SearchApiMethod(string param, bool? isNotNullParam, bool? isNeedAuthentication, bool? isDeleted)
+    //    {
+    //        if (isNotNullParam != null)
+    //        {
+    //            var result = await _apiMethodService.CheckForNullParam(isNotNullParam);
+    //        }
+
+    //        if (string.IsNullOrEmpty(param))
+    //            return BadRequest($"Value cannot be null or empty. {nameof(param)}");
+
+    //        var result = await _apiMethodService.SearchAsync(param, isNotNullParam, isNeedAuthentication, isDeleted);
+
+    //        return Ok(result);
+    //    }
     }
 }
