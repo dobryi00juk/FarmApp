@@ -4,7 +4,7 @@ import SignIn from "./modules/auth/SignIn";
 import { ResponsiveDrawer } from "./modules/menu/ResponsiveDrawer";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 
-const NotFoundRedirect = () => <Redirect to='/farm-app/' />
+const NotFoundRedirect = () => <Redirect to='/farm-app/auth/' />
 
 const App = () => {
   return (

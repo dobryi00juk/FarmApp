@@ -14,6 +14,7 @@ import { CircularProgress } from '@material-ui/core';
 import { PositionedSnackbar } from '../../components/snackbar/SnackbarResult';
 
 import {useSnackbar, VariantType} from 'notistack';
+import { logout, restoreAuth, RESTORE_AUTH } from '../../store/auth/authActions';
 
 
 var validator = require('validator');
@@ -65,6 +66,7 @@ const SignIn = () => {
 
     const { enqueueSnackbar } = useSnackbar();
 
+
     // const handleClickVariant = (variant: VariantType) => () => {
     //     enqueueSnackbar('Логин или пароль введен неверно.', { variant });
     // };
@@ -78,9 +80,36 @@ const SignIn = () => {
     const handleClose = () => {
         setOpen(false);
     }
-    const onSuccess = () => {
-        history.push('/farm-app/main/');
+
+    const onSuccess = (result?:null|object) => {
+        console.log("result",result)
+        //сохраняем полученые данные что бы мы могли авторизовать пользователя при повторном подключении
+        localStorage.setItem('auth',JSON.stringify(result))
+        //сохраняет время получения токена для вычисления его жизни
+        localStorage.setItem('getTokenTime',new Date().getTime().toString())
+        history.push('/farm-app/main/')
     }
+
+    useEffect(()=>{
+        //проверка если мы уже были авторизованны ранее
+        const rememberMe = localStorage.getItem('auth')
+        const tokenLife = localStorage.getItem('getTokenTime')
+        if(rememberMe!==null&&tokenLife!==null){
+            const response = JSON.parse(rememberMe)
+            console.log("tokenLife",tokenLife,response)
+            console.log("if",parseInt(tokenLife)+5*24*60*60*1000<=new Date().getTime())
+            //проверка жив ли еще токен
+            //если прошло меньше 5 дней
+            if(new Date().getTime()<=parseInt(tokenLife)+5*24*60*60*1000){ 
+                dispatch(restoreAuth(response))
+                history.push('/farm-app/main/')
+            }else{
+                 //если прошло  5 дней чистим хранилище и выходим
+                localStorage.clear();
+                dispatch(logout())
+            }
+        }
+    },[])
     const handleClick = () => {
         if (login_text?.length !== 0 && validator.isEmail(login_text) && pass_text?.length !== 0 ) {
             dispatch(callApiLogin({login: login_text, password: pass_text}, onSuccess))

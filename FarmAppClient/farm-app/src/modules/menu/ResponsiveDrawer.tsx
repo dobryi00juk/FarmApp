@@ -13,7 +13,7 @@ import classnames from "classnames";
 import { ItemListDrawer } from '../../components/itemDrawer/ItemListDrawer';
 import { ItemDrawer } from '../../components/itemDrawer/ItemDrawer';
 import { IDictionary } from '../../utils/interfaces';
-import { Profile } from '../../components/profile/Profile';
+import  Profile  from '../../components/profile/Profile';
 import { Sales } from '../sales/Sales';
 import { Route } from 'react-router-dom';
 import { Role } from '../administration/role/Role';

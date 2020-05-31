@@ -12,7 +12,7 @@ export const callApi = <P, R>(
   params: P,
   { url, method = "GET", usePublicToken, headers }: IFetchParams,
   actions: AsyncActionCreators<P, R | null, Error>,
-  onSuccess?: () => void
+  onSuccess?: (result?:R|null) => void
 ): IThunkAction => {
   return async (dispatch, getState) => {
     dispatch(actions.started(params));
@@ -40,7 +40,7 @@ export const callApi = <P, R>(
       } else {
         dispatch(actions.done({ params, result }));
         if (onSuccess != null) {
-          onSuccess();
+          onSuccess(result);
         }
       }
     } catch (error) {

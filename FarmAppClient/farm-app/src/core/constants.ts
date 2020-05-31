@@ -1,1 +1,1 @@
-export const BASE_URL = 'http://52.154.73.156/';
+export const BASE_URL = 'http://farm-app.eastus.cloudapp.azure.com/farmappservice/';

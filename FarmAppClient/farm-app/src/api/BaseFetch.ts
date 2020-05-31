@@ -1,6 +1,5 @@
 import {BASE_URL} from "../core/constants";
 var qs = require('qs');
-
 const axios = require('axios');
 export type IHttpMethods = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -18,9 +17,10 @@ export const baseFetch = async <P, R>(
   token: string,
   headers: { [key: string]: string } = {}
 ): Promise<IResponse<R>> => {
+
   try {
     const bodyObj = method !== "GET" ? { body: JSON.stringify(params) } : {};
-    const res = await fetch(`/api/${url}`, {
+    const res = await fetch(`${BASE_URL}${url}`, {
       method,
       ...bodyObj,
       headers: {
@@ -55,20 +55,26 @@ export const baseFetch = async <P, R>(
 };
 
 
-export const authRequest = async (login:string, password:string) => {
-  localStorage.setItem('login', login)
+export const authRequest = async (username:string, password:string) => {
+  localStorage.setItem('login', username)
+  console.log("username",username,password);
   try {
     let data = {
-      username: login,
-      password: password,
+      username,
+      password,
     }
-    let response = await axios.post(`${BASE_URL}/das/login`, qs.stringify(data), {
+    let response = await axios.post(`${BASE_URL}/api/Users/authenticate`, {
+      username,
+      password,
+    }, {
       headers: {
-        'Access-Control-Allow-Headers': 'X-Merp-Session-Id, Access-Control-Allow-Origin',
-        'Access-Control-Expose-Headers': 'X-Merp-Session-Id, Access-Control-Allow-Origin',
-        'Content-Type': 'application/x-www-form-urlencoded;; charset=utf-8',
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'X-Merp-Session-Id, Access-Control-Allow-Origin',
+				'Access-Control-Expose-Headers': 'X-Merp-Session-Id, Access-Control-Allow-Origin',
+
       },
+
     })
     //console.log('api response data', response)
     return response
@@ -76,3 +82,4 @@ export const authRequest = async (login:string, password:string) => {
     console.log('error', error)
   }
 }
+
