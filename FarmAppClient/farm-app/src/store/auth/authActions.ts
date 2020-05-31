@@ -24,7 +24,7 @@ export const authActions = {
 
 
 export const RESTORE_AUTH = 'RESTORE_AUTH'
-export const restoreAuth=(result:object|null)=>async (dispatch:any) =>{
+export const restoreAuth=(result:object|null)=>async (dispatch:Dispatch<any>) =>{
   dispatch({
     type:RESTORE_AUTH,
     payload:result

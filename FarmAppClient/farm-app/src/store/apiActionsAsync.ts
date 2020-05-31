@@ -19,8 +19,8 @@ export const callApi = <P, R>(
     try {
       let token = process.env.REACT_APP_PUBLIC_TOKEN || "";
       if (!usePublicToken) {
-        // const account = getState().auth.account;
-        // token = account ? account.MobileServiceAuthenticationToken : "";
+        const account = getState().auth.user;
+        token = account ? account.token : "";
       }
       const { status, message, result: result } = await baseFetch<P, R>(
         url,

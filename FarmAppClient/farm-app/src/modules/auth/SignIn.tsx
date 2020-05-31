@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -6,14 +6,14 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import boy from "../../resources/boy.svg"
-import {connect, useDispatch, useSelector} from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { authSelector } from '../../store/auth/authSelector';
 import { callApiLogin } from '../../store/auth/authStateActionsAsync';
 import { useHistory } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 import { PositionedSnackbar } from '../../components/snackbar/SnackbarResult';
 
-import {useSnackbar, VariantType} from 'notistack';
+import { useSnackbar, VariantType } from 'notistack';
 import { logout, restoreAuth, RESTORE_AUTH } from '../../store/auth/authActions';
 
 
@@ -70,7 +70,7 @@ const SignIn = () => {
     // const handleClickVariant = (variant: VariantType) => () => {
     //     enqueueSnackbar('Логин или пароль введен неверно.', { variant });
     // };
-    const handleClickVariant = (message:string,variant: VariantType) => {
+    const handleClickVariant = (message: string, variant: VariantType) => {
         enqueueSnackbar(message, { variant });
     };
 
@@ -81,44 +81,44 @@ const SignIn = () => {
         setOpen(false);
     }
 
-    const onSuccess = (result?:null|object) => {
-        console.log("result",result)
+    const onSuccess = (result?: null | object) => {
+        console.log("result", result)
         //сохраняем полученые данные что бы мы могли авторизовать пользователя при повторном подключении
-        localStorage.setItem('auth',JSON.stringify(result))
+        localStorage.setItem('auth', JSON.stringify(result))
         //сохраняет время получения токена для вычисления его жизни
-        localStorage.setItem('getTokenTime',new Date().getTime().toString())
+        localStorage.setItem('getTokenTime', new Date().getTime().toString())
         history.push('/farm-app/main/')
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         //проверка если мы уже были авторизованны ранее
         const rememberMe = localStorage.getItem('auth')
         const tokenLife = localStorage.getItem('getTokenTime')
-        if(rememberMe!==null&&tokenLife!==null){
+        if (rememberMe !== null && tokenLife !== null) {
             const response = JSON.parse(rememberMe)
-            console.log("tokenLife",tokenLife,response)
-            console.log("if",parseInt(tokenLife)+5*24*60*60*1000<=new Date().getTime())
+            console.log("tokenLife", tokenLife, response)
+            console.log("if", parseInt(tokenLife) + 5 * 24 * 60 * 60 * 1000 <= new Date().getTime())
             //проверка жив ли еще токен
             //если прошло меньше 5 дней
-            if(new Date().getTime()<=parseInt(tokenLife)+5*24*60*60*1000){ 
+            if (new Date().getTime() <= parseInt(tokenLife) + 5 * 24 * 60 * 60 * 1000) {
                 dispatch(restoreAuth(response))
                 history.push('/farm-app/main/')
-            }else{
-                 //если прошло  5 дней чистим хранилище и выходим
+            } else {
+                //если прошло  5 дней чистим хранилище и выходим
                 localStorage.clear();
                 dispatch(logout())
             }
         }
-    },[])
+    }, [])
     const handleClick = () => {
-        if (login_text?.length !== 0 && validator.isEmail(login_text) && pass_text?.length !== 0 ) {
-            dispatch(callApiLogin({login: login_text, password: pass_text}, onSuccess))
+        if (login_text?.length !== 0 && validator.isEmail(login_text) && pass_text?.length !== 0) {
+            dispatch(callApiLogin({ login: login_text, password: pass_text }, onSuccess))
             if (selector.error) {
-                handleClickVariant(selector.error.message,'error')
+                handleClickVariant(selector.error.message, 'error')
                 handleOpen();
             }
         } else {
-            handleClickVariant('Логин или пароль введен неверно.','error')
+            handleClickVariant('Логин или пароль введен неверно.', 'error')
         }
     }
 

@@ -1,10 +1,18 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { Typography } from "@material-ui/core"
 import TreeList, { Editing, SearchPanel, Column, RequiredRule, Selection, Sorting, FilterRow, Pager, Paging, Scrolling } from "devextreme-react/tree-list"
 import { pharmacies } from "../../../api/mock/pharmacies"
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { getPharmacies } from "../../../store/pharmacy/parmacyActions";
+import { IAppState } from "../../../core/mainReducer";
 
 export const Pharmacy = () => {
+    const dispatch = useDispatch();
     const allowedPageSizes = [5, 10, 20];
+
+    useEffect(() => {
+        dispatch(getPharmacies())
+    }, [])
 
     return (
         <Typography>
@@ -79,3 +87,10 @@ export const Pharmacy = () => {
         </Typography>
     )
 }
+
+export default connect((state: IAppState) => {
+    const { pharmacy } = state;
+    return {
+        isFetchFarmacy: pharmacy.isFetchFarmacy,
+    }
+})(Pharmacy)
