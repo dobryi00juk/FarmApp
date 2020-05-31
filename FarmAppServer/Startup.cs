@@ -21,6 +21,7 @@ using FarmAppServer.Helpers;
 using AutoMapper;
 using FarmAppServer.Controllers;
 using Newtonsoft.Json;
+using System.Linq;
 
 //using FarmAppServer.Services.UserServices;
 
@@ -62,6 +63,7 @@ namespace FarmAppServer
             var key = Encoding.ASCII.GetBytes(appSettings.Secret);
 
             services.AddAuthorization();
+
 
 
             services.AddAuthentication(x =>
@@ -108,22 +110,38 @@ namespace FarmAppServer
                     Description = "JWT Authorization header using the Bearer scheme."
                 });
                 c.OperationFilter<AuthenticationRequirementsOperationFilter>();
+                c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+                //c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                // {
+                //     {
+                //         new OpenApiSecurityScheme
+                //         {
+                //             Reference = new OpenApiReference
+                //             {
+                //                 Type = ReferenceType.SecurityScheme,
+                //                 Id = "Bearer"
+                //             }
+                //         },
+                //         new string[] {}
+
+                //     }
+                // });
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, FarmAppContext farmAppContext)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            //if (env.IsDevelopment())
+            //{
+            app.UseDeveloperExceptionPage();
+            //}
 
             //swagger
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "FarmApp V1");
+                c.SwaggerEndpoint("./v1/swagger.json", "FarmApp V1");
             });
 
             app.UseHttpsRedirection();
@@ -142,6 +160,8 @@ namespace FarmAppServer
             app.UseAuthorization();
 
             //app.UseCors(builder => builder.WithOrigins(Configuration["ApplicationSettings:Client_URL"].ToString()).AllowAnyHeader().AllowAnyMethod());
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
 
             app.UseMiddleware<ErrorHandlingMiddleware>();
             //app.UseMiddleware<ValidationMiddleware>();      
@@ -152,11 +172,7 @@ namespace FarmAppServer
                 endpoints.MapControllers();
             });
 
-            
-
-            using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
-            var context = serviceScope.ServiceProvider.GetRequiredService<FarmAppContext>();
-            context.Database.Migrate();
+            farmAppContext.Database.Migrate();
         }
     }
 }
