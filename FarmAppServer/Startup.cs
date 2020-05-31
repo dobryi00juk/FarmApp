@@ -158,6 +158,8 @@ namespace FarmAppServer
             app.UseAuthorization();
 
             //app.UseCors(builder => builder.WithOrigins(Configuration["ApplicationSettings:Client_URL"].ToString()).AllowAnyHeader().AllowAnyMethod());
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
 
             app.UseMiddleware<ErrorHandlingMiddleware>();
             //app.UseMiddleware<ValidationMiddleware>();      
