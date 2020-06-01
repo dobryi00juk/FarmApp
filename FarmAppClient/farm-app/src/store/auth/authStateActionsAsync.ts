@@ -12,6 +12,6 @@ export const callApiLogin = (params: ILoginParams, goToFrom: (result?:object|nul
         'Access-Control-Allow-Origin': '*',
     } },
     authActions.login,
-    (result?:object|null)=>goToFrom(result)
+        (result?:object|null)=>goToFrom(result)
   );
 

@@ -3894,6 +3894,11 @@ devexpress-gantt@0.0.29:
   resolved "https://registry.yarnpkg.com/devexpress-gantt/-/devexpress-gantt-0.0.29.tgz#5dd87f42c5f5ce6aad36449726cb1922ccff311c"
   integrity sha512-uwq6N5SxR17XIEYSurvOwutdwc5Ig8jg4LDdfq0W582X70yGq18Bi3Mw5bM0yjH6OlNTi25hwwPKNIxAEQHhLw==
 
+devextreme-aspnet-data-nojquery@^2.6.1:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/devextreme-aspnet-data-nojquery/-/devextreme-aspnet-data-nojquery-2.6.1.tgz#f12b7934d185418bebd804a27c598c92889d1eeb"
+  integrity sha512-Lc2dqxksBP6qVlefEdCdQpxFIeo8kfAXrIuXiQ77H8iDQPL2WU4Q65ENHIr69xqnm1y3gBdrxPJX7ptuLFeJyg==
+
 devextreme-react@^19.2.7:
   version "19.2.7"
   resolved "https://registry.yarnpkg.com/devextreme-react/-/devextreme-react-19.2.7.tgz#179759c6a63b7c88f78e889de19341162f1e3b7e"

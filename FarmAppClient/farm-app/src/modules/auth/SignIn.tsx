@@ -96,8 +96,6 @@ const SignIn = () => {
         const tokenLife = localStorage.getItem('getTokenTime')
         if (rememberMe !== null && tokenLife !== null) {
             const response = JSON.parse(rememberMe)
-            console.log("tokenLife", tokenLife, response)
-            console.log("if", parseInt(tokenLife) + 5 * 24 * 60 * 60 * 1000 <= new Date().getTime())
             //проверка жив ли еще токен
             //если прошло меньше 5 дней
             if (new Date().getTime() <= parseInt(tokenLife) + 5 * 24 * 60 * 60 * 1000) {

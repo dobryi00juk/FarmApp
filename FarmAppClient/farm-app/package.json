@@ -22,6 +22,7 @@
     "axios": "^0.19.2",
     "classnames": "^2.2.6",
     "devextreme": "^19.2.7",
+    "devextreme-aspnet-data-nojquery": "^2.6.1",
     "devextreme-react": "^19.2.7",
     "material-table": "^1.57.2",
     "notistack": "^0.9.16",
