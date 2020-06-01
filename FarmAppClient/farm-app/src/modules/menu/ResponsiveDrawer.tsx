@@ -27,6 +27,9 @@ import Region from '../directories/region/Region';
 import { User } from '../administration/user/User';
 import { Method } from '../administration/method/Method';
 import { AccessRole } from '../administration/accessRoles/AccessRole';
+const logo = require('../../logo.png')
+
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -101,7 +104,9 @@ export const ResponsiveDrawer = (props: ResponsiveDrawerProps) => {
 
   const drawer = (
     <div>
-      <div className={classnames(classes.toolbar, classes.toolbarLogo)}>ЛОГО</div>
+      <div className={classnames(classes.toolbar, classes.toolbarLogo)}>
+        <img style={{height: '40px'}} src={logo} alt="logo"/>
+      </div>
       <Divider />
       <ItemDrawer
         title={"Главная"}

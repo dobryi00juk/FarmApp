@@ -83,6 +83,7 @@ const Region = ({
               showBorders={true}
               columnAutoWidth={true}
               parentIdExpr="parentId"
+              style={{maxHeight: '85vh'}}
               keyExpr="id"
               // onEditorPreparing={onEditorPreparing}
               // onCellPrepared={onCellPrepared}
