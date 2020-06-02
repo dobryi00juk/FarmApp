@@ -114,7 +114,7 @@ const Region = ({
               <Column
                 caption={"Название региона"}
                 dataType={"string"}
-                dataField={"name"}>
+                dataField={"regionName"}>
                 <RequiredRule/>
               </Column>
               <Column
