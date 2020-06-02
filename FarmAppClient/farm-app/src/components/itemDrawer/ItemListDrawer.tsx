@@ -11,7 +11,7 @@ import { IDictionary } from "../../utils/interfaces";
 
 interface IProps {
   title: string;
-  listItems:  IDictionary<string>[] 
+  listItems:  IDictionary<string>[]
 }
 
 export const ItemListDrawer: FC<IProps> = ({ title, listItems }) => {
@@ -43,6 +43,7 @@ export const ItemListDrawer: FC<IProps> = ({ title, listItems }) => {
                 className={classes.nested}
                 selected={!!matchPath(location.pathname, `/${Object.keys(item)[0]}`)}>
                 <ListItemText primary={Object.values(item)[0]} key={index} />
+                {Object.values(item)[1] && <img style={{height: '30px'}} src={Object.values(item)[1]} alt={`${Object.values(item)[1]}`} />}
               </ListItem>
             </Link>
           </List>
