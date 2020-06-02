@@ -28,6 +28,19 @@ import { User } from '../administration/user/User';
 import { Method } from '../administration/method/Method';
 import { AccessRole } from '../administration/accessRoles/AccessRole';
 const logo = require('../../logo.png')
+const folder = require('../../svg/folder.svg')
+const money = require('../../svg/money.svg')
+const charts = require('../../svg/charts.svg')
+const code = require('../../svg/code.svg')
+const medicains = require('../../svg/medicains.svg')
+const meeting = require('../../svg/meeting.svg')
+const profile = require('../../svg/profile.svg')
+const pharmacy = require('../../svg/pharmacy.svg')
+const proiz = require('../../svg/proiz.svg')
+const regions = require('../../svg/regions.svg')
+const network = require('../../svg/network.svg')
+const settings = require('../../svg/settings.svg')
+
 
 
 const drawerWidth = 240;
@@ -89,18 +102,30 @@ export const ResponsiveDrawer = (props: ResponsiveDrawerProps) => {
 
 
   const directories: IDictionary<string>[] = [
-    { 'pharmacy': 'Аптеки' },
-    { 'preparations': 'Препараты' },
-    { 'code': 'Код АТН' },
-    { 'produced': 'Производители' },
-    { 'region': 'Регионы' }]
+    { 'pharmacy': 'Аптеки',
+      'svg' : pharmacy },
+    { 'preparations': 'Препараты',
+      'svg' : medicains },
+    { 'code': 'Код АТН',
+      'svg' : code },
+    { 'produced': 'Производители',
+      'svg' : proiz },
+    { 'region': 'Регионы',
+      'svg' : regions }]
   const administration: IDictionary<string>[] = [
-    { 'users': 'Пользователи' },
-    { 'roles': 'Роли' },
-    { 'methods': 'Методы' },
-    { 'access': 'Доступ по ролям' },
-    { 'logs': 'Логи' }]
-  const reports: IDictionary<string>[] = [{ 'charts': 'Графики' }]
+    { 'users': 'Пользователи',
+      'svg' : network },
+    { 'roles': 'Роли',
+      'svg' : meeting },
+    { 'methods': 'Методы',
+      'svg' : folder },
+    { 'access': 'Доступ по ролям',
+      'svg' : settings },]
+  const reports: IDictionary<string>[] = [
+    {
+      'charts': 'Графики',
+      'svg' : charts
+    }]
 
   const drawer = (
     <div>
@@ -109,10 +134,12 @@ export const ResponsiveDrawer = (props: ResponsiveDrawerProps) => {
       </div>
       <Divider />
       <ItemDrawer
+        svg={profile}
         title={"Главная"}
         link={"main"}
       />
       <ItemDrawer
+        svg={money}
         title={"Продажи"}
         link={"sales"}
       />
@@ -137,7 +164,7 @@ export const ResponsiveDrawer = (props: ResponsiveDrawerProps) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Responsive drawer
+
           </Typography>
           <Typography className={classes.profile}>
             <Profile />
