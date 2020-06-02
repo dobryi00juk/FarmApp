@@ -1,16 +1,45 @@
 import React from "react"
 import { Typography } from "@material-ui/core"
-import TreeList, { Editing, SearchPanel, Column, RequiredRule, Selection, Sorting, FilterRow, Pager, Paging, Scrolling } from "devextreme-react/tree-list"
+import TreeList, {
+  Editing,
+  SearchPanel,
+  Column,
+  RequiredRule,
+  Selection,
+  Sorting,
+  FilterRow,
+  Pager,
+  Paging,
+  Scrolling,
+  HeaderFilter
+} from "devextreme-react/tree-list"
 import { codeAthType } from "../../../api/mock/codeAthType"
+import {BASE_URL} from "../../../core/constants";
+import AspNetData from "devextreme-aspnet-data-nojquery";
 
 const allowedPageSizes = [5, 10, 20];
 
 export const ATH = () => {
+
+  const url = `${BASE_URL}api/CodeAthTypes`;
+  const atxData = AspNetData.createStore({
+    key: 'id',
+    loadUrl: `${url}`,
+    insertUrl: `${url}`,
+    updateUrl: `${url}`,
+    deleteUrl: `${url}`,
+    onBeforeSend: function(method, ajaxOptions) {
+      ajaxOptions.xhrFields = { withCredentials: false };
+    }
+  });
+
+
     return (
         <Typography>
             <TreeList
                 id="codeAthType"
-                dataSource={codeAthType}
+                //@ts-ignore
+                dataSource={atxData}
                 showRowLines={true}
                 showBorders={true}
                 columnAutoWidth={true}
@@ -32,6 +61,7 @@ export const ATH = () => {
                 <Sorting mode="multiple" />
                 <Selection mode="single" />
                 <SearchPanel visible={true} />
+              <HeaderFilter visible={true}/>
                 <Editing
                     allowUpdating={true}
                     allowDeleting={true}
@@ -47,7 +77,7 @@ export const ATH = () => {
                 <Column
                     caption={"Название группы"}
                     dataType={"string"}
-                    dataField={"name"}>
+                    dataField={"nameAth"}>
                     <RequiredRule />
                 </Column>
                 <Column
