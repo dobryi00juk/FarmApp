@@ -49,6 +49,8 @@ export const Pharmacy = () => {
                 showRowLines={true}
                 showBorders={true}
                 columnAutoWidth={true}
+                style={{height: '85vh'}}
+                keyExpr="id"
                 rootValue={1}
                 autoExpandAll={true}
                 parentIdExpr="parentId"

@@ -22,6 +22,7 @@ export const Produced = () => {
                 showRowLines={true}
                 showBorders={true}
                 columnAutoWidth={true}
+                style={{height: '85vh'}}
                 keyExpr="id"
                 onCellPrepared={onCellPrepared}
             >
