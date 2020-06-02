@@ -54,7 +54,6 @@ export const Pharmacy = () => {
                 rootValue={1}
                 autoExpandAll={true}
                 parentIdExpr="parentId"
-                keyExpr="id"
                 wordWrapEnabled={true}
             >
               {/*<RemoteOperations filtering={true} sorting={true} grouping={true} />*/}
