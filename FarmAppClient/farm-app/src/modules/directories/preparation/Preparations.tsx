@@ -2,6 +2,8 @@ import React from "react"
 import { Typography } from "@material-ui/core"
 import TreeList, { Editing, SearchPanel, Column, RequiredRule, Selection, Sorting, Scrolling, Paging, Pager, FilterRow } from "devextreme-react/tree-list"
 import { preparations } from "../../../api/mock/preparations"
+import {BASE_URL} from "../../../core/constants";
+import AspNetData from "devextreme-aspnet-data-nojquery";
 
 export const Preparations = () => {
     const allowedPageSizes = [5, 10, 20];
@@ -14,11 +16,28 @@ export const Preparations = () => {
             }
         }
     }
+
+
+
+  const url = `${BASE_URL}api/Drugs`;
+
+  const tasksData = AspNetData.createStore({
+    key: 'id',
+    loadUrl: `${url}`,
+    insertUrl: `${url}`,
+    updateUrl: `${url}`,
+    deleteUrl: `${url}`,
+    onBeforeSend: function(method, ajaxOptions) {
+      ajaxOptions.xhrFields = { withCredentials: false };
+    }
+  });
+
     return (
         <Typography>
             <TreeList
                 id="preparations"
-                dataSource={preparations}
+                //@ts-ignore
+                dataSource={tasksData}
                 showRowLines={true}
                 showBorders={true}
                 columnAutoWidth={true}

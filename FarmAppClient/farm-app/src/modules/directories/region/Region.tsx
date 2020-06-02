@@ -64,7 +64,6 @@ const Region = ({
       ajaxOptions.xhrFields = { withCredentials: false };
     }
   });
-  console.log("tasksData",tasksData)
   return (
     <>
       {/*{*/}

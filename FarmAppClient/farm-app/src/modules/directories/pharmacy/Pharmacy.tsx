@@ -1,66 +1,111 @@
 import React, { useEffect } from "react"
 import { Typography } from "@material-ui/core"
-import TreeList, { Editing, SearchPanel, Column, RequiredRule, Selection, Sorting, FilterRow, Pager, Paging, Scrolling } from "devextreme-react/tree-list"
+import TreeList, {
+  Editing,
+  SearchPanel,
+  Column,
+  RequiredRule,
+  Selection,
+  Sorting,
+  FilterRow,
+  Pager,
+  Paging,
+  Scrolling,
+  RemoteOperations, HeaderFilter,
+  Lookup
+} from "devextreme-react/tree-list"
 import { pharmacies } from "../../../api/mock/pharmacies"
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { getPharmacies } from "../../../store/pharmacy/parmacyActions";
 import { IAppState } from "../../../core/mainReducer";
+import {BASE_URL} from "../../../core/constants";
+import AspNetData from "devextreme-aspnet-data-nojquery";
 
 export const Pharmacy = () => {
     const dispatch = useDispatch();
     const allowedPageSizes = [5, 10, 20];
 
-    useEffect(() => {
-        dispatch(getPharmacies())
-    }, [])
+
+
+  const url = `${BASE_URL}api/Pharmacies`;
+
+  const tasksData = AspNetData.createStore({
+    key: 'id',
+    loadUrl: `${url}`,
+    insertUrl: `${url}`,
+    updateUrl: `${url}`,
+    deleteUrl: `${url}`,
+    onBeforeSend: function(method, ajaxOptions) {
+      ajaxOptions.xhrFields = { withCredentials: false };
+    }
+  });
 
     return (
         <Typography>
             <TreeList
                 id="pharmacies"
-                dataSource={pharmacies}
+              //@ts-ignore
+                dataSource={tasksData}
                 showRowLines={true}
                 showBorders={true}
                 columnAutoWidth={true}
-                keyExpr="id"
                 rootValue={1}
                 autoExpandAll={true}
                 parentIdExpr="parentId"
+                keyExpr="id"
+                wordWrapEnabled={true}
             >
-                <Scrolling mode="standard" />
-                <Paging
-                    enabled={true}
-                    defaultPageSize={5} />
-                <Pager
-                    showPageSizeSelector={true}
-                    allowedPageSizes={allowedPageSizes}
-                    showInfo={true} />
-                <FilterRow visible={true} />
-                <Sorting mode="multiple" />
-                <Selection mode="single" />
-                <SearchPanel visible={true} />
-                <Editing
-                    allowUpdating={true}
-                    allowDeleting={true}
-                    allowAdding={true}
-                    mode="row"
-                />
+              {/*<RemoteOperations filtering={true} sorting={true} grouping={true} />*/}
+              {/*<SearchPanel visible={true} />*/}
+
+              {/*<HeaderFilter visible={true} />*/}
+              {/*<Scrolling mode="standard" />*/}
+              {/*<Editing*/}
+              {/*  allowUpdating={true}*/}
+              {/*  allowDeleting={true}*/}
+              {/*  allowAdding={true}*/}
+              {/*  mode="row"*/}
+              {/*/>*/}
+
+
+              <RemoteOperations filtering={true} sorting={true} grouping={true} />
+              <SearchPanel visible={true} />
+              <HeaderFilter visible={true} />
+              <Editing
+                mode="row"
+                allowAdding={true}
+                allowUpdating={true}
+                allowDeleting={true} />
+
+
+              <Paging
+                enabled={true}
+                defaultPageSize={5} />
+              <Pager
+                showPageSizeSelector={true}
+                allowedPageSizes={allowedPageSizes}
+                showInfo={true} />
+              <FilterRow visible={true} />
+              <Sorting mode="multiple" />
+              <Selection mode="single" />
+
                 <Column
                     caption={"Номер"}
                     dataType={"number"}
                     visible={false}
                     dataField={"id"}>
+                  <RequiredRule />
                 </Column>
                 <Column
                     caption={"Название аптеки"}
                     dataType={"string"}
-                    dataField={"name"}>
+                    dataField={"pharmacyName"}>
                     <RequiredRule />
                 </Column>
                 <Column
                     caption={"Имя региона"}
                     dataType={"string"}
-                    dataField={"region.name"}>
+                    dataField={"regionName"}>
                     <RequiredRule />
                 </Column>
                 <Column
@@ -88,9 +133,9 @@ export const Pharmacy = () => {
     )
 }
 
-export default connect((state: IAppState) => {
-    const { pharmacy } = state;
-    return {
-        isFetchFarmacy: pharmacy.isFetchFarmacy,
-    }
-})(Pharmacy)
+// export default connect((state: IAppState) => {
+//     const { pharmacy } = state;
+//     return {
+//         isFetchFarmacy: pharmacy.isFetchFarmacy,
+//     }
+// })(Pharmacy)

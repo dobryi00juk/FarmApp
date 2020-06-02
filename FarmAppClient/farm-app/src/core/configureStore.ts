@@ -21,23 +21,23 @@ const composeEnhancers =
         shouldHotReload: false,
       });
 
-      
 
-     
+
+
 
 export function configureStore() {
   const customMiddleWare = (store: MiddlewareAPI<any, any>) => (next: Dispatch,
     ) => async (action: Action) => {
-      
+
     next(action);
-}; 
+};
   const middleware = [thunk,customMiddleWare];
   const enhancer = composeEnhancers(applyMiddleware(...middleware));
   const persistedReducer = persistReducer(persistConfig, createMainReducer());
   const store = createStore(persistedReducer, enhancer);
   // const store: Cards<IAppState, Action> = createStore(persistedReducer, enhancer);
   //@ts-ignore
-  const persistor = persistStore(store);
+  // const persistor = persistStore(store);
   // persistor.purge();
-  return { store, persistor };
+  return { store };
 }

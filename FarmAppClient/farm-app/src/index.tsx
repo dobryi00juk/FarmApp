@@ -15,7 +15,7 @@ import { SnackbarProvider } from 'notistack';
 
 
 export const history = createBrowserHistory({ basename: process.env.PUBLIC_URL });
-export const { store, persistor } = configureStore();
+export const { store } = configureStore();
 export const dispatch: IAppDispatch = store.dispatch;
 
 
