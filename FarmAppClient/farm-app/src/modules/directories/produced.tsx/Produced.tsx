@@ -90,11 +90,11 @@ export const Produced = () => {
           caption={"Отечесвтенный"}
           dataField={"isDomestic"}>
         </Column>
-        <Column
-          caption={"Удалена"}
-          dataType="boolean"
-          dataField={"isDeleted"}>
-        </Column>
+        {/*<Column*/}
+        {/*  caption={"Удалена"}*/}
+        {/*  dataType="boolean"*/}
+        {/*  dataField={"isDeleted"}>*/}
+        {/*</Column>*/}
       </TreeList>
     </Typography>
   )

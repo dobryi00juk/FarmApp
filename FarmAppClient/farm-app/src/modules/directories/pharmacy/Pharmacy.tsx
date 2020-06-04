@@ -121,11 +121,11 @@ export const Pharmacy = () => {
           dataType="boolean"
           dataField={"isNetwork"}>
         </Column>
-        <Column
-          caption={"Удалена"}
-          dataType="boolean"
-          dataField={"isDeleted"}>
-        </Column>
+        {/*<Column*/}
+        {/*  caption={"Удалена"}*/}
+        {/*  dataType="boolean"*/}
+        {/*  dataField={"isDeleted"}>*/}
+        {/*</Column>*/}
       </TreeList>
     </Typography>
   )

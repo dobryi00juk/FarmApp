@@ -149,11 +149,11 @@ export const Preparations = () => {
                     dataField={"isGeneric"}>
                     <RequiredRule />
                 </Column>
-                <Column
-                    caption={"Удалена"}
-                    dataType="boolean"
-                    dataField={"isDeleted"}>
-                </Column>
+                {/*<Column*/}
+                {/*    caption={"Удалена"}*/}
+                {/*    dataType="boolean"*/}
+                {/*    dataField={"isDeleted"}>*/}
+                {/*</Column>*/}
             </TreeList>
         </Typography>
     )

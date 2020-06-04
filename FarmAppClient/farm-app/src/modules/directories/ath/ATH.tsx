@@ -100,11 +100,11 @@ export const ATH = () => {
         </Column>
 
 
-        <Column
-          caption={"Удалена"}
-          dataType="boolean"
-          dataField={"isDeleted"}>
-        </Column>
+        {/*<Column*/}
+        {/*  caption={"Удалена"}*/}
+        {/*  dataType="boolean"*/}
+        {/*  dataField={"isDeleted"}>*/}
+        {/*</Column>*/}
       </TreeList>
     </Typography>
   )
