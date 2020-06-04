@@ -1,5 +1,12 @@
 import { reducerWithInitialState } from "typescript-fsa-reducers";
-import { login, logout, RESTORE_AUTH } from "./authActions";
+import {
+  login,
+  logout,
+  REGISTRATION_ERROR,
+  REGISTRATION_REQUEST,
+  REGISTRATION_RESPONSE,
+  RESTORE_AUTH
+} from "./authActions";
 import { IAccount } from "../../api/dto/Auth";
 import {Action} from 'redux';
 import { deflate } from "zlib";
@@ -18,20 +25,24 @@ export interface User{
       id:number
       roleName:string
     }
-  
+
 }
 export interface Auth {
   loadState: boolean;
   error: Error | null;
   account: IAccount | null;
-   user: User|null
+   user: User|null,
+  isFetchReg: boolean,
+  errorReg: Object | null
 }
 
 const initial: Auth = {
   account: null,
   error: null,
   loadState: false,
-  user:null
+  user:null,
+  isFetchReg: false,
+  errorReg: null
 };
 export default  (state:Auth = initial, action:ActionWithPayload<any>) => {
 	switch (action.type) {
@@ -63,7 +74,24 @@ export default  (state:Auth = initial, action:ActionWithPayload<any>) => {
         loadState: false,
         error: null,
       }
-
+    case REGISTRATION_REQUEST:
+      return {
+        ...state,
+        isFetchReg: true,
+        errorReg: null,
+      }
+    case REGISTRATION_RESPONSE:
+      return {
+        ...state,
+        isFetchReg: false,
+        errorReg: null,
+      }
+    case REGISTRATION_ERROR:
+      return {
+        ...state,
+        isFetchReg: false,
+        errorReg: action.payload,
+      }
      case "auth/LOGOUT":
        return initial
      default:

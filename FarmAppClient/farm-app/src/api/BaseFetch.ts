@@ -83,3 +83,23 @@ export const authRequest = async (username:string, password:string) => {
   }
 }
 
+
+export const regRequest = async (login:string, password:string,lastName:string,firstName: string) => {
+  try {
+    let data = {
+      firstName,
+      lastName,
+      login,
+      password,
+    }
+    let response = await axios.post(`${BASE_URL}api/Users/register`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    return response
+  } catch (error) {
+    console.log('error', error)
+  }
+}
+

@@ -14,7 +14,7 @@ import {useHistory} from 'react-router-dom';
 import {CircularProgress} from '@material-ui/core';
 import {PositionedSnackbar} from '../../components/snackbar/SnackbarResult';
 import {useSnackbar, VariantType} from 'notistack';
-import {logout, restoreAuth, RESTORE_AUTH} from '../../store/auth/authActions';
+import {logout, restoreAuth, registration} from '../../store/auth/authActions';
 import {IAppState} from "../../core/mainReducer";
 
 
@@ -55,13 +55,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const SignUp = ({error}:{
-  error:null|Error
+const SignUp = ({error,preloader}:{
+  error: any | null,
+  preloader: boolean
 }) => {
-  const [login_text, setLogin] = useState('');
-  const [pass_text, setPass] = useState('');
+  const [login, setLogin] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [password, setPass] = useState('');
   const [message, setMessage] = useState('');
   const [open, setOpen] = useState(false);
+  const [firstStep, setFirstStep] = useState(false);
   const classes = useStyles();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -119,17 +123,33 @@ const SignUp = ({error}:{
     }
   },[error])
 
+  useEffect( () => {
+    if (firstStep && preloader === false && error === null) {
+      setFirstName('');
+      setLastName('');
+      setPass('');
+      setMessage('');
+      setFirstStep(false)
+      setMessage('Регистрация прошла успешно!')
+      handleOpen();
+
+      setTimeout( () => {
+        history.push('/farm-app/auth/')
+      },3000)
+
+
+    }
+  },[preloader,error] )
+
+
   const handleClick = () => {
+
     handleClose()
-    if (login_text?.length !== 0 && validator.isEmail(login_text) && pass_text?.length !== 0) {
-      dispatch(callApiLogin({login: login_text, password: pass_text}, onSuccess))
-      // dispatch(auth( login_text, pass_text))
-      // if (selector.error!==null) {
-      //   setMessage(selector.error.message)
-      //   handleOpen();
-      // }
+    if (login?.length !== 0 && validator.isEmail(login) && password?.length !== 0 && lastName?.length != 0 && firstName?.length != 0) {
+      dispatch(registration({login, password,firstName,lastName}))
+      setFirstStep(true)
     } else {
-      setMessage('Логин или пароль введен неверно.')
+      setMessage('Данные введены неверно.')
       handleOpen();
     }
   }
@@ -142,7 +162,6 @@ const SignUp = ({error}:{
         open={open}
       />
       <div>
-
         <Container component="main" maxWidth="xs">
           <CssBaseline/>
           <div className={classes.paper}>
@@ -150,24 +169,52 @@ const SignUp = ({error}:{
             <Typography className={classes.authText} component="h1" variant="h4">
               Регистрация
             </Typography>
-            {/*<form className={classes.form} noValidate>*/}
             <TextField
               variant="outlined"
               margin="normal"
+              value={firstName}
               required
               fullWidth
               id="text"
               type="text"
-              label="Логин"
+              label="Имя"
               name="text"
               autoFocus
-              onChange={x => setLogin(x.target.value)}
+              onChange={x => setFirstName(x.target.value)}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              value={lastName}
+              fullWidth
+              id="text"
+              type="text"
+              label="Фамилия"
+              name="text"
+              autoFocus
+              onChange={x => setLastName(x.target.value)}
             />
             <TextField
               variant="outlined"
               margin="normal"
               required
               fullWidth
+              value={login}
+              id="text"
+              type="text"
+              label="Email"
+              name="text"
+              autoFocus
+              onChange={x => setLogin(x.target.value)}
+            />
+
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              value={password}
               name="password"
               label="Пароль"
               type="password"
@@ -176,7 +223,7 @@ const SignUp = ({error}:{
               onChange={x => setPass(x.target.value)}
             />
             {
-              selector.loadState ?
+              selector.isFetchReg ?
                 <CircularProgress className={classes.centerScreen}/>
                 :
                 <Button
@@ -186,11 +233,18 @@ const SignUp = ({error}:{
                   color="primary"
                   fullWidth
                 >
-                  Авторизироваться
+                  Зарегистрироваться
                 </Button>
             }
-
-            {/*</form>*/}
+            <Button
+              onClick={() => history.push('/farm-app/auth/')}
+              className={classes.submit}
+              variant="contained"
+              color="primary"
+              fullWidth
+            >
+              Назад
+            </Button>
           </div>
         </Container>
       </div>
@@ -201,6 +255,7 @@ const SignUp = ({error}:{
 export default connect((state: IAppState) => {
   const {auth} = state;
   return {
-    error: auth.error
+    preloader: auth.isFetchReg,
+    error: auth.errorReg
   }
 })(SignUp)

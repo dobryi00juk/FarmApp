@@ -1,6 +1,6 @@
 import {actionCreatorFactory} from "typescript-fsa";
 import {ILoginParams, IAccount} from "../../api/dto/Auth";
-import {authRequest} from "../../api/BaseFetch";
+import {authRequest, regRequest} from "../../api/BaseFetch";
 import {Dispatch} from "redux";
 import {IAppState} from "../../core/mainReducer";
 import {User} from "./authState"
@@ -23,36 +23,31 @@ export const authActions = {
     logout,
 };
 
-// export const LOGIN_STARTED = 'auth/LOGIN_STARTED'
-// export const LOGIN_DONE = 'auth/LOGIN_DONE'
-// export const LOGIN_FAILED = 'auth/LOGIN_FAILED'
-//
-// export const auth = (login: string,password: string) => async (dispatch: Dispatch<any>, getState: () => IAppState): Promise<void> => {
-//     dispatch({type: LOGIN_STARTED})
-//     try {
-//         const token = getState().auth?.user?.token
-//         if (token) {
-//             const response = await authRequest(login,password)
-//             const responseJson = await response.json();
-//             if (response.ok) {
-//                 dispatch({
-//                     type: LOGIN_DONE,
-//                     payload: responseJson
-//                 })
-//             } else {
-//                 dispatch({
-//                     type: LOGIN_FAILED,
-//                     payload: responseJson
-//                 })
-//             }
-//         }
-//     } catch (error) {
-//         dispatch({
-//             type: LOGIN_FAILED,
-//             payload: error
-//         })
-//     }
-// }
+export const REGISTRATION_REQUEST = 'REGISTRATION_REQUEST'
+export const REGISTRATION_RESPONSE = 'REGISTRATION_RESPONSE'
+export const REGISTRATION_ERROR = 'REGISTRATION_ERROR'
+
+export const registration = ({login ,password ,firstName, lastName}:{login: string,password: string,firstName: string, lastName: string}) => async (dispatch: Dispatch<any>, getState: () => IAppState): Promise<void> => {
+    dispatch({type: REGISTRATION_REQUEST})
+    try {
+      const response = await regRequest(login,password,firstName,lastName)
+            if (response.status === 200) {
+                dispatch({
+                    type: REGISTRATION_RESPONSE,
+                })
+            } else {
+                dispatch({
+                    type: REGISTRATION_ERROR,
+                    payload: response.status
+                })
+            }
+    } catch (error) {
+        dispatch({
+            type: REGISTRATION_ERROR,
+            payload: error
+        })
+    }
+}
 
 
 export const RESTORE_AUTH = 'RESTORE_AUTH'

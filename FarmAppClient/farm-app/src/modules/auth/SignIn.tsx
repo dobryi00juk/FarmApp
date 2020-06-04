@@ -135,7 +135,7 @@ const SignIn = ({error}:{
   }
 
   const register=()=>{
-
+      history.push('/farm-app/reg/')
   }
 
   return (
