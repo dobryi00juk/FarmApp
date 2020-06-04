@@ -81,12 +81,12 @@ export const ATH = () => {
           visible={false}
           dataField={"id"}>
         </Column>
-        <Column
-          caption={"Название группы"}
-          dataType={"string"}
-          dataField={"nameAth"}>
-          <RequiredRule/>
-        </Column>
+        {/*<Column*/}
+        {/*  caption={"Название группы"}*/}
+        {/*  dataType={"string"}*/}
+        {/*  dataField={"nameAth"}>*/}
+        {/*  <RequiredRule/>*/}
+        {/*</Column>*/}
         <Column
           caption={"Номер группы"}
           dataType={"string"}

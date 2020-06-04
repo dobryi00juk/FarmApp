@@ -134,6 +134,10 @@ const SignIn = ({error}:{
     }
   }
 
+  const register=()=>{
+
+  }
+
   return (
     <>
       <PositionedSnackbar
@@ -175,6 +179,8 @@ const SignIn = ({error}:{
               autoComplete="current-password"
               onChange={x => setPass(x.target.value)}
             />
+            <Button color="primary" onClick={register}>регистрация</Button>
+
             {
               selector.loadState ?
                 <CircularProgress className={classes.centerScreen}/>

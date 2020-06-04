@@ -1,6 +1,7 @@
 import React, {useEffect} from "react";
 import "./App.css";
 import SignIn from "./modules/auth/SignIn";
+import SignUp from "./modules/auth/SignUp";
 import { ResponsiveDrawer } from "./modules/menu/ResponsiveDrawer";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import {restoreAuth} from "./store/auth/authActions";
@@ -23,6 +24,9 @@ const App = () => {
       <Switch>
         <Route exact path="/farm-app/auth/">
           <SignIn />
+        </Route>
+        <Route exact path="/farm-app/reg/">
+          <SignUp />
         </Route>
         <Route path="/farm-app/">
           <ResponsiveDrawer />
