@@ -51,7 +51,7 @@ const Region = () => {
         showRowLines={true}
         showBorders={true}
         columnAutoWidth={true}
-        parentIdExpr="parentId"
+        parentIdExpr="regionId"
         style={{maxHeight: '85vh'}}
         keyExpr="id"
       >

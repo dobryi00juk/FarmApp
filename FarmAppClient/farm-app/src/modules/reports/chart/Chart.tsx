@@ -26,7 +26,7 @@ import PivotGrid, {
 // import { sales } from './data.js';
 import { sales } from './newData';
 //@ts-ignore
-// import Globalize from 'globalize';
+import Globalize from 'globalize';
 import 'devextreme/localization/globalize/number';
 import 'devextreme/localization/globalize/date';
 import 'devextreme/localization/globalize/currency';
@@ -110,13 +110,16 @@ function customizeTooltip(args:any) {
 
 
 class ChartComp extends React.Component {
+  private _chart: any;
+  private _pivotGrid: any;
   constructor(props:any) {
     super(props);
     this.state = {
       locale: this.getLocale()
     };
 
-    // this.initGlobalize();
+    this.initGlobalize();
+    this._chart;
     // this.locales = service.getLocales();
     // this.payments = service.getPayments();
     // this.changeLocale = this.changeLocale.bind(this);
@@ -131,15 +134,15 @@ class ChartComp extends React.Component {
   }
 
   initGlobalize() {
-    // Globalize.load(
-    //   deCldrData,
-    //   ruCldrData,
-    //   supplementalCldrData
-    // );
+    Globalize.load(
+      deCldrData,
+      ruCldrData,
+      supplementalCldrData
+    );
     // Globalize.loadMessages(deMessages);
-    // Globalize.loadMessages(ruMessages);
-    // // Globalize.loadMessages(service.getDictionary());
-    // Globalize.locale('ru');
+    Globalize.loadMessages(ruMessages);
+    // Globalize.loadMessages(service.getDictionary());
+    Globalize.locale('ru');
   }
 
   componentDidMount() {
@@ -159,8 +162,10 @@ class ChartComp extends React.Component {
       <React.Fragment>
         <Chart ref={(ref) => {
           //@ts-ignore
+          if(ref?.instance){
+            this._chart = ref.instance
 
-          this._chart = ref.instance
+          }
         }}>
           <Size height={200} />
           <Tooltip enabled={true} customizeTooltip={customizeTooltip} />
@@ -179,7 +184,11 @@ class ChartComp extends React.Component {
           showRowTotals={false}
           showRowGrandTotals={false}
           //@ts-ignore
-          ref={(ref) => this._pivotGrid = ref.instance}
+          ref={(ref) => {
+            if(ref?.instance){
+              this._pivotGrid = ref.instance
+            }
+            }}
         >
           <FieldChooser enabled={true} height={400} />
         </PivotGrid>
