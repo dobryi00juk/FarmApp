@@ -82,9 +82,13 @@ export const Produced = () => {
           <RequiredRule/>
         </Column>
         <Column
+          caption={"Страна производителя"}
+          dataField={"producingCountry"}>
+          <RequiredRule/>
+        </Column>
+        <Column
           caption={"Отечесвтенный"}
           dataField={"isDomestic"}>
-          <RequiredRule/>
         </Column>
         <Column
           caption={"Удалена"}

@@ -51,7 +51,7 @@ export const Pharmacy = () => {
         keyExpr="id"
         rootValue={1}
         autoExpandAll={true}
-        parentIdExpr="parentId"
+        parentIdExpr="parentPharmacyId"
         wordWrapEnabled={true}
       >
         {/*<RemoteOperations filtering={true} sorting={true} grouping={true} />*/}
@@ -92,7 +92,6 @@ export const Pharmacy = () => {
           dataType={"number"}
           visible={false}
           dataField={"id"}>
-          <RequiredRule/>
         </Column>
         <Column
           caption={"Название аптеки"}

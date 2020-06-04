@@ -5,7 +5,8 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import boy from "../../resources/boy.svg"
+// import boy from "../../resources/boy.svg"
+import boy from "./boy.svg"
 import {connect, useDispatch, useSelector} from 'react-redux';
 import {authSelector} from '../../store/auth/authSelector';
 import {callApiLogin} from '../../store/auth/authStateActionsAsync';

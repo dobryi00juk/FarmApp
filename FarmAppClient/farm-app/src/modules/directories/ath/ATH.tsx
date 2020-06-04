@@ -1,5 +1,5 @@
 import React from "react"
-import { Typography } from "@material-ui/core"
+import {Typography} from "@material-ui/core"
 import TreeList, {
   Editing,
   SearchPanel,
@@ -11,9 +11,9 @@ import TreeList, {
   Pager,
   Paging,
   Scrolling,
-  HeaderFilter
+  HeaderFilter, Lookup
 } from "devextreme-react/tree-list"
-import { codeAthType } from "../../../api/mock/codeAthType"
+import {codeAthType} from "../../../api/mock/codeAthType"
 import {BASE_URL} from "../../../core/constants";
 import AspNetData from "devextreme-aspnet-data-nojquery";
 
@@ -28,70 +28,78 @@ export const ATH = () => {
     insertUrl: `${url}`,
     updateUrl: `${url}`,
     deleteUrl: `${url}`,
-    onBeforeSend: function(method, ajaxOptions) {
-      ajaxOptions.xhrFields = { withCredentials: false };
+    onBeforeSend: function (method, ajaxOptions) {
+      ajaxOptions.xhrFields = {withCredentials: false};
     }
   });
 
 
-    return (
-        <Typography>
-            <TreeList
-                id="codeAthType"
-                //@ts-ignore
-                dataSource={atxData}
-                showRowLines={true}
-                showBorders={true}
-                columnAutoWidth={true}
-                style={{height: '85vh'}}
-                keyExpr="id"
-                rootValue={1}
-                autoExpandAll={true}
-                parentIdExpr="parentId"
-            >
-                <Scrolling mode="standard" />
-                <Paging
-                    enabled={true}
-                    defaultPageSize={5} />
-                <Pager
-                    showPageSizeSelector={true}
-                    allowedPageSizes={allowedPageSizes}
-                    showInfo={true} />
-                <FilterRow visible={true} />
-                <Sorting mode="multiple" />
-                <Selection mode="single" />
-                <SearchPanel visible={true} />
-              <HeaderFilter visible={true}/>
-                <Editing
-                    allowUpdating={true}
-                    allowDeleting={true}
-                    allowAdding={true}
-                    mode="row"
-                />
-                <Column
-                    caption={"Номер"}
-                    dataType={"number"}
-                    visible={false}
-                    dataField={"id"}>
-                </Column>
-                <Column
-                    caption={"Название группы"}
-                    dataType={"string"}
-                    dataField={"nameAth"}>
-                    <RequiredRule />
-                </Column>
-                <Column
-                    caption={"Код группы"}
-                    dataType={"string"}
-                    dataField={"code"}>
-                    <RequiredRule />
-                </Column>
-                <Column
-                    caption={"Удалена"}
-                    dataType="boolean"
-                    dataField={"isDeleted"}>
-                </Column>
-            </TreeList>
-        </Typography>
-    )
+  return (
+    <Typography>
+      <TreeList
+        id="codeAthType"
+        //@ts-ignore
+        dataSource={atxData}
+        showRowLines={true}
+        showBorders={true}
+        columnAutoWidth={true}
+        style={{height: '85vh'}}
+        parentIdExpr="parentCodeAthId"
+        keyExpr="id"
+        rootValue={0}
+        autoExpandAll={true}
+      >
+        <Scrolling mode="standard"/>
+        <Paging
+          enabled={true}
+          defaultPageSize={5}/>
+        <Pager
+          showPageSizeSelector={true}
+          allowedPageSizes={allowedPageSizes}
+          showInfo={true}/>
+        <FilterRow visible={true}/>
+        <Sorting mode="multiple"/>
+        <Selection mode="single"/>
+        <SearchPanel visible={true}/>
+        <HeaderFilter visible={true}/>
+        <Editing
+          allowUpdating={true}
+          allowDeleting={true}
+          allowAdding={true}
+          mode="row"
+        />
+        <Column
+          caption={"Код группы"}
+          dataType={"string"}
+          dataField={"code"}>
+          <Lookup dataSource={atxData} valueExpr="code" displayExpr="code"/>
+          <RequiredRule/>
+        </Column>
+        <Column
+          caption={"Номер"}
+          dataType={"number"}
+          visible={false}
+          dataField={"id"}>
+        </Column>
+        <Column
+          caption={"Название группы"}
+          dataType={"string"}
+          dataField={"nameAth"}>
+          <RequiredRule/>
+        </Column>
+        <Column
+          caption={"Номер группы"}
+          dataType={"string"}
+          dataField={"parentCodeName"}>
+          <RequiredRule/>
+        </Column>
+
+        <Column
+          caption={"Удалена"}
+          dataType="boolean"
+          dataField={"isDeleted"}>
+        </Column>
+      </TreeList>
+    </Typography>
+  )
 }
