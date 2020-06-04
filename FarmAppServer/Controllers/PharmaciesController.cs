@@ -11,7 +11,6 @@ using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Helpers;
 using FarmAppServer.Models;
 using FarmAppServer.Models.Pharmacies;
-using FarmAppServer.Models.Pharmacy;
 using FarmAppServer.Services;
 using FarmAppServer.Services.Paging;
 
@@ -34,96 +33,71 @@ namespace FarmAppServer.Controllers
 
         // GET: api/Pharmacies
         [HttpGet]
-        public ActionResult<IEnumerable<PharmacyFilterDto>> GetPharmacies([FromQuery]int page = 1, int pageSize = 25)
+        public ActionResult<IEnumerable<PharmacyFilterDto>> GetPharmacies([FromQuery]int page = 1, [FromQuery]int pageSize = 25)
         {
-            var pharmacies = _context.Pharmacies.Where(x => x.IsDeleted == false);
-            
-            try
-            {
-                var model = _mapper.ProjectTo<PharmacyFilterDto>(pharmacies);
-                var query = model.GetPaged(page, pageSize);
+            var pharmacies = _context.Pharmacies;
 
-                return Ok(query);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = $"{e.Message}"
-                });
-            }
+            if (pharmacies == null) return NotFound("Pharmacies not found");
+            
+            var model = _mapper.ProjectTo<PharmacyFilterDto>(pharmacies);
+            var query = model.GetPaged(page, pageSize);
+
+            return Ok(query);
         }
 
-        // GET: api/Pharmacies/5
-        [HttpGet("GetById")]
-        public async Task<ActionResult<Pharmacy>> GetPharmacy([FromQuery]int id)
+        [HttpGet("PharmacyById")]
+        public async Task<ActionResult<PharmacyFilterDto>> GetPharmacy([FromQuery]int id)
         {
             var pharmacy = await _context.Pharmacies.FindAsync(id);
 
-            if (pharmacy == null)
-            {
-                return NotFound(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = "Pharmacy not found"
-                });
-            }
+            if (pharmacy == null || pharmacy.IsDeleted == true)
+                return NotFound("Pharmacy not found");
 
-            if (pharmacy.IsDeleted == true)
-            {
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = "Pharmacy not found"
-                });
-            }
+            var data = _mapper.Map<PharmacyFilterDto>(pharmacy);
 
-            return pharmacy;
+            return Ok(data);
         }
 
         // PUT: api/Pharmacies/5
         [HttpPut]
-        public IActionResult PutPharmacy([FromQuery]int id, [FromBody]PharmacyDto model)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<IActionResult> PutPharmacy([FromForm]int key, [FromForm]string values)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
+            var updated = await _pharmacyService.UpdatePharmacyAsync(key, values);
 
-            var pharmacy = _mapper.Map<Pharmacy>(model);
-            pharmacy.Id = id;
+            if (updated) return Ok();
 
-            try
+            return NotFound(new ResponseBody()
             {
-                _pharmacyService.UpdatePharmacyAsync(pharmacy);
-                return Ok();
-            }
-            catch (AppException ex)
-            {
-                return BadRequest(new {message = ex.Message, ex.StackTrace});
-            }
+                Header = "Error",
+                Result = "Pharmacy not found or nothing to update"
+            });
         }
 
         // POST: api/Pharmacies
         [HttpPost]
-        public async Task<ActionResult<Pharmacy>> PostPharmacy([FromBody]PostPharmacyDto model)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<Pharmacy>> PostPharmacy([FromForm]string values)
         {
-            if(!ModelState.IsValid) return BadRequest();
+            if (string.IsNullOrEmpty(values)) return BadRequest("Value cannot be null or empty");
+                
+            var request = await _pharmacyService.PostPharmacyAsync(values);
 
-            var pharmacy = _mapper.Map<Pharmacy>(model);
-            var request = await _pharmacyService.PostPharmacyAsync(pharmacy);
-            var result = _mapper.Map<PharmacyDto>(request);
+            if (request)
+                return Ok();
 
-            return Created("PostPharmacy", result);
+            return BadRequest();
         }
 
         // DELETE: api/Pharmacies/5
         [HttpDelete]
-        public async Task<ActionResult<Pharmacy>> DeletePharmacy([FromQuery]int id)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<Pharmacy>> DeletePharmacy([FromForm]int key)
         {
-            if (await _pharmacyService.DeletePharmacyAsync(id))
+            if (await _pharmacyService.DeletePharmacyAsync(key))
                 return Ok();
 
-            return NotFound("Sale not found");
+            return NotFound("Pharmacy not found");
         }
 
 

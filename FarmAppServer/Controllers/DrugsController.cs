@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
-using FarmAppServer.Models.Drug;
+using FarmAppServer.Models.Drugs;
 using FarmAppServer.Services;
 using FarmAppServer.Services.Paging;
 
@@ -32,127 +32,71 @@ namespace FarmAppServer.Controllers
 
         // GET: api/Drugs
         [HttpGet]
-        public ActionResult<IEnumerable<Drug>> GetDrugs([FromQuery]int page = 1 ,[FromQuery]int pageSize = 25)
+        public ActionResult<IEnumerable<DrugDto>> GetDrugs([FromQuery]int page = 1 ,[FromQuery]int pageSize = 25)
         {
-            var drugs = _context.Drugs.Where(x => x.IsDeleted == false);
-            
-            try
-            {
-                var query = drugs.GetPaged(page, pageSize);
+            var drugs = _context.Drugs;
+            var model = _mapper.ProjectTo<DrugDto>(drugs);
 
-                return Ok(query);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = $"{e.Message}"
-                });
-            }
+            if (model == null) return NotFound("Drugs not found");
+
+            var query = model.GetPaged(page, pageSize);
+
+            return Ok(query);
         }
 
         // GET: api/Drugs/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Drug>> GetDrug(int id)
+        [HttpGet("DrugById")]
+        public async Task<ActionResult<DrugDto>> GetDrug([FromQuery]int id)
         {
-            var drug = await _context.Drugs.FindAsync(id);
-
-            if (drug == null)
-            {
-                return NotFound();
-            }
-
-            if (drug.IsDeleted == true)
-            {
-                return NotFound();
-            }
-
-            return drug;
+            var drug = _context.Drugs.Where(x => x.Id == id);
+            var data = await _mapper.ProjectTo<DrugDto>(drug).FirstOrDefaultAsync();
+            
+            if (data == null || data.IsDeleted)
+                return NotFound("Drug not found");
+            
+            return Ok(drug);
         }
 
         // PUT: api/Drugs/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutDrug(int id, Drug drug)
+        [HttpPut]
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<IActionResult> PutDrug([FromForm]int key, [FromForm]string values)
         {
-            if (id != drug.Id)
-            {
-                return BadRequest();
-            }
+            var updated = await _drugService.UpdateDrugAsync(key, values);
 
-            _context.Entry(drug).State = EntityState.Modified;
+            if (updated) return Ok();
 
-            try
+            return NotFound(new ResponseBody()
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DrugExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+                Header = "Error",
+                Result = "Drug not found or nothing to update"
+            });
         }
 
         // POST: api/Drugs
         [HttpPost]
-        public async Task<ActionResult<DrugDto>> PostDrug([FromBody]DrugDto model)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<IActionResult> PostDrug([FromForm]string values)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
+            if (string.IsNullOrEmpty(values)) return BadRequest("Values cannot be null or empty");
 
-            try
-            {
-                var drug = _mapper.Map<Drug>(model);
-                var result = await _drugService.PostDrug(drug);
+            var request = await _drugService.PostDrugAsync(values);
 
-                return Created("PostDrug", result);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new ResponseBody
-                {
-                    Header = "Error",
-                    Result = $"{e.Message}"
-                });
-            }
-            
+            if (request)
+                return Ok();
+
+            return BadRequest();
         }
 
         // DELETE: api/Drugs/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Drug>> DeleteDrug(int id)
+        public async Task<IActionResult> DeleteDrug(DrugDto model)
         {
-            try
-            {
-                var drug = await _context.Drugs.FindAsync(id);
-                if (drug == null)
-                {
-                    return NotFound();
-                }
+            var deleted = await _drugService.DeleteDrugAsync(model);
 
-                //_context.Drugs.Remove(drug);
-                drug.IsDeleted = true;
-                await _context.SaveChangesAsync();
+            if (deleted) return Ok();
 
-                return drug;
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new { e.Message, e.StackTrace });
-            }
-        }
-
-        private bool DrugExists(int id)
-        {
-            return _context.Drugs.Any(e => e.Id == id && e.IsDeleted == false);
+            return NotFound("Drug not found");
         }
     }
 }

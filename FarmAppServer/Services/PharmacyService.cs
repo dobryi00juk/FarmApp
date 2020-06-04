@@ -5,16 +5,17 @@ using AutoMapper;
 using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Helpers;
-using FarmAppServer.Models.Pharmacy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using ServiceStack;
 
 namespace FarmAppServer.Services
 {
     public interface IPharmacyService
     {
-        Task<Pharmacy> PostPharmacyAsync(Pharmacy pharmacy);
-        void UpdatePharmacyAsync(Pharmacy modelPharmacy);
+        Task<bool> PostPharmacyAsync(string values);
+        Task<bool> UpdatePharmacyAsync(int key, string values);
         Task<bool> DeletePharmacyAsync(int id);
         IQueryable SearchPharmacy(string pharmacyName);
     }
@@ -27,49 +28,38 @@ namespace FarmAppServer.Services
             _context = context;
         }
 
-        public async Task<Pharmacy> PostPharmacyAsync(Pharmacy pharmacy)
+        public async Task<bool> PostPharmacyAsync(string values)
         {
-            if (pharmacy == null) throw new ArgumentNullException(nameof(pharmacy));
+            if (values.IsNullOrEmpty()) return false;
 
-            if (_context.Pharmacies.Any(x => x.PharmacyName == pharmacy.PharmacyName & x.IsDeleted == false))
-                throw new AppException("PharmacyName \"" + pharmacy.PharmacyName + "\" is already taken");
+            var pharmacy = new Pharmacy();
+            JsonConvert.PopulateObject(values, pharmacy);
 
-            if (!CheckForeignKey(pharmacy))
-                throw new AppException("Region not found");
-            
-            await _context.Pharmacies.AddAsync(pharmacy);
-            await _context.SaveChangesAsync();
-    
-            return pharmacy;
+            var existPharmacy = await _context.Pharmacies.Where(x => x.PharmacyName == pharmacy.PharmacyName && x.IsDeleted == false).FirstOrDefaultAsync();
+
+            if (existPharmacy != null) return false;
+            if (pharmacy.PharmacyId == 0) pharmacy.PharmacyId = null;
+            if (pharmacy.RegionId == 0) pharmacy.RegionId = 1;
+
+            _context.Pharmacies.Add(pharmacy);
+            var posted = await _context.SaveChangesAsync();
+
+            return posted > 0;
         }
 
-        public void UpdatePharmacyAsync(Pharmacy modelPharmacy)
+        public async Task<bool> UpdatePharmacyAsync(int key, string values)
         {
-            var pharmacy =
-                _context.Pharmacies.FirstOrDefault(x => x.Id == modelPharmacy.Id && x.IsDeleted == false);
+            if (key <= 0) return false;
+            if (values.IsNullOrEmpty()) return false;
 
-            if (pharmacy == null)
-                throw new AppException("Pharmacy not found");
+            var pharmacy = await _context.Pharmacies.FirstOrDefaultAsync(p => p.Id == key);
 
-            if (!string.IsNullOrWhiteSpace(modelPharmacy.PharmacyName) &&
-                modelPharmacy.PharmacyName != pharmacy.PharmacyName)
-            {
-                if (_context.Pharmacies.Any(x => x.PharmacyName == modelPharmacy.PharmacyName))
-                    throw new AppException("PharmacyName " + modelPharmacy.PharmacyName + " is already taken");
+            if (pharmacy == null) return false;
 
-                pharmacy.PharmacyName = modelPharmacy.PharmacyName;
-            }
+            JsonConvert.PopulateObject(values, pharmacy);
+            var updated = await _context.SaveChangesAsync();
 
-            //update
-            if (!string.IsNullOrWhiteSpace(modelPharmacy.PharmacyName)) pharmacy.PharmacyName = modelPharmacy.PharmacyName;
-            pharmacy.IsMode = modelPharmacy.IsMode;
-            pharmacy.IsNetwork = modelPharmacy.IsNetwork;
-            pharmacy.IsType = modelPharmacy.IsType;
-            pharmacy.PharmacyId = modelPharmacy.PharmacyId;
-            pharmacy.RegionId = modelPharmacy.RegionId;
-
-            _context.Entry(pharmacy).State = EntityState.Modified;
-            _context.SaveChanges();
+            return updated > 0;
         }
 
         public async Task<bool> DeletePharmacyAsync(int id)

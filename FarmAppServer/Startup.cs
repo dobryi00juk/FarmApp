@@ -95,6 +95,7 @@ namespace FarmAppServer
             services.AddScoped<ISaleService, SaleService>();
             services.AddScoped<IApiMethodService, ApiMethodService>();
             services.AddScoped<ICodeAthService, CodeAthService>();
+            services.AddScoped<IVendorService, VendorService>();
 
             services.AddSwaggerGen(c =>
             {

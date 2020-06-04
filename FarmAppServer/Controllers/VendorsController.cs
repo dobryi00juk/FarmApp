@@ -10,8 +10,11 @@ using FarmApp.Domain.Core.Entity;
 using FarmApp.Infrastructure.Data.Contexts;
 using FarmAppServer.Models;
 using FarmAppServer.Models.Vendors;
+using FarmAppServer.Services;
+using FarmAppServer.Services.Paging;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.OpenApi.Validations;
+using ServiceStack;
 
 namespace FarmAppServer.Controllers
 {
@@ -21,29 +24,27 @@ namespace FarmAppServer.Controllers
     {
         private readonly FarmAppContext _context;
         private readonly IMapper _mapper;
+        private readonly IVendorService _vendorService;
 
-        public VendorsController(FarmAppContext context, IMapper mapper)
+        public VendorsController(FarmAppContext context, IMapper mapper, IVendorService vendorService)
         {
             _context = context;
             _mapper = mapper;
+            _vendorService = vendorService;
         }
 
         // GET: api/Vendors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<VendorDto>>> GetVendors()
+        public ActionResult<IEnumerable<VendorDto>> GetVendors([FromQuery]int page = 1, [FromQuery]int pageSize = 25)
         {
             var vendors = _context.Vendors;
 
-            if (vendors == null)
-                return NotFound(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = "Vendors not found"
-                });
+            if (vendors == null) return NotFound("Vendors not found");
 
-            var model = await _mapper.ProjectTo<VendorDto>(vendors).ToListAsync();
+            var model = _mapper.ProjectTo<VendorDto>(vendors);
+            var query = model.GetPaged(page, pageSize);
             
-            return model;
+            return Ok(query);
         }
 
         // GET: api/Vendors/5
@@ -52,80 +53,59 @@ namespace FarmAppServer.Controllers
         {
              var vendor = await _context.Vendors.FindAsync(id);
 
-             if (vendor == null)
-                 return NotFound();
+             if (vendor == null || vendor.IsDeleted == true)
+                 return NotFound("Vendor not found");
 
-             if (vendor.IsDeleted == true)
-                 return BadRequest(new ResponseBody()
-                 {
-                     Header = "Error",
-                     Result = "Vendor not found"
-                 });
-             
-             var result = _mapper.Map<VendorDto>(vendor);
+             var data = _mapper.Map<VendorDto>(vendor);
 
-             return Ok(result);
+             return Ok(data);
         }
 
         // PUT: api/Vendors/5
         [HttpPut]
-        public async Task<ActionResult<VendorDto>> PutVendor([FromQuery]int id, [FromBody]JsonPatchDocument model)// Vendor model)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<VendorDto>> PutVendor([FromForm]int key, [FromForm]string values)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
+            if (key <= 0) return NotFound("Vendor not found");
 
-            var vendor = await _context.Vendors.Where(x => x.Id == id).FirstOrDefaultAsync();
+            var updated = await _vendorService.UpdateVendorAsync(key, values);
 
-            if (vendor == null)
-                return NotFound(new ResponseBody()
-                {
-                    Header = "Error",
-                    Result = "Vendor nor found"
-                });
+            if (updated) return Ok();
 
-            _mapper.Map(model, vendor);
-            _context.Update(vendor);
-            await _context.SaveChangesAsync();
-
-            var result = _mapper.Map<VendorDto>(vendor);
-
-            return Ok(result);
+            return NotFound(new ResponseBody()
+            {
+                Header = "Error",
+                Result = "Vendor not found or nothing to update"
+            });
         }
 
         // POST: api/Vendors
         [HttpPost]
-        public async Task<ActionResult<VendorDto>> PostVendor([FromBody]PostVendorDto model)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<VendorDto>> PostVendor([FromForm]string values)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
+            if (values.IsNullOrEmpty()) return BadRequest("values cannot be null or empty");
 
-            var vendor = _mapper.Map<Vendor>(model);
-            _context.Vendors.Add(vendor);
-            await _context.SaveChangesAsync();
+            var request = await _vendorService.PostVendorAsync(values);
 
-            return Created("PostRegion", vendor);
+            if (request) return Ok();
+
+            return BadRequest();
         }
 
         // DELETE: api/Vendors/5
         [HttpDelete]
-        public async Task<ActionResult<VendorDto>> DeleteVendor([FromQuery]int id)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<VendorDto>> DeleteVendor([FromForm]int key)
         {
-             var vendor = await _context.Vendors.FindAsync(id);
+            if (await _vendorService.DeleteVendorAsync(key))
+                return Ok();
 
-             if (vendor == null)
-                 return NotFound(new ResponseBody()
-                 {
-                     Header = "Error",
-                     Result = "vendor not found"
-                 });
-
-             //_context.Vendors.Remove(vendor);
-             vendor.IsDeleted = true;
-             await _context.SaveChangesAsync();
-
-             var result = _mapper.Map<VendorDto>(vendor);
-
-             return result;
+            return NotFound(new ResponseBody()
+            {
+                Header = "Error",
+                Result = "User not found"
+            });
         }
 
         private bool VendorExists(int id)

@@ -12,6 +12,7 @@ using FarmAppServer.Models;
 using FarmAppServer.Models.Regions;
 using FarmAppServer.Services;
 using FarmAppServer.Services.Paging;
+using ServiceStack;
 
 namespace FarmAppServer.Controllers
 {
@@ -37,6 +38,10 @@ namespace FarmAppServer.Controllers
             var regions = _context.Regions.Include(x => x.Regions);
             
             var model = _mapper.ProjectTo<RegionDto>(regions);
+
+            if (model == null)
+                return NotFound("Region not found");
+
             var query = model.GetPaged(page, pageSize);
 
             return Ok(query);
@@ -46,61 +51,60 @@ namespace FarmAppServer.Controllers
         [HttpGet("RegionById")]
         public async Task<ActionResult<RegionDto>> GetRegion([FromQuery]int id)
         {
-            var region = await _context.Regions.FindAsync(id);
+            var region = _context.Regions.Where(x => x.Id == id);
+            var data = await _mapper.ProjectTo<RegionDto>(region).FirstOrDefaultAsync();
 
-            if (region == null || region.IsDeleted == true)
-                return NotFound();
+            if (data == null || data.IsDeleted)
+                return NotFound("Region not found");
 
-            var result = _mapper.Map<RegionDto>(region);
-            return result;
+            return Ok(data);
         }
 
         // PUT: api/Regions/5
         [HttpPut]
-        public async Task<ActionResult<RegionDto>> PutRegion([FromQuery]int id, [FromBody]UpdateRegionDto model)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<IActionResult> PutRegion([FromForm]int key, [FromForm]string values)
         {
-            if(!ModelState.IsValid) 
-                return BadRequest();
+            if (key <= 0) return NotFound("Region not found");
 
-            var updated = await _regionService.UpdateRegionAsync(id, model);
+            var updated = await _regionService.UpdateRegionAsync(key, values);
 
-            if (updated)
-                return Ok();
+            if (updated) return Ok();
 
             return NotFound(new ResponseBody()
             {
                 Header = "Error",
-                Result = "user not found"
+                Result = "Region not found or nothing to update"
             });
         }
 
         [HttpPost]
-        public async Task<ActionResult<RegionDto>> PostRegion([FromBody]PostRegionDto model)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<RegionDto>> PostRegion([FromForm]string values)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
+            if (values.IsNullOrEmpty()) return BadRequest("values cannot be null or empty");
 
-            var region = _mapper.Map<Region>(model);
+            var request = await _regionService.PostRegion(values);
+            
+            //var result = _mapper.Map<RegionDto>(request);
+            if (request)
+                return Ok();
 
-            if (region == null) return BadRequest();
-
-            var request = await _regionService.PostRegion(region);
-            var result = _mapper.Map<RegionDto>(request);
-
-            return Created("PostRegion", result);
+            return BadRequest("Population, regionId, regionTypeId >= 0");
         }
 
         // DELETE: api/Regions/5
         [HttpDelete]
-        public async Task<ActionResult<RegionDto>> DeleteRegion([FromQuery]int id)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<RegionDto>> DeleteRegion([FromForm]int key)
         {
-            if (await _regionService.DeleteRegionAsync(id))
+            if (await _regionService.DeleteRegionAsync(key))
                 return Ok();
 
             return NotFound(new ResponseBody()
             {
                 Header = "Error",
-                Result = "User not found"
+                Result = "Region not found"
             });
         }
 
@@ -116,6 +120,8 @@ namespace FarmAppServer.Controllers
             var regions = _regionService.RegionNameSearch(regionName);
             var model = await _mapper.ProjectTo<RegionDto>(regions).ToListAsync();
 
+            if (model.Count == 0)
+                return NotFound("Region not found");
             //???
             foreach (var item in model.Where(item => item.IsDeleted))
                 model.Remove(item);

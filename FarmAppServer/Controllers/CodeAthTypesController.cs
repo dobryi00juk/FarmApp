@@ -13,6 +13,7 @@ using FarmAppServer.Models.CodeAthTypes;
 using FarmAppServer.Models.Sales;
 using FarmAppServer.Services;
 using FarmAppServer.Services.Paging;
+using ServiceStack;
 
 namespace FarmAppServer.Controllers
 {
@@ -36,6 +37,7 @@ namespace FarmAppServer.Controllers
         public ActionResult<IEnumerable<CodeAthTypeDto>> GetCodeAthTypes([FromQuery]int page = 1, [FromQuery]int pageSize = 25)
         {
             var codesAthType = _codeAthService.GetCodeAthTypes();
+
             var result = codesAthType.GetPaged(page, pageSize);
 
             if (result == null)
@@ -48,6 +50,8 @@ namespace FarmAppServer.Controllers
         [HttpGet("CodeAthById")]
         public async Task<ActionResult<CodeAthType>> GetCodeAthType([FromQuery]int id)
         {
+            if (id <= 0) return BadRequest("id cannot be <= 0");
+
             var codeAthType = await _codeAthService.GetCodeAthTypeById(id);
 
             if (codeAthType == null)
@@ -58,60 +62,49 @@ namespace FarmAppServer.Controllers
 
         // PUT: api/CodeAthTypes/5
         [HttpPut]
-        public async Task<IActionResult> PutCodeAthType([FromQuery]int id, [FromBody]CodeAthType codeAthType)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<IActionResult> PutCodeAthType([FromForm]int key, [FromForm]string values)
         {
-            if (id != codeAthType.Id)
-                return BadRequest();
+            if (key <= 0) return NotFound("CodeAthType not found");
 
-            _context.Entry(codeAthType).State = EntityState.Modified;
+            var updated = await _codeAthService.UpdateCodeAthTypeAsync(key, values);
 
-            try
+            if (updated) return Ok();
+
+            return NotFound(new ResponseBody()
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CodeAthTypeExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+                Header = "Error",
+                Result = "CodeAthType not found or nothing to update"
+            });
         }
 
         // POST: api/CodeAthTypes
         [HttpPost]
-        public async Task<ActionResult<CodeAthType>> PostCodeAthType([FromBody]PostCodeAthType model)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<CodeAthType>> PostCodeAthType([FromForm]string values)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (string.IsNullOrEmpty(values)) return BadRequest("Value cannot be null or empty");
 
-            var codeAthType = _mapper.Map<CodeAthType>(model);
-            var request = await _codeAthService.PostCodeAthTypeAsync(codeAthType);
-            var result = _mapper.Map<CodeAthTypeDto>(request);
+            var request = await _codeAthService.PostCodeAthTypeAsync(values);
 
-            return Created("PostCodeAthType", result);
+            if (request) return Ok();
+
+            return BadRequest();
         }
 
         // DELETE: api/CodeAthTypes/5
         [HttpDelete]
-        public async Task<ActionResult<CodeAthType>> DeleteCodeAthType([FromQuery]int id)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<CodeAthType>> DeleteCodeAthType([FromForm]int key)
         {
-            var codeAthType = await _context.CodeAthTypes.FindAsync(id);
-            if (codeAthType == null)
+            if (key <= 0) return BadRequest("key cannot be <= 0");
+            if (await _codeAthService.DeleteCodeAthTypeAsync(key)) return Ok();
+
+            return NotFound(new ResponseBody()
             {
-                return NotFound();
-            }
-
-            //_context.CodeAthTypes.Remove(codeAthType);
-            codeAthType.IsDeleted = true;
-            await _context.SaveChangesAsync();
-
-            return codeAthType;
+                Header = "Error",
+                Result = "CodeAthType not found"
+            });
         }
 
         private bool CodeAthTypeExists(int id)

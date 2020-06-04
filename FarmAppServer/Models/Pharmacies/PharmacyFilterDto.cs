@@ -1,31 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace FarmAppServer.Models.Pharmacy
+﻿namespace FarmAppServer.Models.Pharmacies
 {
     public class PharmacyFilterDto
     {
-        [Required] public int Id { get; set; }
-
-        [Required] public string PharmacyName { get; set; }
-
-        [Required] public int? PharmacyId { get; set; }
+        public int Id { get; set; }
         
-        [Required] public string ParentPharmacyName { get; set; }
-
-        [Required] public int RegionId { get; set; }
-
-        [Required] public string RegionName { get; set; }
-
-        [Required] public bool IsMode { get; set; }
-
-        [Required] public bool IsType { get; set; }
-
-        [Required] public bool IsNetwork { get; set; }
+        public int? ParentPharmacyId { get; set; }
         
-        [Required] public bool IsDeleted { get; set; }
+        public string PharmacyName { get; set; }
+
+        public string ParentPharmacyName { get; set; }
+
+        public int RegionId { get; set; }
+
+        public string RegionName { get; set; }
+
+        public bool IsMode { get; set; }
+
+        public bool IsType { get; set; }
+
+        public bool IsNetwork { get; set; }
+        
+        public bool IsDeleted { get; set; }
     }
 }

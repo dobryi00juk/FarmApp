@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using FarmApp.Domain.Core.Entity;
@@ -10,15 +11,17 @@ using FarmAppServer.Models;
 using FarmAppServer.Models.Regions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using ServiceStack;
 
 namespace FarmAppServer.Services
 {
     public interface IRegionService
     {
         IQueryable RegionNameSearch(string param);
-        Task<Region> PostRegion(Region region);
+        Task<bool> PostRegion(string values);
+        Task<bool> UpdateRegionAsync(int id, string values);
         Task<bool> DeleteRegionAsync(int id);
-        Task<bool> UpdateRegionAsync(int id, UpdateRegionDto model);
     }
     public class RegionService : IRegionService
     {
@@ -32,17 +35,26 @@ namespace FarmAppServer.Services
         }
         
         //Post region
-        public async Task<Region> PostRegion(Region region)
+        public async Task<bool> PostRegion(string values)
         {
-            if (region == null) throw new ArgumentNullException(nameof(region));
+            if (values.IsNullOrEmpty()) return false;
+            
+            var region = new Region();
+            JsonConvert.PopulateObject(values, region);
+            var existRegion = await _context.Regions.Where(x => x.RegionName == region.RegionName && x.IsDeleted == false).FirstOrDefaultAsync();
 
-            if(_context.Regions.Any(x => x.RegionName == region.RegionName & x.IsDeleted == false))
-                throw new AppException("RegionName \"" + region.RegionName + "\" is already taken");
+            if (existRegion != null) return false;
+
+            if (region.RegionId == 0) region.RegionId = null;
+
+
+            if (region.Population < 0 || region.RegionId < 0 || region.RegionTypeId < 0) return false;
+            if (region.RegionTypeId == 0) region.RegionTypeId = 1;
 
             _context.Regions.Add(region);
-            await _context.SaveChangesAsync();
+            var posted = await _context.SaveChangesAsync();
 
-            return region;
+            return posted > 0;
         }
 
         public async Task<bool> DeleteRegionAsync(int id)
@@ -57,14 +69,23 @@ namespace FarmAppServer.Services
             return true;
         }
 
-        public async Task<bool> UpdateRegionAsync(int id, UpdateRegionDto model)
+        public async Task<bool> UpdateRegionAsync(int key, string values)
         {
-            var region = await _context.Regions.Where(x => x.Id == id && x.IsDeleted == false).FirstOrDefaultAsync();
+            if (key <= 0) return false;
+            if (values.IsNullOrEmpty()) return false;
+
+            var region = _context.Regions.First(r => r.Id == key);
 
             if (region == null) return false;
+            
+            JsonConvert.PopulateObject(values, region);
 
-            _mapper.Map(model, region);
-            _context.Update(region);
+
+            //_mapper.Map(model, region);
+
+            //if (region.RegionId == 0) region.RegionId = null;
+
+            //_context.Update(region);
             var updated = await _context.SaveChangesAsync();
 
             return updated > 0;

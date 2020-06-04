@@ -13,7 +13,7 @@ namespace FarmApp.Domain.Core.Entity
             Pharmacies = new HashSet<Pharmacy>();
         }
         public int Id { get; set; }
-        public int? RegionId { get; set; }
+        public int? RegionId { get; set; }//parent region id
         public int RegionTypeId { get; set; }
         public string RegionName { get; set; }
         public int Population { get; set; }
