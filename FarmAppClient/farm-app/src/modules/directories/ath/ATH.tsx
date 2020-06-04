@@ -17,7 +17,7 @@ import {codeAthType} from "../../../api/mock/codeAthType"
 import {BASE_URL} from "../../../core/constants";
 import AspNetData from "devextreme-aspnet-data-nojquery";
 
-const allowedPageSizes = [5, 10, 20];
+const allowedPageSizes = [15, 13, 45];
 
 export const ATH = () => {
 
@@ -52,7 +52,7 @@ export const ATH = () => {
         <Scrolling mode="standard"/>
         <Paging
           enabled={true}
-          defaultPageSize={5}/>
+          defaultPageSize={15}/>
         <Pager
           showPageSizeSelector={true}
           allowedPageSizes={allowedPageSizes}
@@ -69,30 +69,36 @@ export const ATH = () => {
           mode="row"
         />
         <Column
-          caption={"Код группы"}
-          dataType={"string"}
-          dataField={"code"}>
-          <Lookup dataSource={atxData} valueExpr="code" displayExpr="code"/>
-          <RequiredRule/>
-        </Column>
-        <Column
           caption={"Номер"}
           dataType={"number"}
           visible={false}
           dataField={"id"}>
         </Column>
-        {/*<Column*/}
-        {/*  caption={"Название группы"}*/}
-        {/*  dataType={"string"}*/}
-        {/*  dataField={"nameAth"}>*/}
-        {/*  <RequiredRule/>*/}
-        {/*</Column>*/}
         <Column
-          caption={"Номер группы"}
+          caption={"Код родителя"}
           dataType={"string"}
-          dataField={"parentCodeName"}>
+          dataField={"parentCodeName"}
+          visible={false}
+        >
+
+          {/*<Lookup dataSource={atxData} valueExpr="code" displayExpr="code"/>*/}
+          {/*<RequiredRule/>*/}
+        </Column>
+        <Column
+          caption={"Код группы"}
+          dataType={"string"}
+          dataField={"code"}
+          visible={true}
+        >
           <RequiredRule/>
         </Column>
+        <Column
+          caption={"Название группы"}
+          dataType={"string"}
+          dataField={"nameAth"}>
+          <RequiredRule/>
+        </Column>
+
 
         <Column
           caption={"Удалена"}
