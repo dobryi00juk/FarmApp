@@ -63,10 +63,11 @@ export const Preparations = () => {
         showBorders={true}
         columnAutoWidth={true}
         style={{height: '85vh'}}
-        keyExpr="id"
+        // keyExpr="id"
         // parentIdExpr="codeAthTypeId"
         // onCellPrepared={onCellPrepared}
       >
+
         <Scrolling mode="standard"/>
         <Paging
           enabled={true}
@@ -86,11 +87,13 @@ export const Preparations = () => {
           allowAdding={true}
           mode="row"
         />
-        <Column
-          caption={"Номер"}
-          visible={false}
-          dataField={"id"}>
-        </Column>
+
+        {/*<Column*/}
+        {/*  caption={"Номер"}*/}
+        {/*  visible={false}*/}
+        {/*  dataField={"id"}>*/}
+        {/*</Column>*/}
+
         <Column
           caption={"Имя группы Атх"}
           dataField={"drugName"}>
@@ -102,22 +105,27 @@ export const Preparations = () => {
           dataField={"codeAthTypeId"}>
           <Lookup dataSource={AthData} valueExpr="parentCodeAthId" displayExpr="nameAth"/>
         </Column>
+
         <Column
           caption={"Имя производителя"}
           dataField={"vendorId"}>
           <RequiredRule/>
           <Lookup dataSource={vendorData} valueExpr="id" displayExpr="vendorName"/>
         </Column>
-        {/*<Column*/}
-        {/*    caption={"Отечесвтенный"}*/}
-        {/*    dataField={"isDomestic"}>*/}
-        {/*    <RequiredRule />*/}
-        {/*</Column>*/}
+
+
         <Column
           caption={"Generic"}
           dataField={"isGeneric"}>
           <RequiredRule/>
         </Column>
+
+
+        {/*<Column*/}
+        {/*    caption={"Отечесвтенный"}*/}
+        {/*    dataField={"isDomestic"}>*/}
+        {/*    <RequiredRule />*/}
+        {/*</Column>*/}
         {/*<Column*/}
         {/*    caption={"Удалена"}*/}
         {/*    dataType="boolean"*/}
