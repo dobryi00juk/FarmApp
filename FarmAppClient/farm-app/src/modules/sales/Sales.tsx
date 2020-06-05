@@ -112,7 +112,9 @@ export const Sales = () => {
                 <Column
                     allowHeaderFiltering={false}
                     caption={"Цена за ед."}
-                    dataField={"price"}>
+                    dataField={"price"}
+                    format={"#,##0.00"}
+                >
                     <RequiredRule />
                 </Column>
                 <Column
@@ -124,7 +126,9 @@ export const Sales = () => {
                 <Column
                     allowHeaderFiltering={false}
                     caption={"Сумма"}
-                    dataField={"amount"}>
+                    dataField={"amount"}
+                    format={"#,##0.00"}
+                >
                     <RequiredRule />
                 </Column>
                 <Column
