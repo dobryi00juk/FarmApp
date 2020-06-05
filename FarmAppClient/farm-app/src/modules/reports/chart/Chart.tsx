@@ -168,7 +168,7 @@ class ChartComp extends React.Component<{}, { store: any, locale: any }> {
                   caption: 'Цена за ед.',
                   dataField: 'price',
                   summaryType: 'sum',
-                  format:"#,##0.##",
+                  format:"#,##0.00",
                   selector: function(data:any) {
                     return data.price;
                   },
@@ -185,7 +185,7 @@ class ChartComp extends React.Component<{}, { store: any, locale: any }> {
                   caption: 'Кол-во',
                   dataField: 'quantity',
                   summaryType: 'sum',
-                  format:"#,##0.##",
+                  format:"#,##0.00",
                   selector: function(data:any) {
                     return data.quantity;
                   }
@@ -196,7 +196,7 @@ class ChartComp extends React.Component<{}, { store: any, locale: any }> {
                   caption: 'Сумма',
                   dataField: 'amount',
                   summaryType: 'sum',
-                  format:"#,##0.##",
+                  format:"#,##0.00",
                   selector: function(data:any) {
                     return data.amount;
                   },
