@@ -20,6 +20,7 @@ import Chart, {
   Tooltip,
 } from 'devextreme-react/chart';
 import PivotGrid, {
+  Export,
   FieldChooser,
   Scrolling
 } from 'devextreme-react/pivot-grid';
@@ -41,128 +42,15 @@ import supplementalCldrData from 'devextreme-cldr-data/supplemental.json';
 import {BASE_URL} from "../../../core/constants";
 import {createStore} from 'devextreme-aspnet-data-nojquery';
 
-
-// const dataSource = new PivotGridDataSource({
-//   fields: [{
-//     caption: 'Region',
-//     width: 120,
-//     dataField: 'region',
-//     area: 'row',
-//     sortBySummaryField: 'Total'
-//   }, {
-//     caption: 'City',
-//     dataField: 'city',
-//     width: 150,
-//     area: 'row'
-//   }, {
-//     dataField: 'date',
-//     dataType: 'date',
-//     area: 'column'
-//   }, {
-//     groupName: 'date',
-//     groupInterval: 'month',
-//     visible: false
-//   }, {
-//     caption: 'Total',
-//     dataField: 'amount',
-//     dataType: 'number',
-//     summaryType: 'sum',
-//     format: 'currency',
-//     area: 'data'
-//   }],
-//   store: sales
-// });
-//
-// const currencyFormatter = new Intl.NumberFormat(
-//   'en-US', {
-//     style: 'currency',
-//     currency: 'USD',
-//     minimumFractionDigits: 0
-//   }
-// );
-//
-// function customizeTooltip(args:any) {
-//   const valueText = currencyFormatter.format(args.originalValue);
-//   return {
-//     html: `${args.seriesName} | Total<div class="currency">${valueText}</div>`
-//   };
-// }
-//
-const dataSource = {
-  remoteOperations: true,
-  store: createStore({
-    key: 'id',
-    loadUrl: `${BASE_URL}api/Sales?page=1&pageSize=1000`
-  }),
-  fields: [{
-    caption: 'Название препарата',
-    dataField: 'drugId',
-    // width: 250,
-    // expanded: true,
-    // sortBySummaryField: 'SalesAmount',
-    // sortBySummaryPath: [],
-    // sortOrder: 'desc',
-    area: 'data'
-  }, {
-    caption: 'Название аптеки',
-    dataField: 'pharmacyId',
-    // width: 250,
-    // sortBySummaryField: 'SalesAmount',
-    // sortBySummaryPath: [],
-    // sortOrder: 'desc',
-    // area: 'row'
-    area: 'column'
-  }, {
-    caption: 'Дата продажи',
-    dataField: 'saleDate',
-    dataType: "date",
-    area: 'row',
-
-    // sortBySummaryField: 'SalesAmount',
-    // sortBySummaryPath: [],
-    // sortOrder: 'desc',
-    // width: 250
-  }, {
-    caption: 'Цена за ед.',
-    dataField: 'price',
-    area: 'data'
-    // dataType: 'date',
-    // area: 'data'
-  }, {
-    caption: 'Кол-во',
-    dataField: 'quantity',
-    summaryType: 'sum',
-    area: 'data'
-    // format: 'currency',
-    // area: 'data'
-  }, {
-    caption: 'Сумма',
-    dataField: 'amount',
-    summaryType: 'sum',
-    area: 'data'
-    // area: 'data'
-  }, {
-    caption: 'Дисконт',
-    dataField: 'isDiscount',
-    dataType: "boolean",
-    area: 'data'
-    // summaryType: 'sum',
-    // area: 'data'
-  }, {
-    dataField: 'Id',
-    visible: false
-  }
-  ]
-};
-
-class ChartComp extends React.Component {
+class ChartComp extends React.Component<{}, { store: any, locale: any }> {
   private _chart: any;
   private _pivotGrid: any;
 
   constructor(props: any) {
     super(props);
     this.state = {
-      locale: this.getLocale()
+      locale: this.getLocale(),
+      store: null
     };
 
     this.initGlobalize();
@@ -193,13 +81,21 @@ class ChartComp extends React.Component {
     Globalize.locale('ru');
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     //@ts-ignore
     this._pivotGrid.bindChart(this._chart, {
       dataFieldsDisplayMode: 'splitPanes',
       alternateDataFields: false
     });
 
+    let response: any = await fetch(`${BASE_URL}api/Sales?page=1&pageSize=1000`)
+    if (response.ok) { // если HTTP-статус в диапазоне 200-299
+      // получаем тело ответа (см. про этот метод ниже)
+      let json = await response.json();
+      this.setState({
+        store: json
+      })
+    }
     // setTimeout(function() {
     //   dataSource.expandHeaderItem('row', ['North America']);
     //   dataSource.expandHeaderItem('column', [2013]);
@@ -216,7 +112,9 @@ class ChartComp extends React.Component {
           }
         }}>
           <Size height={200}/>
-          {/*<Tooltip enabled={true} customizeTooltip={customizeTooltip} />*/}
+          <Tooltip enabled={true}
+                   // customizeTooltip={customizeTooltip}
+          />
           <CommonSeriesSettings type="bar"/>
           <AdaptiveLayout width={450}/>
         </Chart>
@@ -224,13 +122,103 @@ class ChartComp extends React.Component {
         <PivotGrid
           id="pivotgrid"
           //@ts-ignore
-          dataSource={dataSource}
+          dataSource={
+            new PivotGridDataSource({
+              fields: [
+                {
+                  caption: 'Название препарата',
+                  dataField: 'drugName',
+                  //@ts-ignore
+                  // area: 'row',
+                  // area: 'data'
+                  // width: 250,
+                  // expanded: true,
+                  // sortBySummaryField: 'SalesAmount',
+                  // sortBySummaryPath: [],
+                  // sortOrder: 'desc',
+                },
+                {
+                  caption: 'Название аптеки',
+                  dataField: 'pharmacyName',
+                  //@ts-ignore
+                  area: 'row',
+                  // width: 250,
+                  // sortBySummaryField: 'SalesAmount',
+                  // sortBySummaryPath: [],
+                  // sortOrder: 'desc',
+                  // area: 'row'
+                },
+                {
+                  caption: 'Дата продажи',
+                  dataField: 'saleDate',
+                  //@ts-ignore
+                  dataType: "date",
+                  //@ts-ignore
+                  area: 'column',
+
+                  // sortBySummaryField: 'SalesAmount',
+                  // sortBySummaryPath: [],
+                  // sortOrder: 'desc',
+                  // width: 250
+                },
+                {
+                  caption: 'Цена за ед.',
+                  dataField: 'price',
+                  //@ts-ignore
+                  // area: 'data',
+                  //@ts-ignore
+                  // dataType: 'date',
+                  // area: 'data'
+                },
+                {
+                  caption: 'Кол-во',
+                  dataField: 'quantity',
+                  summaryType: 'sum',
+                  // format: 'currency',
+                  // area: 'data'
+                },
+                {
+                  caption: 'Сумма',
+                  dataField: 'amount',
+                  summaryType: 'sum',
+                  //@ts-ignore
+                  area: 'data'
+                  //@ts-ignore
+                  // area: 'data'
+                  // area: 'data'
+                },
+                {
+                  caption: 'Дисконт',
+                  dataField: 'isDiscount',
+                  //@ts-ignore
+                  dataType: "boolean",
+                  //@ts-ignore
+                  // area: 'data'
+                  // summaryType: 'sum',
+                  // area: 'data'
+                },
+                {
+                  dataField: 'Id',
+                  visible: false
+                }
+              ],
+              store: this.state.store?.data,
+            })
+
+          }
           allowSorting={true}
           allowSortingBySummary={true}
           allowFiltering={true}
           height={620}
           showBorders={true}
           rowHeaderLayout="tree"
+
+          showColumnTotals={false}
+          showColumnGrandTotals={false}
+          showRowTotals={false}
+          showRowGrandTotals={false}
+
+
           //@ts-ignore
           ref={(ref) => {
             if (ref?.instance) {
@@ -238,8 +226,9 @@ class ChartComp extends React.Component {
             }
           }}
         >
-          <FieldChooser enabled={true} />
-          <Scrolling mode="virtual" />
+          <Export enabled={true} fileName="Sales" />
+          <FieldChooser enabled={true}/>
+          <Scrolling mode="virtual"/>
         </PivotGrid>
       </React.Fragment>
     );

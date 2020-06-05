@@ -63,6 +63,7 @@ export const Preparations = () => {
         showBorders={true}
         columnAutoWidth={true}
         style={{height: '85vh'}}
+
         // keyExpr="id"
         // parentIdExpr="codeAthTypeId"
         // onCellPrepared={onCellPrepared}
