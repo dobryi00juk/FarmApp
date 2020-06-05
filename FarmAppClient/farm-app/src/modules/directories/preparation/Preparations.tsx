@@ -117,7 +117,6 @@ export const Preparations = () => {
         <Column
           caption={"Generic"}
           dataField={"isGeneric"}>
-          <RequiredRule/>
         </Column>
 
 
