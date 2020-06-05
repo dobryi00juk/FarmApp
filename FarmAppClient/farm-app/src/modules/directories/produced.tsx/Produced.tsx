@@ -31,7 +31,7 @@ export const Produced = () => {
   const url = `${BASE_URL}api/Vendors`;
   const vendorData = AspNetData.createStore({
     key: 'id',
-    loadUrl: `${url}`,
+    loadUrl: `${url}?page=1&pageSize=2000`,
     insertUrl: `${url}`,
     updateUrl: `${url}`,
     deleteUrl: `${url}`,

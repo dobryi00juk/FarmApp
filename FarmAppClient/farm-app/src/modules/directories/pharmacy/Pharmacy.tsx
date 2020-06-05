@@ -24,7 +24,7 @@ export const Pharmacy = () => {
 
   const tasksData = AspNetData.createStore({
     key: 'id',
-    loadUrl: `${url}`,
+    loadUrl: `${url}?page=1&pageSize=2000`,
     insertUrl: `${url}`,
     updateUrl: `${url}`,
     deleteUrl: `${url}`,
@@ -35,7 +35,7 @@ export const Pharmacy = () => {
 
   const regionData = AspNetData.createStore({
     key: 'id',
-    loadUrl: `${BASE_URL}api/Regions`
+    loadUrl: `${BASE_URL}api/Regions?page=1&pageSize=2000`
   });
 
   return (

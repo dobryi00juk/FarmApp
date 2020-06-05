@@ -25,7 +25,7 @@ const Region = () => {
 
   const tasksData = AspNetData.createStore({
     key: 'id',
-    loadUrl: `${url}`,
+    loadUrl: `${url}?page=1&pageSize=2000`,
     insertUrl: `${url}`,
     updateUrl: `${url}`,
     deleteUrl: `${url}`,
@@ -37,7 +37,7 @@ const Region = () => {
 
   const regionTypeData = AspNetData.createStore({
     key: 'id',
-    loadUrl: `${BASE_URL}api/RegionTypes`
+    loadUrl: `${BASE_URL}api/RegionTypes?page=1&pageSize=2000`
   });
 
   return (

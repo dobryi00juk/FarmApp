@@ -24,7 +24,7 @@ export const ATH = () => {
   const url = `${BASE_URL}api/CodeAthTypes`;
   const atxData = AspNetData.createStore({
     key: 'id',
-    loadUrl: `${url}`,
+    loadUrl: `${url}?page=1&pageSize=2000`,
     insertUrl: `${url}`,
     updateUrl: `${url}`,
     deleteUrl: `${url}`,
@@ -52,10 +52,11 @@ export const ATH = () => {
         <Scrolling mode="standard"/>
         <Paging
           enabled={true}
-          defaultPageSize={15}/>
+          // defaultPageSize={15}
+        />
         <Pager
           showPageSizeSelector={true}
-          allowedPageSizes={allowedPageSizes}
+          // allowedPageSizes={allowedPageSizes}
           showInfo={true}/>
         <FilterRow visible={true}/>
         <Sorting mode="multiple"/>

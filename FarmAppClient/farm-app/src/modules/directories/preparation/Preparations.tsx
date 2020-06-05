@@ -33,7 +33,7 @@ export const Preparations = () => {
   const url = `${BASE_URL}api/Drugs`;
   const drugsData = AspNetData.createStore({
     key: 'id',
-    loadUrl: `${url}`,
+    loadUrl: `${url}?page=1&pageSize=2000`,
     insertUrl: `${url}`,
     updateUrl: `${url}`,
     deleteUrl: `${url}`,
@@ -44,12 +44,12 @@ export const Preparations = () => {
 
   const AthData = AspNetData.createStore({
     key: 'id',
-    loadUrl: `${BASE_URL}api/CodeAthTypes`
+    loadUrl: `${BASE_URL}api/CodeAthTypes?page=1&pageSize=2000`
   });
 
   const vendorData = AspNetData.createStore({
     key: 'id',
-    loadUrl: `${BASE_URL}api/Vendors`
+    loadUrl: `${BASE_URL}api/Vendors?page=1&pageSize=2000`
   });
 
 
