@@ -113,7 +113,10 @@ export const Preparations = () => {
           <Lookup dataSource={vendorData} valueExpr="id" displayExpr="vendorName"/>
         </Column>
 
-
+        <Column
+          caption={"Отечественный"}
+          dataField={"isDomestic"}>
+        </Column>
         <Column
           caption={"Generic"}
           dataField={"isGeneric"}>
