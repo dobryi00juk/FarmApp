@@ -47,7 +47,7 @@ export const ATH = () => {
         parentIdExpr="parentCodeAthId"
         keyExpr="id"
         rootValue={0}
-        autoExpandAll={true}
+        // autoExpandAll={true}
       >
         <Scrolling mode="standard"/>
         <Paging
