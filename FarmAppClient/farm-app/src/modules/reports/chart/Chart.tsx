@@ -112,9 +112,12 @@ class ChartComp extends React.Component<{}, { store: any, locale: any }> {
           }
         }}>
           <Size height={200}/>
-          <Tooltip enabled={true}
-                   // customizeTooltip={customizeTooltip}
-          />
+          {/*<Tooltip enabled={true}*/}
+          {/*         customizeTooltip={(args:any)=>{*/}
+          {/*           console.log("args",args)*/}
+          {/*           return (Number(args.originalValue) === args.originalValue && args.originalValue % 1 !== 0?args.originalValue.toFixed(2):args.originalValue)*/}
+          {/*         }}*/}
+          {/*/>*/}
           <CommonSeriesSettings type="bar"/>
           <AdaptiveLayout width={450}/>
         </Chart>
@@ -164,6 +167,14 @@ class ChartComp extends React.Component<{}, { store: any, locale: any }> {
                 {
                   caption: 'Цена за ед.',
                   dataField: 'price',
+                  summaryType: 'sum',
+                  format:"#,##0.##",
+                  selector: function(data:any) {
+                    return data.price;
+                  },
+                  // selector: function(data:any) {
+                  //   return `${data.price.toFixed(2)}`;
+                  // }
                   //@ts-ignore
                   // area: 'data',
                   //@ts-ignore
@@ -174,6 +185,10 @@ class ChartComp extends React.Component<{}, { store: any, locale: any }> {
                   caption: 'Кол-во',
                   dataField: 'quantity',
                   summaryType: 'sum',
+                  format:"#,##0.##",
+                  selector: function(data:any) {
+                    return data.quantity;
+                  }
                   // format: 'currency',
                   // area: 'data'
                 },
@@ -181,6 +196,13 @@ class ChartComp extends React.Component<{}, { store: any, locale: any }> {
                   caption: 'Сумма',
                   dataField: 'amount',
                   summaryType: 'sum',
+                  format:"#,##0.##",
+                  selector: function(data:any) {
+                    return data.amount;
+                  },
+                  // selector: function(data:any) {
+                  //   return `${data.amount.toFixed(1)}`;
+                  // },
                   //@ts-ignore
                   area: 'data'
                   //@ts-ignore
