@@ -103,7 +103,7 @@ export const Preparations = () => {
         <Column
           caption={"Код группы Атх"}
           dataField={"codeAthTypeId"}>
-          <Lookup dataSource={AthData} valueExpr="parentCodeAthId" displayExpr="nameAth"/>
+          <Lookup dataSource={AthData} valueExpr="id" displayExpr="nameAth"/>
         </Column>
 
         <Column
