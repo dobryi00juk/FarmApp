@@ -1,23 +1,26 @@
 import React from "react"
 import { Typography } from "@material-ui/core"
 import TreeList, {
-  Editing,
-  SearchPanel,
-  Column,
-  RequiredRule,
-  Selection,
-  Sorting,
-  Scrolling,
-  Paging,
-  Pager,
-  HeaderFilter,
-  Lookup
+    Editing,
+    SearchPanel,
+    Column,
+    RequiredRule,
+    Selection,
+    Sorting,
+    Scrolling,
+    Paging,
+    Pager,
+    HeaderFilter,
+    Lookup,
+    FilterRow
 } from "devextreme-react/tree-list"
 import { sales } from "../../api/mock/sales"
-import {BASE_URL} from "../../core/constants";
+import { BASE_URL } from "../../core/constants";
 import AspNetData from "devextreme-aspnet-data-nojquery";
+import { IAppState } from "../../core/mainReducer";
+import { connect } from "react-redux";
 
-export const Sales = () => {
+const Sales = ({ user }: { user: any }) => {
     // const allowedPageSizes = [5, 10, 20];
     // const onCellPrepared = (e: any) => {
     //     if (e.column.command === 'edit') {
@@ -30,29 +33,29 @@ export const Sales = () => {
     // }
 
 
-  const salesData = AspNetData.createStore({
-    key: 'id',
-    loadUrl: `${BASE_URL}api/Sales?page=1&pageSize=10000`,
-    insertUrl: `${BASE_URL}api/Sales`,
-    updateUrl: `${BASE_URL}api/Sales`,
-    deleteUrl: `${BASE_URL}api/Sales`,
-    onBeforeSend: function (method, ajaxOptions) {
-      ajaxOptions.xhrFields = {withCredentials: false};
-    }
-  });
+    const salesData = AspNetData.createStore({
+        key: 'id',
+        loadUrl: `${BASE_URL}api/Sales?page=1&pageSize=10000`,
+        insertUrl: `${BASE_URL}api/Sales`,
+        updateUrl: `${BASE_URL}api/Sales`,
+        deleteUrl: `${BASE_URL}api/Sales`,
+        onBeforeSend: function (method, ajaxOptions) {
+            ajaxOptions.xhrFields = { withCredentials: false };
+        }
+    });
 
-  const drugsData = AspNetData.createStore({
-    key: 'id',
-    loadUrl: `${BASE_URL}api/Drugs?page=1&pageSize=2000`
-  });
+    const drugsData = AspNetData.createStore({
+        key: 'id',
+        loadUrl: `${BASE_URL}api/Drugs?page=1&pageSize=2000`
+    });
 
- const pharmacyData = AspNetData.createStore({
-    key: 'id',
-    loadUrl: `${BASE_URL}api/Pharmacies?page=1&pageSize=2000`
-  });
+    const pharmacyData = AspNetData.createStore({
+        key: 'id',
+        loadUrl: `${BASE_URL}api/Pharmacies?page=1&pageSize=2000`
+    });
 
 
-  return (
+    return (
         <Typography>
             <TreeList
                 id="sales"
@@ -62,27 +65,30 @@ export const Sales = () => {
                 showBorders={true}
                 columnAutoWidth={true}
                 keyExpr="id"
-                // onCellPrepared={onCellPrepared}
+                columnHidingEnabled={true}
+            // onCellPrepared={onCellPrepared}
             >
                 <HeaderFilter visible={true} />
                 <Scrolling mode="standard" />
+                <FilterRow visible={true} />
                 <Paging
                     enabled={true}
-                    // defaultPageSize={5}
+                // defaultPageSize={5}
                 />
                 <Pager
-                    showPageSizeSelector={true}
+                    // showPageSizeSelector={true}
                     // allowedPageSizes={allowedPageSizes}
                     showInfo={true} />
                 <Sorting mode="multiple" />
                 <Selection mode="single" />
                 <SearchPanel visible={true} />
-                <Editing
+                {user?.role?.id === 1 && <Editing
                     allowUpdating={true}
                     allowDeleting={true}
                     allowAdding={true}
                     mode="row"
                 />
+                }
                 <Column
                     caption={"Номер"}
                     visible={false}
@@ -91,40 +97,45 @@ export const Sales = () => {
                 <Column
                     caption={"Название препарата"}
                     dataField={"drugId"}>
-                  <Lookup dataSource={drugsData} valueExpr="id" displayExpr="drugName"/>
+                    <Lookup dataSource={drugsData} valueExpr="id" displayExpr="drugName" />
                     <RequiredRule />
                 </Column>
                 <Column
                     caption={"Название аптеки"}
                     dataField={"pharmacyId"}>
-                  <Lookup dataSource={pharmacyData} valueExpr="id" displayExpr="pharmacyName"/>
+                    <Lookup dataSource={pharmacyData} valueExpr="id" displayExpr="pharmacyName" />
                     <RequiredRule />
                 </Column>
 
                 <Column
-                    alignment="right"
+                    // alignment="right"
                     dataType="date"
-                    allowHeaderFiltering={false}
+                    // allowHeaderFiltering={false}
                     caption={"Дата продажи"}
-                    dataField={"saleDate"}>
+                    dataField={"saleDate"}
+                    format={'YYYY/MM/dd HH:mm'}
+                >
                     <RequiredRule />
                 </Column>
                 <Column
-                    allowHeaderFiltering={false}
-                    caption={"Цена за ед."}
                     dataField={"price"}
+                    alignment="left"
+                    // allowHeaderFiltering={false}
+                    caption={"Цена за ед."}
                     format={"#,##0.00"}
                 >
                     <RequiredRule />
                 </Column>
                 <Column
-                    allowHeaderFiltering={false}
+                    // allowHeaderFiltering={false}
+                    alignment="left"
                     caption={"Кол-во"}
                     dataField={"quantity"}>
                     <RequiredRule />
                 </Column>
                 <Column
-                    allowHeaderFiltering={false}
+                    alignment="left"
+                    // allowHeaderFiltering={false}
                     caption={"Сумма"}
                     dataField={"amount"}
                     format={"#,##0.00"}
@@ -132,13 +143,15 @@ export const Sales = () => {
                     <RequiredRule />
                 </Column>
                 <Column
-                    allowHeaderFiltering={false}
+                    // allowHeaderFiltering={false}
+                    alignment="left"
                     caption={"Дисконт"}
                     dataType="boolean"
                     dataField={"isDiscount"}>
                 </Column>
                 <Column
-                    allowHeaderFiltering={false}
+                    // allowHeaderFiltering={false}
+                    alignment="left"
                     caption={"Удалена"}
                     dataType="boolean"
                     dataField={"isDeleted"}
@@ -149,3 +162,11 @@ export const Sales = () => {
         </Typography>
     )
 }
+
+
+export default connect((state: IAppState) => {
+    const { auth } = state;
+    return {
+        user: auth.user
+    }
+})(Sales)

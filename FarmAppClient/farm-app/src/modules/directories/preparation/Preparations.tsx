@@ -1,5 +1,5 @@
 import React from "react"
-import {Typography} from "@material-ui/core"
+import { Typography } from "@material-ui/core"
 import TreeList, {
   Editing,
   SearchPanel,
@@ -13,11 +13,13 @@ import TreeList, {
   FilterRow,
   RemoteOperations, HeaderFilter, Lookup
 } from "devextreme-react/tree-list"
-import {preparations} from "../../../api/mock/preparations"
-import {BASE_URL} from "../../../core/constants";
+import { preparations } from "../../../api/mock/preparations"
+import { BASE_URL } from "../../../core/constants";
 import AspNetData from "devextreme-aspnet-data-nojquery";
+import { connect } from "react-redux";
+import { IAppState } from "../../../core/mainReducer";
 
-export const Preparations = () => {
+export const Preparations = ({ user }: { user: any }) => {
   const allowedPageSizes = [15, 30, 45];
   const onCellPrepared = (e: any) => {
     if (e.column.command === 'edit') {
@@ -38,7 +40,7 @@ export const Preparations = () => {
     updateUrl: `${url}`,
     deleteUrl: `${url}`,
     onBeforeSend: function (method, ajaxOptions) {
-      ajaxOptions.xhrFields = {withCredentials: false};
+      ajaxOptions.xhrFields = { withCredentials: false };
     }
   });
 
@@ -62,32 +64,34 @@ export const Preparations = () => {
         showRowLines={true}
         showBorders={true}
         columnAutoWidth={true}
-        style={{height: '85vh'}}
-
-        // keyExpr="id"
-        // parentIdExpr="codeAthTypeId"
-        // onCellPrepared={onCellPrepared}
+        style={{ height: '85vh' }}
+        columnHidingEnabled={true}
+      // keyExpr="id"
+      // parentIdExpr="codeAthTypeId"
+      // onCellPrepared={onCellPrepared}
       >
 
-        <Scrolling mode="standard"/>
+        <Scrolling mode="standard" />
         <Paging
           enabled={true}
-          defaultPageSize={15}/>
+        // defaultPageSize={15}
+        />
         <Pager
-          showPageSizeSelector={true}
-          allowedPageSizes={allowedPageSizes}
-          showInfo={true}/>
-        <FilterRow visible={true}/>
-        <Sorting mode="multiple"/>
-        <Selection mode="single"/>
-        <SearchPanel visible={true}/>
-        <HeaderFilter visible={true}/>
-        <Editing
+          // showPageSizeSelector={true}
+          // allowedPageSizes={allowedPageSizes}
+          showInfo={true} />
+        <FilterRow visible={true} />
+        <Sorting mode="multiple" />
+        <Selection mode="single" />
+        <SearchPanel visible={true} />
+        <HeaderFilter visible={true} />
+        {user?.role?.id === 1 && <Editing
           allowUpdating={true}
           allowDeleting={true}
           allowAdding={true}
           mode="row"
         />
+        }
 
         {/*<Column*/}
         {/*  caption={"Номер"}*/}
@@ -98,27 +102,29 @@ export const Preparations = () => {
         <Column
           caption={"Имя группы Атх"}
           dataField={"drugName"}>
-          <RequiredRule/>
+          <RequiredRule />
         </Column>
 
         <Column
           caption={"Код группы Атх"}
           dataField={"codeAthTypeId"}>
-          <Lookup dataSource={AthData} valueExpr="id" displayExpr="nameAth"/>
+          <Lookup dataSource={AthData} valueExpr="id" displayExpr="nameAth" />
         </Column>
 
         <Column
           caption={"Имя производителя"}
           dataField={"vendorId"}>
-          <RequiredRule/>
-          <Lookup dataSource={vendorData} valueExpr="id" displayExpr="vendorName"/>
+          <RequiredRule />
+          <Lookup dataSource={vendorData} valueExpr="id" displayExpr="vendorName" />
         </Column>
 
         <Column
+          alignment={'left'}
           caption={"Отечественный"}
           dataField={"isDomestic"}>
         </Column>
         <Column
+          alignment={'left'}
           caption={"Generic"}
           dataField={"isGeneric"}>
         </Column>
@@ -138,3 +144,10 @@ export const Preparations = () => {
     </Typography>
   )
 }
+
+export default connect((state: IAppState) => {
+  const { auth } = state;
+  return {
+    user: auth.user
+  }
+})(Preparations)

@@ -1,5 +1,5 @@
 import React from "react"
-import {Typography} from "@material-ui/core"
+import { Typography } from "@material-ui/core"
 import TreeList, {
   Editing,
   SearchPanel,
@@ -13,13 +13,15 @@ import TreeList, {
   Scrolling,
   HeaderFilter, Lookup
 } from "devextreme-react/tree-list"
-import {codeAthType} from "../../../api/mock/codeAthType"
-import {BASE_URL} from "../../../core/constants";
+import { codeAthType } from "../../../api/mock/codeAthType"
+import { BASE_URL } from "../../../core/constants";
 import AspNetData from "devextreme-aspnet-data-nojquery";
+import { connect } from "react-redux";
+import { IAppState } from "../../../core/mainReducer";
 
-const allowedPageSizes = [15, 13, 45];
+const allowedPageSizes = [15, 30, 45];
 
-export const ATH = () => {
+const ATH = ({ user }: { user: any }) => {
 
   const url = `${BASE_URL}api/CodeAthTypes`;
   const atxData = AspNetData.createStore({
@@ -29,7 +31,7 @@ export const ATH = () => {
     updateUrl: `${url}`,
     deleteUrl: `${url}`,
     onBeforeSend: function (method, ajaxOptions) {
-      ajaxOptions.xhrFields = {withCredentials: false};
+      ajaxOptions.xhrFields = { withCredentials: false };
     }
   });
 
@@ -43,32 +45,34 @@ export const ATH = () => {
         showRowLines={true}
         showBorders={true}
         columnAutoWidth={true}
-        style={{height: '85vh'}}
+        style={{ height: '85vh' }}
         parentIdExpr="parentCodeAthId"
         keyExpr="id"
         rootValue={0}
-        // autoExpandAll={true}
+        columnHidingEnabled={true}
+      // autoExpandAll={true}
       >
-        <Scrolling mode="standard"/>
+        <Scrolling mode="standard" />
         <Paging
           enabled={true}
-          // defaultPageSize={15}
+        // defaultPageSize={15}
         />
         <Pager
           showPageSizeSelector={true}
           // allowedPageSizes={allowedPageSizes}
-          showInfo={true}/>
-        <FilterRow visible={true}/>
-        <Sorting mode="multiple"/>
-        <Selection mode="single"/>
-        <SearchPanel visible={true}/>
-        <HeaderFilter visible={true}/>
-        <Editing
+          showInfo={true} />
+        <FilterRow visible={true} />
+        <Sorting mode="multiple" />
+        <Selection mode="single" />
+        <SearchPanel visible={true} />
+        <HeaderFilter visible={true} />
+        {user?.role?.id === 1 && <Editing
           allowUpdating={true}
           allowDeleting={true}
           allowAdding={true}
           mode="row"
         />
+        }
         <Column
           caption={"Номер"}
           dataType={"number"}
@@ -91,13 +95,13 @@ export const ATH = () => {
           dataField={"code"}
           visible={true}
         >
-          <RequiredRule/>
+          <RequiredRule />
         </Column>
         <Column
           caption={"Название группы"}
           dataType={"string"}
           dataField={"nameAth"}>
-          <RequiredRule/>
+          <RequiredRule />
         </Column>
 
 
@@ -110,3 +114,9 @@ export const ATH = () => {
     </Typography>
   )
 }
+export default connect((state: IAppState) => {
+  const { auth } = state;
+  return {
+    user: auth.user
+  }
+})(ATH)

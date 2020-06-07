@@ -1,5 +1,5 @@
 import React from "react"
-import {Typography} from "@material-ui/core"
+import { Typography } from "@material-ui/core"
 import TreeList, {
   Editing,
   SearchPanel,
@@ -9,13 +9,15 @@ import TreeList, {
   Sorting,
   Scrolling,
   Paging,
-  Pager, HeaderFilter
+  Pager, HeaderFilter, FilterRow
 } from "devextreme-react/tree-list"
-import {vendors} from "../../../api/mock/vendors"
-import {BASE_URL} from "../../../core/constants";
+import { vendors } from "../../../api/mock/vendors"
+import { BASE_URL } from "../../../core/constants";
 import AspNetData from "devextreme-aspnet-data-nojquery";
+import { connect } from "react-redux";
+import { IAppState } from "../../../core/mainReducer";
 
-export const Produced = () => {
+const Produced = ({ user }: { user: any }) => {
   const allowedPageSizes = [5, 10, 20];
   const onCellPrepared = (e: any) => {
     if (e.column.command === 'edit') {
@@ -36,7 +38,7 @@ export const Produced = () => {
     updateUrl: `${url}`,
     deleteUrl: `${url}`,
     onBeforeSend: function (method, ajaxOptions) {
-      ajaxOptions.xhrFields = {withCredentials: false};
+      ajaxOptions.xhrFields = { withCredentials: false };
     }
   });
 
@@ -49,28 +51,32 @@ export const Produced = () => {
         showRowLines={true}
         showBorders={true}
         columnAutoWidth={true}
-        style={{height: '85vh'}}
+        style={{ height: '85vh' }}
         keyExpr="id"
         onCellPrepared={onCellPrepared}
+        columnHidingEnabled={true}
       >
-        <Scrolling mode="standard"/>
+        <Scrolling mode="standard" />
         <Paging
           enabled={true}
-          defaultPageSize={5}/>
+        // defaultPageSize={15}
+        />
         <Pager
-          showPageSizeSelector={true}
-          allowedPageSizes={allowedPageSizes}
-          showInfo={true}/>
-        <Sorting mode="multiple"/>
-        <Selection mode="single"/>
-        <SearchPanel visible={true}/>
-        <HeaderFilter visible={true}/>
-        <Editing
+          // showPageSizeSelector={true}
+          // allowedPageSizes={allowedPageSizes}
+          showInfo={true} />
+        <FilterRow visible={true} />
+        <Sorting mode="multiple" />
+        <Selection mode="single" />
+        <SearchPanel visible={true} />
+        <HeaderFilter visible={true} />
+        {user?.role?.id === 1 && <Editing
           allowUpdating={true}
           allowDeleting={true}
           allowAdding={true}
           mode="row"
         />
+        }
         <Column
           caption={"Номер"}
           visible={false}
@@ -79,14 +85,15 @@ export const Produced = () => {
         <Column
           caption={"Имя производителя"}
           dataField={"vendorName"}>
-          <RequiredRule/>
+          <RequiredRule />
         </Column>
         <Column
           caption={"Страна производителя"}
           dataField={"producingCountry"}>
-          <RequiredRule/>
+          <RequiredRule />
         </Column>
         <Column
+          alignment={"left"}
           caption={"Отечесвтенный"}
           dataField={"isDomestic"}>
         </Column>
@@ -99,3 +106,10 @@ export const Produced = () => {
     </Typography>
   )
 }
+
+export default connect((state: IAppState) => {
+  const { auth } = state;
+  return {
+    user: auth.user
+  }
+})(Produced)

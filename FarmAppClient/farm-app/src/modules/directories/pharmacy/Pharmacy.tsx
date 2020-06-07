@@ -1,5 +1,5 @@
 import React from "react"
-import {Typography} from "@material-ui/core"
+import { Typography } from "@material-ui/core"
 import TreeList, {
   Column,
   Editing,
@@ -13,10 +13,12 @@ import TreeList, {
   Selection,
   Sorting
 } from "devextreme-react/tree-list"
-import {BASE_URL} from "../../../core/constants";
+import { BASE_URL } from "../../../core/constants";
 import AspNetData from "devextreme-aspnet-data-nojquery";
+import { connect } from "react-redux";
+import { IAppState } from "../../../core/mainReducer";
 
-export const Pharmacy = () => {
+const Pharmacy = ({ user }: { user: any }) => {
   const allowedPageSizes = [5, 10, 20];
 
 
@@ -29,7 +31,7 @@ export const Pharmacy = () => {
     updateUrl: `${url}`,
     deleteUrl: `${url}`,
     onBeforeSend: function (method, ajaxOptions) {
-      ajaxOptions.xhrFields = {withCredentials: false};
+      ajaxOptions.xhrFields = { withCredentials: false };
     }
   });
 
@@ -47,12 +49,13 @@ export const Pharmacy = () => {
         showRowLines={true}
         showBorders={true}
         columnAutoWidth={true}
-        style={{height: '85vh'}}
+        style={{ height: '85vh' }}
         keyExpr="id"
         rootValue={1}
-        autoExpandAll={true}
+        // autoExpandAll={true}
         parentIdExpr="parentPharmacyId"
         wordWrapEnabled={true}
+        columnHidingEnabled={true}
       >
         {/*<RemoteOperations filtering={true} sorting={true} grouping={true} />*/}
         {/*<SearchPanel visible={true} />*/}
@@ -67,25 +70,27 @@ export const Pharmacy = () => {
         {/*/>*/}
 
 
-        <RemoteOperations filtering={true} sorting={true} grouping={true}/>
-        <SearchPanel visible={true}/>
-        <HeaderFilter visible={true}/>
-        <Editing
-          mode="row"
-          allowAdding={true}
+        <RemoteOperations filtering={true} sorting={true} grouping={true} />
+        <SearchPanel visible={true} />
+        <HeaderFilter visible={true} />
+        {user?.role?.id === 1 && <Editing
           allowUpdating={true}
-          allowDeleting={true}/>
+          allowDeleting={true}
+          allowAdding={true}
+          mode="row"
+        />
+        }
 
         <Paging
           enabled={true}
-          defaultPageSize={5}/>
+          defaultPageSize={5} />
         <Pager
           showPageSizeSelector={true}
           allowedPageSizes={allowedPageSizes}
-          showInfo={true}/>
-        <FilterRow visible={true}/>
-        <Sorting mode="multiple"/>
-        <Selection mode="single"/>
+          showInfo={true} />
+        <FilterRow visible={true} />
+        <Sorting mode="multiple" />
+        <Selection mode="single" />
 
         <Column
           caption={"Номер"}
@@ -94,29 +99,33 @@ export const Pharmacy = () => {
           dataField={"id"}>
         </Column>
         <Column
+          alignment={"left"}
           caption={"Название аптеки"}
           dataType={"string"}
           dataField={"pharmacyName"}>
-          <RequiredRule/>
+          <RequiredRule />
         </Column>
         <Column
           caption={"Имя региона"}
           dataType={"string"}
           dataField={"regionId"}>
-          <Lookup dataSource={regionData} valueExpr="id" displayExpr="regionName"/>
-          <RequiredRule/>
+          <Lookup dataSource={regionData} valueExpr="id" displayExpr="regionName" />
+          <RequiredRule />
         </Column>
         <Column
+          alignment={"left"}
           caption={"Круглосуточная"}
           dataType="boolean"
           dataField={"isMode"}>
         </Column>
         <Column
+          alignment={"left"}
           caption={"Социальная"}
           dataType="boolean"
           dataField={"isType"}>
         </Column>
         <Column
+          alignment={"left"}
           caption={"Сеть аптек"}
           dataType="boolean"
           dataField={"isNetwork"}>
@@ -130,3 +139,11 @@ export const Pharmacy = () => {
     </Typography>
   )
 }
+
+
+export default connect((state: IAppState) => {
+  const { auth } = state;
+  return {
+    user: auth.user
+  }
+})(Pharmacy)
