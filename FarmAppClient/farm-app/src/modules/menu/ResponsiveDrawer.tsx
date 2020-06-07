@@ -15,7 +15,7 @@ import { ItemDrawer } from '../../components/itemDrawer/ItemDrawer';
 import { IDictionary } from '../../utils/interfaces';
 import Profile from '../../components/profile/Profile';
 import Sales from '../sales/Sales';
-import { Route } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 import { Role } from '../administration/role/Role';
 import { Greeting } from '../greeting/Greeting';
 import ChartComp from '../reports/chart/Chart';
@@ -190,6 +190,8 @@ const ResponsiveDrawer = (props: ResponsiveDrawerProps) => {
       </div>
     )
 
+
+  const NotFoundRedirect = () => <Redirect to='/farm-app/main/' />
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -281,6 +283,7 @@ const ResponsiveDrawer = (props: ResponsiveDrawerProps) => {
           <Route path={"/farm-app/access/"}>
             <AccessRole />
           </Route>
+          <Route component={NotFoundRedirect} />
         </Typography>
       </main>
     </div>
