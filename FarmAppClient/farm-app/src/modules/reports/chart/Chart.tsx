@@ -26,10 +26,10 @@ import PivotGrid, {
   FieldPanel
 } from 'devextreme-react/pivot-grid';
 // import { sales } from './data.js';
-import { sales } from './newData';
+import {sales} from './newData';
 //@ts-ignore
 import Globalize from 'globalize';
-import { loadMessages } from 'devextreme/localization';
+import {loadMessages} from 'devextreme/localization';
 
 import 'devextreme/localization/globalize/number';
 import 'devextreme/localization/globalize/date';
@@ -42,9 +42,8 @@ import ruMessages from 'devextreme/localization/messages/ru.json';
 import deCldrData from 'devextreme-cldr-data/de.json';
 import ruCldrData from 'devextreme-cldr-data/ru.json';
 import supplementalCldrData from 'devextreme-cldr-data/supplemental.json';
-import { BASE_URL } from "../../../core/constants";
-import { createStore } from 'devextreme-aspnet-data-nojquery';
-
+import {BASE_URL} from "../../../core/constants";
+import {createStore} from 'devextreme-aspnet-data-nojquery';
 
 
 class ChartComp extends React.Component<{}, {
@@ -100,19 +99,19 @@ class ChartComp extends React.Component<{}, {
   }
 
   onShowColumnFieldsChanged(e: any) {
-    this.setState({ showColumnFields: e.value });
+    this.setState({showColumnFields: e.value});
   }
 
   onShowDataFieldsChanged(e: any) {
-    this.setState({ showDataFields: e.value });
+    this.setState({showDataFields: e.value});
   }
 
   onShowFilterFieldsChanged(e: any) {
-    this.setState({ showFilterFields: e.value });
+    this.setState({showFilterFields: e.value});
   }
 
   onShowRowFieldsChanged(e: any) {
-    this.setState({ showRowFields: e.value });
+    this.setState({showRowFields: e.value});
   }
 
   onContextMenuPreparing(e: any) {
@@ -140,7 +139,7 @@ class ChartComp extends React.Component<{}, {
       if (sourceField.dataType === 'number') {
         var menuItems: any = [];
 
-        e.items.push({ text: 'Summary Type', items: menuItems });
+        e.items.push({text: 'Summary Type', items: menuItems});
         ['Sum', 'Avg', 'Min', 'Max'].forEach(summaryType => {
           var summaryTypeValue = summaryType.toLowerCase();
 
@@ -156,6 +155,7 @@ class ChartComp extends React.Component<{}, {
       }
     }
   }
+
   getLocale() {
     const locale = sessionStorage.getItem('locale');
     return locale != null ? locale : 'ru';
@@ -185,8 +185,7 @@ class ChartComp extends React.Component<{}, {
     });
 
     let response: any = await fetch(`${BASE_URL}api/Sales?page=1&pageSize=1000`)
-    if (response.ok) { // если HTTP-статус в диапазоне 200-299
-      // получаем тело ответа (см. про этот метод ниже)
+    if (response.ok) {
       let json = await response.json();
       this.setState({
         store: json,
@@ -255,7 +254,27 @@ class ChartComp extends React.Component<{}, {
             {
               dataField: 'Id',
               visible: false
-            }
+            },
+            {
+              dataField: 'drugId',
+              visible: false
+            },
+            {
+              dataField: 'id',
+              visible: false
+            },
+            {
+              dataField: 'isDeleted',
+              visible: false
+            },
+            {
+              dataField: 'pharmacyId',
+              visible: false
+            },
+            {
+              dataField: 'saleImportFileName',
+              visible: false
+            },
           ],
           store: json?.data,
         })
@@ -276,10 +295,10 @@ class ChartComp extends React.Component<{}, {
             this._chart = ref.instance
           }
         }}>
-          <Size height={200} />
+          <Size height={200}/>
 
-          <CommonSeriesSettings type="bar" />
-          <AdaptiveLayout width={450} />
+          <CommonSeriesSettings type="bar"/>
+          <AdaptiveLayout width={450}/>
         </Chart>
 
         <PivotGrid
@@ -317,9 +336,9 @@ class ChartComp extends React.Component<{}, {
             visible={true}
 
           />
-          <Export enabled={true} fileName="Sales" />
-          <FieldChooser enabled={true} />
-          <Scrolling mode="virtual" />
+          <Export enabled={true} fileName="Sales"/>
+          <FieldChooser enabled={true}/>
+          <Scrolling mode="virtual"/>
         </PivotGrid>
       </React.Fragment>
     );

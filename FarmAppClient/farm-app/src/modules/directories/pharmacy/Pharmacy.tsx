@@ -19,17 +19,16 @@ import { connect } from "react-redux";
 import { IAppState } from "../../../core/mainReducer";
 
 const Pharmacy = ({ user }: { user: any }) => {
-  const allowedPageSizes = [5, 10, 20];
+  const allowedPageSizes = [20, 50, 100];
 
 
-  const url = `${BASE_URL}api/Pharmacies`;
 
   const tasksData = AspNetData.createStore({
     key: 'id',
-    loadUrl: `${url}?page=1&pageSize=2000`,
-    insertUrl: `${url}`,
-    updateUrl: `${url}`,
-    deleteUrl: `${url}`,
+    loadUrl: `${BASE_URL}api/Pharmacies?page=1&pageSize=2000`,
+    insertUrl: `${BASE_URL}api/Pharmacies`,
+    updateUrl: `${BASE_URL}api/Pharmacies`,
+    deleteUrl: `${BASE_URL}api/Pharmacies`,
     onBeforeSend: function (method, ajaxOptions) {
       ajaxOptions.xhrFields = { withCredentials: false };
     }
@@ -51,11 +50,11 @@ const Pharmacy = ({ user }: { user: any }) => {
         columnAutoWidth={true}
         style={{ height: '85vh' }}
         keyExpr="id"
-        rootValue={1}
+        rootValue={0}
         // autoExpandAll={true}
         parentIdExpr="parentPharmacyId"
-        wordWrapEnabled={true}
-        columnHidingEnabled={true}
+        // wordWrapEnabled={true}
+        // columnHidingEnabled={true}
       >
         {/*<RemoteOperations filtering={true} sorting={true} grouping={true} />*/}
         {/*<SearchPanel visible={true} />*/}
@@ -83,11 +82,13 @@ const Pharmacy = ({ user }: { user: any }) => {
 
         <Paging
           enabled={true}
-          defaultPageSize={5} />
+          defaultPageSize={20}
+        />
         <Pager
           showPageSizeSelector={true}
           allowedPageSizes={allowedPageSizes}
-          showInfo={true} />
+          showInfo={true}
+        />
         <FilterRow visible={true} />
         <Sorting mode="multiple" />
         <Selection mode="single" />
@@ -101,7 +102,6 @@ const Pharmacy = ({ user }: { user: any }) => {
         <Column
           alignment={"left"}
           caption={"Название аптеки"}
-          dataType={"string"}
           dataField={"pharmacyName"}>
           <RequiredRule />
         </Column>
@@ -116,19 +116,20 @@ const Pharmacy = ({ user }: { user: any }) => {
           alignment={"left"}
           caption={"Круглосуточная"}
           dataType="boolean"
-          dataField={"isMode"}>
+          dataField={"isMode"}
+        >
         </Column>
         <Column
           alignment={"left"}
           caption={"Социальная"}
-          dataType="boolean"
-          dataField={"isType"}>
+          dataField={"isType"}
+        >
         </Column>
         <Column
           alignment={"left"}
           caption={"Сеть аптек"}
-          dataType="boolean"
-          dataField={"isNetwork"}>
+          dataField={"isNetwork"}
+        >
         </Column>
         {/*<Column*/}
         {/*  caption={"Удалена"}*/}

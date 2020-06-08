@@ -18,7 +18,7 @@ import { BASE_URL } from "../../../core/constants";
 import { IAppState } from "../../../core/mainReducer";
 import { connect } from "react-redux";
 
-const allowedPageSizes = [15, 30, 45];
+const allowedPageSizes = [20, 50, 100];
 const expandedRowKeys = [1];
 
 
@@ -61,11 +61,11 @@ const Region = ({ user }: { user: any }) => {
         <Scrolling mode="standard" />
         <Paging
           enabled={true}
-        // defaultPageSize={15}
+        defaultPageSize={20}
         />
         <Pager
-          // showPageSizeSelector={true}
-          // allowedPageSizes={allowedPageSizes}
+          showPageSizeSelector={true}
+          allowedPageSizes={allowedPageSizes}
           showInfo={true} />
         <FilterRow visible={true} />
         <Sorting mode="multiple" />
@@ -86,12 +86,14 @@ const Region = ({ user }: { user: any }) => {
           dataField={"id"}>
         </Column>
         <Column
+          alignment={"left"}
           caption={"Название региона"}
           dataType={"string"}
           dataField={"regionName"}>
           <RequiredRule />
         </Column>
         <Column
+          alignment={"left"}
           caption={"Тип региона"}
           dataType={"string"}
           dataField={"regionTypeId"}>
@@ -99,6 +101,7 @@ const Region = ({ user }: { user: any }) => {
           <RequiredRule />
         </Column>
         <Column
+          alignment={"left"}
           caption={"Численность населения"}
           dataType={"number"}
           dataField={"population"}>

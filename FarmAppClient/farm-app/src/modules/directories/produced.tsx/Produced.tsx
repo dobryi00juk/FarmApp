@@ -18,7 +18,7 @@ import { connect } from "react-redux";
 import { IAppState } from "../../../core/mainReducer";
 
 const Produced = ({ user }: { user: any }) => {
-  const allowedPageSizes = [5, 10, 20];
+  const allowedPageSizes = [20, 50, 100];
   const onCellPrepared = (e: any) => {
     if (e.column.command === 'edit') {
       let addLink = e.cellElement.querySelector('.dx-link-add');
@@ -59,11 +59,11 @@ const Produced = ({ user }: { user: any }) => {
         <Scrolling mode="standard" />
         <Paging
           enabled={true}
-        // defaultPageSize={15}
+        defaultPageSize={20}
         />
         <Pager
-          // showPageSizeSelector={true}
-          // allowedPageSizes={allowedPageSizes}
+          showPageSizeSelector={true}
+          allowedPageSizes={allowedPageSizes}
           showInfo={true} />
         <FilterRow visible={true} />
         <Sorting mode="multiple" />

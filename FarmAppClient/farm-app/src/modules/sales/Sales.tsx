@@ -20,6 +20,8 @@ import AspNetData from "devextreme-aspnet-data-nojquery";
 import { IAppState } from "../../core/mainReducer";
 import { connect } from "react-redux";
 
+const allowedPageSizes = [20, 50, 100];
+
 const Sales = ({ user }: { user: any }) => {
     // const allowedPageSizes = [5, 10, 20];
     // const onCellPrepared = (e: any) => {
@@ -66,6 +68,7 @@ const Sales = ({ user }: { user: any }) => {
                 columnAutoWidth={true}
                 keyExpr="id"
                 columnHidingEnabled={true}
+                style={{ height: '85vh' }}
             // onCellPrepared={onCellPrepared}
             >
                 <HeaderFilter visible={true} />
@@ -73,11 +76,11 @@ const Sales = ({ user }: { user: any }) => {
                 <FilterRow visible={true} />
                 <Paging
                     enabled={true}
-                // defaultPageSize={5}
+                defaultPageSize={20}
                 />
                 <Pager
-                    // showPageSizeSelector={true}
-                    // allowedPageSizes={allowedPageSizes}
+                    showPageSizeSelector={true}
+                    allowedPageSizes={allowedPageSizes}
                     showInfo={true} />
                 <Sorting mode="multiple" />
                 <Selection mode="single" />
@@ -113,7 +116,7 @@ const Sales = ({ user }: { user: any }) => {
                     // allowHeaderFiltering={false}
                     caption={"Дата продажи"}
                     dataField={"saleDate"}
-                    format={'HH:mm dd.MM.YYYY'}
+                    format={'dd.MM.YYYY HH:mm'}
                 >
                     <RequiredRule />
                 </Column>
