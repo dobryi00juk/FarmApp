@@ -100,7 +100,7 @@ export const Preparations = ({ user }: { user: any }) => {
         {/*</Column>*/}
 
         <Column
-          caption={"Имя группы Атх"}
+          caption={"Название препарата"}
           dataField={"drugName"}>
           <RequiredRule />
         </Column>
@@ -108,7 +108,7 @@ export const Preparations = ({ user }: { user: any }) => {
         <Column
           caption={"Код группы Атх"}
           dataField={"codeAthTypeId"}>
-          <Lookup dataSource={AthData} valueExpr="id" displayExpr="nameAth" />
+          <Lookup dataSource={AthData} valueExpr="id" displayExpr="code" />
         </Column>
 
         <Column

@@ -92,11 +92,11 @@ const Produced = ({ user }: { user: any }) => {
           dataField={"producingCountry"}>
           <RequiredRule />
         </Column>
-        <Column
-          alignment={"left"}
-          caption={"Отечесвтенный"}
-          dataField={"isDomestic"}>
-        </Column>
+        {/*<Column*/}
+        {/*  alignment={"left"}*/}
+        {/*  caption={"Отечесвтенный"}*/}
+        {/*  dataField={"isDomestic"}>*/}
+        {/*</Column>*/}
         {/*<Column*/}
         {/*  caption={"Удалена"}*/}
         {/*  dataType="boolean"*/}

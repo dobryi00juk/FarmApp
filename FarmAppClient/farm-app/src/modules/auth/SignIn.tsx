@@ -68,14 +68,8 @@ const SignIn = ({error}:{
   const selector = useSelector(authSelector);
 
   const {enqueueSnackbar} = useSnackbar();
+  const submitButton = useRef(null);
 
-
-  // const handleClickVariant = (variant: VariantType) => () => {
-  //     enqueueSnackbar('Логин или пароль введен неверно.', { variant });
-  // };
-  const handleClickVariant = (message: string, variant: VariantType) => {
-    enqueueSnackbar(message, {variant});
-  };
 
   const handleOpen = () => {
     setOpen(true);
@@ -91,6 +85,13 @@ const SignIn = ({error}:{
     //сохраняет время получения токена для вычисления его жизни
     localStorage.setItem('getTokenTime', new Date().getTime().toString())
     history.push('/farm-app/main/')
+  }
+
+  const  downHandler=({ key }:{key:any})=> {
+    if (key === "Enter") {
+      // @ts-ignore
+      submitButton?.current?.click()
+    }
   }
 
   useEffect(() => {
@@ -110,6 +111,14 @@ const SignIn = ({error}:{
         dispatch(logout())
       }
     }
+
+
+      window.addEventListener('keydown', downHandler);
+      // Remove event listeners on cleanup
+      return () => {
+        window.removeEventListener('keydown', downHandler);
+      };
+
   }, [])
 
   useEffect(() => {
@@ -123,11 +132,6 @@ const SignIn = ({error}:{
     handleClose()
     if (login_text?.length !== 0 && validator.isEmail(login_text) && pass_text?.length !== 0) {
       dispatch(callApiLogin({login: login_text, password: pass_text}, onSuccess))
-      // dispatch(auth( login_text, pass_text))
-      // if (selector.error!==null) {
-      //   setMessage(selector.error.message)
-      //   handleOpen();
-      // }
     } else {
       setMessage('Логин или пароль введен неверно.')
       handleOpen();
@@ -191,6 +195,7 @@ const SignIn = ({error}:{
                   variant="contained"
                   color="primary"
                   fullWidth
+                  ref={submitButton}
                 >
                   Авторизироваться
                 </Button>

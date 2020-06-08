@@ -113,7 +113,7 @@ const Sales = ({ user }: { user: any }) => {
                     // allowHeaderFiltering={false}
                     caption={"Дата продажи"}
                     dataField={"saleDate"}
-                    format={'YYYY/MM/dd HH:mm'}
+                    format={'HH:mm dd.MM.YYYY'}
                 >
                     <RequiredRule />
                 </Column>

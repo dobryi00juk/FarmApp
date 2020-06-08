@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const SignUp = ({error,preloader}:{
+const SignUp = ({error, preloader}: {
   error: any | null,
   preloader: boolean
 }) => {
@@ -70,7 +70,7 @@ const SignUp = ({error,preloader}:{
   const history = useHistory();
   const dispatch = useDispatch();
   const selector = useSelector(authSelector);
-
+  const submitButton = useRef(null);
   const {enqueueSnackbar} = useSnackbar();
 
 
@@ -88,42 +88,30 @@ const SignUp = ({error,preloader}:{
     setOpen(false);
   }
 
-  const onSuccess = (result?: null | object) => {
-    console.log("result", result)
-    //сохраняем полученые данные что бы мы могли авторизовать пользователя при повторном подключении
-    localStorage.setItem('auth', JSON.stringify(result))
-    //сохраняет время получения токена для вычисления его жизни
-    localStorage.setItem('getTokenTime', new Date().getTime().toString())
-    history.push('/farm-app/main/')
-  }
-
-  useEffect(() => {
-    //проверка если мы уже были авторизованны ранее
-    const rememberMe = localStorage.getItem('auth')
-    const tokenLife = localStorage.getItem('getTokenTime')
-    if (rememberMe !== null && tokenLife !== null) {
-      const response = JSON.parse(rememberMe)
-      //проверка жив ли еще токен
-      //если прошло меньше 5 дней
-      if (new Date().getTime() <= parseInt(tokenLife) + 5 * 24 * 60 * 60 * 1000) {
-        dispatch(restoreAuth(response))
-        history.push('/farm-app/main/')
-      } else {
-        //если прошло  5 дней чистим хранилище и выходим
-        localStorage.clear();
-        dispatch(logout())
-      }
+  const downHandler = ({key}: { key: any }) => {
+    if (key === "Enter") {
+      // @ts-ignore
+      submitButton?.current?.click()
     }
+  }
+  useEffect(() => {
+
+
+    window.addEventListener('keydown', downHandler);
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener('keydown', downHandler);
+    };
   }, [])
 
   useEffect(() => {
-    if(error?.message){
+    if (error?.message) {
       setMessage(error.message)
       handleOpen();
     }
-  },[error])
+  }, [error])
 
-  useEffect( () => {
+  useEffect(() => {
     if (firstStep && preloader === false && error === null) {
       setFirstName('');
       setLastName('');
@@ -133,20 +121,20 @@ const SignUp = ({error,preloader}:{
       setMessage('Регистрация прошла успешно!')
       handleOpen();
 
-      setTimeout( () => {
+      setTimeout(() => {
         history.push('/farm-app/auth/')
-      },3000)
+      }, 3000)
 
 
     }
-  },[preloader,error] )
+  }, [preloader, error])
 
 
   const handleClick = () => {
 
     handleClose()
     if (login?.length !== 0 && validator.isEmail(login) && password?.length !== 0 && lastName?.length != 0 && firstName?.length != 0) {
-      dispatch(registration({login, password,firstName,lastName}))
+      dispatch(registration({login, password, firstName, lastName}))
       setFirstStep(true)
     } else {
       setMessage('Данные введены неверно.')
@@ -232,6 +220,8 @@ const SignUp = ({error,preloader}:{
                   variant="contained"
                   color="primary"
                   fullWidth
+                  ref={submitButton}
+
                 >
                   Зарегистрироваться
                 </Button>
