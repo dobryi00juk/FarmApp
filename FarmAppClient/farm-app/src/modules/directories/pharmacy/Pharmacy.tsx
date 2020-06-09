@@ -1,5 +1,5 @@
 import React from "react"
-import { Typography } from "@material-ui/core"
+import {Typography} from "@material-ui/core"
 import TreeList, {
   Column,
   Editing,
@@ -8,19 +8,18 @@ import TreeList, {
   Pager,
   Paging,
   RemoteOperations,
-  RequiredRule,
+  RequiredRule, Scrolling,
   SearchPanel,
   Selection,
   Sorting
 } from "devextreme-react/tree-list"
-import { BASE_URL } from "../../../core/constants";
+import {BASE_URL} from "../../../core/constants";
 import AspNetData from "devextreme-aspnet-data-nojquery";
-import { connect } from "react-redux";
-import { IAppState } from "../../../core/mainReducer";
+import {connect} from "react-redux";
+import {IAppState} from "../../../core/mainReducer";
 
-const Pharmacy = ({ user }: { user: any }) => {
+const Pharmacy = ({user}: { user: any }) => {
   const allowedPageSizes = [20, 50, 100];
-
 
 
   const tasksData = AspNetData.createStore({
@@ -30,7 +29,7 @@ const Pharmacy = ({ user }: { user: any }) => {
     updateUrl: `${BASE_URL}api/Pharmacies`,
     deleteUrl: `${BASE_URL}api/Pharmacies`,
     onBeforeSend: function (method, ajaxOptions) {
-      ajaxOptions.xhrFields = { withCredentials: false };
+      ajaxOptions.xhrFields = {withCredentials: false};
     }
   });
 
@@ -48,7 +47,7 @@ const Pharmacy = ({ user }: { user: any }) => {
         showRowLines={true}
         showBorders={true}
         columnAutoWidth={true}
-        style={{ height: '85vh' }}
+        style={{height: '85vh'}}
         keyExpr="id"
         rootValue={0}
         // autoExpandAll={true}
@@ -69,9 +68,11 @@ const Pharmacy = ({ user }: { user: any }) => {
         {/*/>*/}
 
 
-        <RemoteOperations filtering={true} sorting={true} grouping={true} />
-        <SearchPanel visible={true} />
-        <HeaderFilter visible={true} />
+        {/*<RemoteOperations filtering={true} sorting={true} grouping={true}/>*/}
+        <Scrolling mode="standard" />
+
+        <SearchPanel visible={true}/>
+        <HeaderFilter visible={true}/>
         {user?.role?.id === 1 && <Editing
           allowUpdating={true}
           allowDeleting={true}
@@ -89,9 +90,9 @@ const Pharmacy = ({ user }: { user: any }) => {
           allowedPageSizes={allowedPageSizes}
           showInfo={true}
         />
-        <FilterRow visible={true} />
-        <Sorting mode="multiple" />
-        <Selection mode="single" />
+        <FilterRow visible={true}/>
+        <Sorting mode="multiple"/>
+        <Selection mode="single"/>
 
         <Column
           caption={"Номер"}
@@ -103,14 +104,14 @@ const Pharmacy = ({ user }: { user: any }) => {
           alignment={"left"}
           caption={"Название аптеки"}
           dataField={"pharmacyName"}>
-          <RequiredRule />
+          <RequiredRule/>
         </Column>
         <Column
           caption={"Имя региона"}
           dataType={"string"}
           dataField={"regionId"}>
-          <Lookup dataSource={regionData} valueExpr="id" displayExpr="regionName" />
-          <RequiredRule />
+          <Lookup dataSource={regionData} valueExpr="id" displayExpr="regionName"/>
+          <RequiredRule/>
         </Column>
         <Column
           alignment={"left"}
@@ -131,11 +132,6 @@ const Pharmacy = ({ user }: { user: any }) => {
           dataField={"isNetwork"}
         >
         </Column>
-        {/*<Column*/}
-        {/*  caption={"Удалена"}*/}
-        {/*  dataType="boolean"*/}
-        {/*  dataField={"isDeleted"}>*/}
-        {/*</Column>*/}
       </TreeList>
     </Typography>
   )
@@ -143,7 +139,7 @@ const Pharmacy = ({ user }: { user: any }) => {
 
 
 export default connect((state: IAppState) => {
-  const { auth } = state;
+  const {auth} = state;
   return {
     user: auth.user
   }
