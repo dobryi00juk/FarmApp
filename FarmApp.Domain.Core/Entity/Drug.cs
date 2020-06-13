@@ -14,6 +14,8 @@ namespace FarmApp.Domain.Core.Entity
         public string DrugName { get; set; }
         public int CodeAthTypeId { get; set; }
         public int VendorId { get; set; }
+        public string DosageForm { get; set; }
+        public bool IsDomestic { get; set; }
         public bool? IsGeneric { get; set; }
         public bool? IsDeleted { get; set; } = false;
         public virtual CodeAthType CodeAthType { get; set; }
